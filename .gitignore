@@ -1,3 +1,10 @@
+# data하위 버젼관리 제외
+# /**/data/
+
+# models 하위 버젼관리 제외
+/**/model/
+/**/models/
+
 # 파이참 설정파일을 버젼관리에서 제외한다.
 # - *.iml 모든 iml확장자를 가진 파일 
 # - /**/ 0개이상 n개의 하위 디렉토리를 모두 포함하는 표현식 /.idea, /a/b/c/d/.idea
@@ -375,3 +382,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm,visualstudiocode,macos,windows
+
+# Streamlit secrets
+.streamlit/
+.streamlit/secrets.toml
