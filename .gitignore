@@ -386,3 +386,9 @@ $RECYCLE.BIN/
 # Streamlit secrets
 .streamlit/
 .streamlit/secrets.toml
+
+
+# AWS 관련 자격증명 파일
+.aws/
+*.pem
+*.ppk
