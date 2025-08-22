@@ -4,3 +4,7 @@ mysqlclient==2.2.7
 python-dotenv==1.1.1
 sqlparse==0.5.3
 tzdata==2025.2
+django
+gunicorn
+uvicorn
+blacknoise
