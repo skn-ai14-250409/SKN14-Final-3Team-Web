@@ -45,4 +45,6 @@ jobs:
           region: ap-northeast-2
           version_label: ${{ env.VERSION }}
           deployment_package: Dockerrun.aws.json
+          bucket_name: "elasticbeanstalk-ap-northeast-2-${{ github.repository }}-${{ github.run_id }}"
+          key: "${{ env.VERSION }}.zip"
           skip_existing: true
