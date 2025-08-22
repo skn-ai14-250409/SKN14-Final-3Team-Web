@@ -41,3 +41,4 @@
               region: ap-northeast-2
               version_label: "app-${{ github.sha }}"
               deployment_package: Dockerrun.aws.json
+              skip_existing: true
