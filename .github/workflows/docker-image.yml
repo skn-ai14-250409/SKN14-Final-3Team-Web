@@ -8,7 +8,9 @@ on:
       - closed
 
 jobs:
+  # jobname
   build-deploy:
+    # 수행 조건
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
@@ -29,12 +31,6 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGENAME }}:latest
 
-      - name: Set Elastic Beanstalk version label
-        id: eb_version
-        run: |
-          VERSION="app-${GITHUB_SHA}-$(date +%Y%m%d%H%M%S)"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
       - name: Beanstalk Deploy
         uses: einaregilsson/beanstalk-deploy@v20
         with:
@@ -43,8 +39,5 @@ jobs:
           application_name: ${{ secrets.AWS_EB_APPLICATION_NAME }}
           environment_name: ${{ secrets.AWS_EB_ENVIRONMENT_NAME }}
           region: ap-northeast-2
-          version_label: ${{ env.VERSION }}
+          version_label: "app-${{ github.sha }}"
           deployment_package: Dockerrun.aws.json
-          bucket_name: "elasticbeanstalk-ap-northeast-2-${{ github.repository }}-${{ github.run_id }}"
-          key: "${{ env.VERSION }}.zip"
-          skip_existing: true

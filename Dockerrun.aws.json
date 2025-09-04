@@ -1,0 +1,23 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "skn143team/KBFinAIssist-cicd:latest",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": 8000,
+      "HostPort": 8000
+    }
+  ],
+  "Environment": {
+    "DB_NAME": "$DB_NAME",
+    "DB_USER": "$DB_USER",
+    "DB_PASSWORD": "$DB_PASSWORD",
+    "DB_HOST": "$DB_HOST",
+    "DB_PORT": "$DB_PORT"
+  },
+  "Volumes": [],
+  "Logging": "/var/log/nginx"
+
+}
