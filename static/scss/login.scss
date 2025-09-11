@@ -1,0 +1,283 @@
+// KB국민은행 직원 업무시스템 - 로그인 페이지 전용 스타일
+
+// 기본 스타일 임포트
+@import 'base';
+
+// 로그인 페이지 전용 스타일
+.login-page {
+  flex: 1; /* header와 footer를 제외한 나머지 공간 사용 */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* 로그인 페이지 스크롤 방지 */
+  min-height: 0; /* flexbox에서 올바른 크기 계산을 위해 */
+}
+
+.login-main-content {
+  flex: 1;
+  display: flex;
+  align-items: center; /* 세로 가운데 정렬 */
+  justify-content: center; /* 가로 가운데 정렬 */
+  min-height: 0; /* flexbox에서 올바른 크기 계산을 위해 */
+}
+
+.login-content-wrapper {
+  display: grid;
+  grid-template-columns: 55% 35%; /* info-section 35%, login-section 25% */
+  gap: ptr(80px); /* 컬럼 사이 간격 */
+  width: 100%;
+  max-width: ptr(1200px); /* 최대 너비 제한 */
+}
+
+.info-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: left;
+  color: #776c61; /* KB Gray */
+  min-height: 0; /* flexbox에서 올바른 크기 계산을 위해 */
+  overflow-y: auto; /* 내용이 많을 경우 스크롤 허용 */
+}
+
+.info-content {
+  max-width: ptr(600px);
+}
+
+.main-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.highlight {
+  color: #ffbc00; /* KB Yellow Positive */
+}
+
+.description {
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+  color: rgba(119, 108, 97, 0.8); /* KB Gray 투명도 버전 */
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: ptr(16px); /* 12px에서 16px로 증가 */
+  padding: 1.5rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  border: ptr(1px) solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+  width: ptr(48px);
+  height: ptr(48px);
+  margin: 0 auto 1rem;
+  color: #ffbc00; /* KB Yellow Positive */
+  font-size: ptr(32px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-card h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #776c61; /* KB Gray */
+}
+
+.feature-card p {
+  font-size: 0.875rem;
+  color: rgba(119, 108, 97, 0.8); /* KB Gray 투명도 버전 */
+}
+
+.login-section {
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  min-height: 0; /* flexbox에서 올바른 크기 계산을 위해 */
+  overflow-y: auto; /* 내용이 많을 경우 스크롤 허용 */
+}
+
+.login-container {
+  width: 100%;
+  max-width: ptr(400px);
+  background: white;
+  border-radius: ptr(12px);
+  box-shadow: 0 ptr(8px) ptr(16px) rgba(0, 0, 0, 0.15);
+  padding: 1rem; /* 1.5rem에서 1rem으로 더 줄임 */
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 1rem; /* 1.5rem에서 1rem으로 더 줄임 */
+}
+
+.kb-logo-small {
+  height: ptr(50px);
+  width: auto;
+  max-width: ptr(120px);
+  object-fit: contain;
+  margin: 0 auto 1rem;
+  display: block;
+}
+
+/* KB 로고 이미지 스타일 */
+.kb-logo-img {
+  height: ptr(40px);
+  width: auto;
+  max-width: ptr(120px);
+  object-fit: contain;
+}
+
+.login-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.login-header p {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.nav-tabs {
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 1rem; /* 1.5rem에서 1rem으로 더 줄임 */
+}
+
+.nav-item {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.nav-link {
+  color: #6c757d;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #333;
+  border-color: #f8f9fa;
+}
+
+.nav-link.active {
+  color: #333;
+  background-color: transparent;
+  border-color: #ffbc00; /* KB Yellow Positive */
+  font-weight: 700;
+}
+
+.form-control {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #ffbc00; /* KB Yellow Positive */
+  box-shadow: 0 0 0 0.25rem rgba(255, 188, 0, 0.25);
+}
+
+.form-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.btn-warning {
+  background-color: #ffbc00; /* KB Yellow Positive */
+  border-color: #ffbc00;
+  color: #333;
+}
+
+.btn-warning:hover {
+  background-color: #ffcc00; /* KB Yellow Negative */
+  border-color: #ffcc00;
+  color: #333;
+}
+
+.login-links {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1.5rem; /* 2rem에서 1.5rem으로 줄임 */
+  margin-bottom: 1.5rem; /* 2rem에서 1.5rem으로 줄임 */
+}
+
+.login-links .link {
+  color: $kb-blue;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.login-links .link:hover {
+  text-decoration: underline;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border-color: #bee5eb;
+  padding: 1.5rem;
+  border-radius: 6px;
+}
+
+.alert-info strong {
+  color: #0c5460;
+}
+
+.alert-info ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 1rem;
+}
+
+.alert-info li {
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.alert-info li:last-child {
+  margin-bottom: 0;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .login-main-content {
+    flex-direction: column;
+  }
+  
+  .info-section {
+    padding: 1.5rem;
+    text-align: center;
+  }
+  
+  .main-title {
+    font-size: 2rem;
+  }
+  
+  .login-section {
+    flex: 1;
+    padding: 1.5rem;
+  }
+  
+  .login-container {
+    padding: 1.5rem;
+  }
+}

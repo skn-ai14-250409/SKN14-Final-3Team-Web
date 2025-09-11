@@ -1,0 +1,15 @@
+// KB국민은행 직원 업무시스템 - 기본 스타일
+
+// 변수, 함수, 믹스인 임포트
+@import 'variables';
+@import 'functions';
+@import 'mixins';
+
+// Bootstrap 변수 오버라이드
+$primary: $kb-yellow;
+$warning: $kb-yellow;
+
+// 공통 스타일 임포트
+@import 'common';
+@import 'header';
+@import 'footer';
