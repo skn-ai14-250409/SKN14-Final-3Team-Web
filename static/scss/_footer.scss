@@ -1,0 +1,139 @@
+// KB국민은행 직원 업무시스템 - Footer 스타일
+
+// 변수, 함수, 믹스인 임포트
+@import 'variables';
+@import 'functions';
+@import 'mixins';
+
+// Footer
+.footer {
+  color: $text-light;
+  padding: $spacing-sm $spacing-lg;
+  font-size: ptr(14px);
+  @include flex-between;
+  align-items: center;
+  margin-top: auto; // sticky footer를 위해
+  margin-bottom: ptr(20px);
+
+  @include mobile {
+    flex-direction: column;
+    text-align: center;
+    padding: $spacing-sm;
+    gap: $spacing-sm;
+  }
+}
+
+.footer-left {
+  @include flex-start;
+  align-items: center;
+  gap: $spacing-md;
+
+  @include mobile {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.footer-right {
+  @include flex-end;
+  align-items: center;
+  gap: $spacing-md;
+
+  @include mobile {
+    justify-content: center;
+  }
+}
+
+// Footer 링크들
+.footer-links {
+  @include flex-start;
+  align-items: center;
+  gap: $spacing-md;
+  
+  a {
+    color: $text-light-secondary;
+    text-decoration: none;
+    font-size: ptr(12px);
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: $kb-yellow;
+      text-decoration: underline;
+    }
+  }
+}
+
+// Footer 정보
+.footer-info {
+  font-size: ptr(12px);
+  color: $text-light-secondary;
+  
+  .company-name {
+    font-weight: 600;
+    color: $text-light;
+  }
+  
+  .copyright {
+    margin-left: $spacing-sm;
+  }
+}
+
+// Footer 연락처
+.footer-contact {
+  @include flex-start;
+  align-items: center;
+  gap: $spacing-sm;
+  
+  .contact-icon {
+    color: $kb-yellow;
+    font-size: ptr(14px);
+  }
+  
+  .contact-text {
+    font-size: ptr(12px);
+    color: $text-light-secondary;
+  }
+}
+
+// Footer 버전 정보
+.footer-version {
+  font-size: ptr(11px);
+  color: $text-light-secondary;
+  opacity: 0.7;
+}
+
+// 반응형 조정
+@include tablet {
+  .footer {
+    padding: $spacing-sm $spacing-md;
+  }
+  
+  .footer-left,
+  .footer-right {
+    gap: $spacing-sm;
+  }
+}
+
+@include mobile {
+  .footer {
+    font-size: ptr(12px);
+    
+    .footer-links {
+      gap: $spacing-sm;
+      
+      a {
+        font-size: ptr(11px);
+      }
+    }
+    
+    .footer-info {
+      font-size: ptr(11px);
+    }
+    
+    .footer-contact {
+      .contact-text {
+        font-size: ptr(11px);
+      }
+    }
+  }
+}
