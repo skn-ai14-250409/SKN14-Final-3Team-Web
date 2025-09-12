@@ -54,11 +54,6 @@
   @return mix(black, $color, $percentage);
 }
 
-// 그라데이션 생성 함수
-@function gradient($start-color, $end-color, $direction: 135deg) {
-  @return linear-gradient($direction, $start-color, $end-color);
-}
-
 // 그림자 생성 함수
 @function shadow($level: 1) {
   $shadows: (
@@ -77,11 +72,3 @@
   @return $spacing-md * $multiplier;
 }
 
-// 브레이크포인트 체크 함수
-@function breakpoint($size) {
-  @return map-get((
-    sm: $breakpoint-sm,
-    md: $breakpoint-md,
-    lg: $breakpoint-lg
-  ), $size);
-}

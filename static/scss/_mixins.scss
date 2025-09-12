@@ -2,19 +2,19 @@
 
 // 반응형 믹스인
 @mixin mobile {
-  @media (max-width: #{$breakpoint-sm}) {
+  @media (max-width: 480px) {
     @content;
   }
 }
 
 @mixin tablet {
-  @media (max-width: #{$breakpoint-md}) {
+  @media (max-width: 768px) {
     @content;
   }
 }
 
 @mixin desktop {
-  @media (min-width: #{$breakpoint-lg}) {
+  @media (min-width: 1024px) {
     @content;
   }
 }
@@ -96,14 +96,9 @@
 // 카드 믹스인
 @mixin card {
   background: white;
-  border-radius: $border-radius-lg;
-  box-shadow: $box-shadow;
-  padding: $spacing-xl;
-}
-
-// 그라데이션 믹스인
-@mixin gradient-bg {
-  background: linear-gradient(135deg, $kb-blue 0%, $kb-purple 100%);
+  border-radius: ptr(12px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: ptr(32px);
 }
 
 // 텍스트 말줄임표

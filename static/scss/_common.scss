@@ -51,7 +51,7 @@ body {
 // 공통 카드 스타일
 .card {
   background-color: $bg-light;
-  border-radius: $border-radius-lg;
+  border-radius: ptr(12px);
   box-shadow: shadow(2);
   border: none;
   overflow: hidden;
@@ -143,26 +143,26 @@ body {
   border: none;
   
   &.alert-info {
-    background-color: $info-bg;
-    color: $info-color;
-    border-left: 4px solid $kb-blue;
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-left: 4px solid $kb-yellow;
   }
   
   &.alert-success {
-    background-color: $success-bg;
-    color: $success-color;
-    border-left: 4px solid $success;
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 4px solid #28a745;
   }
   
   &.alert-warning {
-    background-color: $warning-bg;
-    color: $warning-color;
+    background-color: #fff3cd;
+    color: #856404;
     border-left: 4px solid $kb-yellow;
   }
   
   &.alert-danger {
-    background-color: $danger-bg;
-    color: $danger-color;
+    background-color: #f8d7da;
+    color: #721c24;
     border-left: 4px solid $danger;
   }
 }
@@ -175,7 +175,7 @@ body {
   border-radius: $border-radius-sm;
   
   &.bg-success {
-    background-color: $success !important;
+    background-color: #28a745 !important;
   }
   
   &.bg-warning {
@@ -188,7 +188,7 @@ body {
   }
   
   &.bg-info {
-    background-color: $kb-blue !important;
+    background-color: $kb-yellow !important;
   }
 }
 
@@ -209,52 +209,3 @@ body {
   }
 }
 
-// 공통 유틸리티 클래스
-.text-kb-yellow {
-  color: $kb-yellow !important;
-}
-
-.text-kb-blue {
-  color: $kb-blue !important;
-}
-
-.text-kb-dark {
-  color: $kb-dark !important;
-}
-
-.bg-kb-yellow {
-  background-color: $kb-yellow !important;
-}
-
-.bg-kb-blue {
-  background-color: $kb-blue !important;
-}
-
-.bg-kb-dark {
-  background-color: $kb-dark !important;
-}
-
-// 공통 반응형 유틸리티
-.d-none-mobile {
-  @include mobile {
-    display: none !important;
-  }
-}
-
-.d-none-tablet {
-  @include tablet {
-    display: none !important;
-  }
-}
-
-.d-block-mobile {
-  @include mobile {
-    display: block !important;
-  }
-}
-
-.d-block-tablet {
-  @include tablet {
-    display: block !important;
-  }
-}

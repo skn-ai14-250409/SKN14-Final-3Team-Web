@@ -25,7 +25,7 @@ def login_view(request):
                 request.session['user_email'] = user.email
                 request.session['employee_id'] = user.employee_id
                 messages.success(request, f'{user.name}님, 환영합니다!')
-                return redirect('main')
+                return redirect('dashboard')
             except User.DoesNotExist:
                 messages.error(request, '사번 또는 비밀번호가 올바르지 않습니다.')
         else:

@@ -8,12 +8,13 @@
 // Footer
 .footer {
   color: $text-light;
-  padding: $spacing-sm $spacing-lg;
-  font-size: ptr(14px);
+  padding: ptr(8px) $spacing-lg;
+  font-size: ptr(11px);
+  height: ptr(40px);
   @include flex-between;
   align-items: center;
   margin-top: auto; // sticky footer를 위해
-  margin-bottom: ptr(20px);
+  margin-bottom: ptr(10px);
 
   @include mobile {
     flex-direction: column;
@@ -41,99 +42,5 @@
 
   @include mobile {
     justify-content: center;
-  }
-}
-
-// Footer 링크들
-.footer-links {
-  @include flex-start;
-  align-items: center;
-  gap: $spacing-md;
-  
-  a {
-    color: $text-light-secondary;
-    text-decoration: none;
-    font-size: ptr(12px);
-    transition: color 0.3s ease;
-    
-    &:hover {
-      color: $kb-yellow;
-      text-decoration: underline;
-    }
-  }
-}
-
-// Footer 정보
-.footer-info {
-  font-size: ptr(12px);
-  color: $text-light-secondary;
-  
-  .company-name {
-    font-weight: 600;
-    color: $text-light;
-  }
-  
-  .copyright {
-    margin-left: $spacing-sm;
-  }
-}
-
-// Footer 연락처
-.footer-contact {
-  @include flex-start;
-  align-items: center;
-  gap: $spacing-sm;
-  
-  .contact-icon {
-    color: $kb-yellow;
-    font-size: ptr(14px);
-  }
-  
-  .contact-text {
-    font-size: ptr(12px);
-    color: $text-light-secondary;
-  }
-}
-
-// Footer 버전 정보
-.footer-version {
-  font-size: ptr(11px);
-  color: $text-light-secondary;
-  opacity: 0.7;
-}
-
-// 반응형 조정
-@include tablet {
-  .footer {
-    padding: $spacing-sm $spacing-md;
-  }
-  
-  .footer-left,
-  .footer-right {
-    gap: $spacing-sm;
-  }
-}
-
-@include mobile {
-  .footer {
-    font-size: ptr(12px);
-    
-    .footer-links {
-      gap: $spacing-sm;
-      
-      a {
-        font-size: ptr(11px);
-      }
-    }
-    
-    .footer-info {
-      font-size: ptr(11px);
-    }
-    
-    .footer-contact {
-      .contact-text {
-        font-size: ptr(11px);
-      }
-    }
   }
 }
