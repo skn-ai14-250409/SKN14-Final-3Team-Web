@@ -6,16 +6,4 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 # 개발 db
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': config.DB_NAME,
-        'USER': config.DB_USER,
-        'PASSWORD': config.DB_PASSWORD,
-        'HOST': config.DB_HOST,
-        'PORT': config.DB_PORT,
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-        },
-    }
-}
+# settings.py 에서 가져옴

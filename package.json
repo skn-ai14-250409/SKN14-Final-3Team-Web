@@ -5,7 +5,9 @@
   "scripts": {
     "build-css": "sass static/scss:static/css --watch --style=compressed",
     "build-css-dev": "sass static/scss:static/css --watch --style=expanded",
-    "build-css-once": "sass static/scss:static/css --style=compressed"
+    "build-css-once": "sass static/scss:static/css --style=compressed",
+    "sass-watch": "sass --watch static/scss:static/css --style=expanded --source-map",
+    "watch-login": "sass --watch static/scss/login.scss:static/css/login.css --style=expanded"
   },
   "devDependencies": {
     "sass": "^1.69.0"

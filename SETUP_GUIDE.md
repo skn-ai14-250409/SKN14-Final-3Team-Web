@@ -46,10 +46,42 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 6. **SCSS 자동 컴파일 시작**
+### 6. **SCSS 자동 컴파일 설정**
+
+#### 방법 1: 터미널에서 직접 실행 (권장)
 ```bash
 # 새 터미널에서 실행 (가상환경 활성화 후)
 npx sass static/scss:static/css --watch --style=expanded
+```
+
+#### 방법 2: VS Code/Cursor Live Sass Compiler 확장 사용
+1. **"Live Sass Compiler" 확장 설치**
+2. **설정 추가** (`Ctrl + Shift + P` → "Preferences: Open Settings (JSON)"):
+```json
+{
+    "liveSassCompile.settings.formats": [
+        {
+            "format": "expanded",
+            "extensionName": ".css",
+            "savePath": "~/../css/"
+        }
+    ],
+    "liveSassCompile.settings.generateMap": true,
+    "liveSassCompile.settings.includeItems": [
+        "/scss/**/*.scss"
+    ],
+    "liveSassCompile.settings.excludeList": [
+        "/node_modules/**",
+        "/.vscode/**"
+    ]
+}
+```
+3. **SCSS 파일 열기 후 "Watch Sass" 버튼 클릭**
+
+#### 방법 3: npm 스크립트 사용
+```bash
+# package.json에 정의된 스크립트 실행
+npm run sass-watch
 ```
 
 ### 7. **Django 서버 실행**
@@ -112,9 +144,14 @@ DB_PORT=3306
 ## 🛠️ 개발 워크플로우
 
 ### SCSS 개발:
-1. `static/scss/` 폴더에서 SCSS 파일 수정
-2. 자동으로 `static/css/` 폴더에 CSS 파일 생성
-3. 브라우저에서 실시간 확인
+1. **SCSS 파일 수정** (`static/scss/` 폴더)
+2. **자동 컴파일 확인** (`static/css/` 폴더에 CSS 파일 생성)
+3. **브라우저에서 실시간 확인**
+
+**주의사항:**
+- SCSS 파일 수정 시 watching이 활성화되어 있는지 확인
+- CSS 파일이 `static/scss/` 폴더에 생성되면 설정 오류
+- 올바른 경로: `static/css/` 폴더에 생성되어야 함
 
 ### Django 개발:
 1. `templates/` 폴더에서 HTML 파일 수정
@@ -167,7 +204,26 @@ node --version
 # npm 패키지 재설치
 rm -rf node_modules package-lock.json
 npm install
+
+# PowerShell 실행 정책 문제 시 (Windows)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# 수동 컴파일 테스트
+npx sass static/scss/login.scss static/css/login.css --style=expanded
 ```
+
+### Live Sass Compiler 확장 문제:
+1. **"Watch Sass" 버튼이 보이지 않는 경우:**
+   - `Ctrl + Shift + P` → "Live Sass: Watch Sass" 검색
+   - 확장이 설치되어 있는지 확인
+
+2. **설정 오류 시:**
+   - `settings.json`에서 경로 구분자 확인 (`/`로 시작해야 함)
+   - VS Code/Cursor 재시작
+
+3. **CSS 파일이 scss 폴더에 생성되는 경우:**
+   - `savePath` 설정 확인: `"~/../css/"`
+   - 올바른 경로로 수정 후 재시작
 
 ### 데이터베이스 오류:
 ```bash

@@ -13,13 +13,86 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 사번 저장 기능
     const saveIdCheckbox = document.querySelector('input[name="save_id"]');
+    const saveAdminIdCheckbox = document.querySelector('input[name="save_admin_id"]');
     const employeeIdInput = document.querySelector('input[name="employee_id"]');
+    const passwordInput = document.querySelector('input[name="password"]');
+    const adminIdInput = document.querySelector('input[name="admin_id"]');
+    const adminPasswordInput = document.querySelector('input[name="admin_password"]');
     
-    // 페이지 로드 시 저장된 사번 불러오기
-    if (localStorage.getItem('savedEmployeeId')) {
-        employeeIdInput.value = localStorage.getItem('savedEmployeeId');
-        saveIdCheckbox.checked = true;
+    // 페이지 로드 시 모든 입력 필드 초기화
+    function clearAllInputs() {
+        if (employeeIdInput) {
+            employeeIdInput.value = '';
+        }
+        if (passwordInput) {
+            passwordInput.value = '';
+        }
+        if (adminIdInput) {
+            adminIdInput.value = '';
+        }
+        if (adminPasswordInput) {
+            adminPasswordInput.value = '';
+        }
+        if (saveIdCheckbox) {
+            saveIdCheckbox.checked = false;
+        }
+        if (saveAdminIdCheckbox) {
+            saveAdminIdCheckbox.checked = false;
+        }
     }
+    
+    
+    // 즉시 초기화
+    clearAllInputs();
+    
+    // 저장된 사번이 있으면 불러오기
+    if (localStorage.getItem('savedEmployeeId')) {
+        if (employeeIdInput) {
+            employeeIdInput.value = localStorage.getItem('savedEmployeeId');
+        }
+        if (saveIdCheckbox) {
+            saveIdCheckbox.checked = true;
+        }
+    }
+    
+    // 저장된 관리자 ID가 있으면 불러오기
+    if (localStorage.getItem('savedAdminId')) {
+        if (adminIdInput) {
+            adminIdInput.value = localStorage.getItem('savedAdminId');
+        }
+        if (saveAdminIdCheckbox) {
+            saveAdminIdCheckbox.checked = true;
+        }
+    }
+    
+    // 여러 번 초기화 (브라우저 자동완성 방지)
+    setTimeout(() => {
+        if (!localStorage.getItem('savedEmployeeId')) {
+            clearAllInputs();
+        }
+    }, 100);
+    
+    setTimeout(() => {
+        if (!localStorage.getItem('savedEmployeeId')) {
+            clearAllInputs();
+        }
+    }, 200);
+    
+    setTimeout(() => {
+        if (!localStorage.getItem('savedEmployeeId')) {
+            clearAllInputs();
+        }
+    }, 500);
+    
+    setTimeout(() => {
+        if (!localStorage.getItem('savedEmployeeId')) {
+            clearAllInputs();
+        }
+    }, 1000);
+    
+    // 추가로 여러 번 초기화
+    setTimeout(() => clearAllInputs(), 200);
+    setTimeout(() => clearAllInputs(), 500);
 
     // 사번 저장 체크박스 변경 시
     saveIdCheckbox.addEventListener('change', function() {
@@ -37,34 +110,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 폼 제출 시 유효성 검사
+    // 관리자 ID 저장 체크박스 변경 시
+    saveAdminIdCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            localStorage.setItem('savedAdminId', adminIdInput.value);
+        } else {
+            localStorage.removeItem('savedAdminId');
+        }
+    });
+
+    // 관리자 ID 입력 시 자동 저장
+    adminIdInput.addEventListener('input', function() {
+        if (saveAdminIdCheckbox.checked) {
+            localStorage.setItem('savedAdminId', this.value);
+        }
+    });
+
+    // 폼 제출 시 로딩 상태만 표시 (Django가 유효성 검사 처리)
     const loginForm = document.querySelector('.login-form');
     loginForm.addEventListener('submit', function(e) {
-        const employeeId = employeeIdInput.value.trim();
-        const password = document.querySelector('input[name="password"]').value;
-
-        if (!employeeId) {
-            e.preventDefault();
-            showAlert('사번을 입력해주세요.', 'error');
-            employeeIdInput.focus();
-            return;
-        }
-
-        if (!password) {
-            e.preventDefault();
-            showAlert('비밀번호를 입력해주세요.', 'error');
-            document.querySelector('input[name="password"]').focus();
-            return;
-        }
-
-        // 사번 형식 검사 (KB + 숫자)
-        const employeeIdPattern = /^KB\d{7}$/;
-        if (!employeeIdPattern.test(employeeId)) {
-            e.preventDefault();
-            showAlert('사번 형식이 올바르지 않습니다. (예: KB2024001)', 'error');
-            employeeIdInput.focus();
-            return;
-        }
+        // 로딩 상태 표시
+        showLoading();
     });
 
     // 입력 필드 포커스 효과
@@ -97,10 +163,10 @@ function togglePassword() {
     
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
-        toggleIcon.className = 'bi bi-eye-slash';
+        toggleIcon.className = 'bi bi-eye'; // 비밀번호가 보일 때는 눈 아이콘
     } else {
         passwordInput.type = 'password';
-        toggleIcon.className = 'bi bi-eye';
+        toggleIcon.className = 'bi bi-eye-slash'; // 비밀번호가 숨겨질 때는 눈에 슬래시 아이콘
     }
 }
 
@@ -111,45 +177,13 @@ function toggleAdminPassword() {
     
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
-        toggleIcon.className = 'bi bi-eye-slash';
+        toggleIcon.className = 'bi bi-eye'; // 비밀번호가 보일 때는 눈 아이콘
     } else {
         passwordInput.type = 'password';
-        toggleIcon.className = 'bi bi-eye';
+        toggleIcon.className = 'bi bi-eye-slash'; // 비밀번호가 숨겨질 때는 눈에 슬래시 아이콘
     }
 }
 
-// 알림 메시지 표시 함수
-function showAlert(message, type = 'info') {
-    // 기존 알림 제거
-    const existingAlert = document.querySelector('.alert-temp');
-    if (existingAlert) {
-        existingAlert.remove();
-    }
-
-    // 새 알림 생성
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type} alert-temp`;
-    alert.textContent = message;
-    
-    // 메시지 컨테이너에 추가
-    const messagesContainer = document.querySelector('.messages');
-    if (messagesContainer) {
-        messagesContainer.appendChild(alert);
-    } else {
-        // 메시지 컨테이너가 없으면 폼 앞에 추가
-        const form = document.querySelector('.login-form');
-        if (form) {
-            form.parentNode.insertBefore(alert, form);
-        }
-    }
-
-    // 3초 후 자동 제거
-    setTimeout(() => {
-        if (alert.parentNode) {
-            alert.remove();
-        }
-    }, 3000);
-}
 
 // 로딩 상태 표시
 function showLoading() {
