@@ -163,6 +163,7 @@
                             <li>개인 사번과 비밀번호는 절대 타인과 공유하지 마세요.</li>
                             <li>업무 완료 후 반드시 로그아웃하세요.</li>
                             <li>의심스러운 접근 시도는 즉시 IT팀에 신고하세요.</li>
+                            <li>정기적으로 비밀번호를 변경하고, 복잡한 조합을 사용하세요.</li>
                         </ul>
                     </div>
                     
@@ -177,13 +178,19 @@
 <script src="{% static 'js/login.js' %}"></script>
 {% if login_error %}
 <script>
+    // Django에서 전달받은 데이터를 JavaScript 변수로 설정
+    window.loginError = '{{ login_error }}';
+    window.activeTab = '{{ active_tab|default:"employee" }}';
+    
     // 페이지 로드 후 에러 메시지 표시
     document.addEventListener('DOMContentLoaded', function() {
-        {% if active_tab == 'admin' %}
-            showAdminLoginError('{{ login_error }}');
-        {% else %}
-            showLoginError('{{ login_error }}');
-        {% endif %}
+        if (window.loginError) {
+            if (window.activeTab === 'admin') {
+                showAdminLoginError(window.loginError);
+            } else {
+                showLoginError(window.loginError);
+            }
+        }
     });
 </script>
 {% endif %}

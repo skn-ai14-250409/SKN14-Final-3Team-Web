@@ -101,41 +101,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // 추가 이벤트 리스너 (keyup, change)
-    employeeIdInput.addEventListener('keyup', function() {
-        if (this.value.trim() && this.value.length > 0) {
-            clearFieldError(this);
-            hideLoginError();
-        }
-    });
-    
-    employeeIdInput.addEventListener('change', function() {
-        if (this.value.trim() && this.value.length > 0) {
-            clearFieldError(this);
-            hideLoginError();
-        }
-    });
-    
+    // 입력 필드에 입력할 때 에러 스타일과 메시지 제거
     passwordInput.addEventListener('input', function() {
         // 실제 텍스트 입력이 있을 때만 에러 제거
         if (this.value.trim() && this.value.length > 0) {
             clearFieldError(this);
             // 에러 메시지도 숨기기
-            hideLoginError();
-        }
-    });
-    
-    // 추가 이벤트 리스너 (keyup, change)
-    passwordInput.addEventListener('keyup', function() {
-        if (this.value.trim() && this.value.length > 0) {
-            clearFieldError(this);
-            hideLoginError();
-        }
-    });
-    
-    passwordInput.addEventListener('change', function() {
-        if (this.value.trim() && this.value.length > 0) {
-            clearFieldError(this);
             hideLoginError();
         }
     });
@@ -281,35 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    adminIdInput.addEventListener('keyup', function() {
-        if (this.value.trim() && this.value.length > 0) {
-            clearAdminFieldError(this);
-            hideAdminLoginError();
-        }
-    });
-    
-    adminIdInput.addEventListener('change', function() {
-        if (this.value.trim() && this.value.length > 0) {
-            clearAdminFieldError(this);
-            hideAdminLoginError();
-        }
-    });
-    
     adminPasswordInput.addEventListener('input', function() {
-        if (this.value.trim() && this.value.length > 0) {
-            clearAdminFieldError(this);
-            hideAdminLoginError();
-        }
-    });
-    
-    adminPasswordInput.addEventListener('keyup', function() {
-        if (this.value.trim() && this.value.length > 0) {
-            clearAdminFieldError(this);
-            hideAdminLoginError();
-        }
-    });
-    
-    adminPasswordInput.addEventListener('change', function() {
         if (this.value.trim() && this.value.length > 0) {
             clearAdminFieldError(this);
             hideAdminLoginError();
