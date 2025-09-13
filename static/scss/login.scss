@@ -253,9 +253,57 @@
               }
             }
             
+              // 에러 메시지 스타일
+              .error-message {
+                color: $danger;
+                font-size: ptr(11px);
+                font-weight: 500;
+                margin-left: ptr(8px);
+                display: inline-block;
+                min-height: ptr(16px);
+                line-height: ptr(16px);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: ptr(200px);
+              }
+            }
+            
+            // 에러 상태 입력 필드 스타일
+            .form-control.error {
+              border-color: $danger;
+              box-shadow: 0 0 0 0.1rem $shadows;
+              animation: shake 0.4s ease-in-out;
+            }
+          }
+
+          // 관리자 로그인 탭 스타일
+          #admin {
             .form-check {
               font-size: ptr(12px);
               margin-bottom: ptr(30px) !important;
+
+              // 에러 메시지 스타일
+              .error-message {
+                color: $danger;
+                font-size: ptr(11px);
+                font-weight: 500;
+                margin-left: ptr(8px);
+                display: inline-block;
+                min-height: ptr(16px);
+                line-height: ptr(16px);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: ptr(200px);
+              }
+            }
+            
+            // 에러 상태 입력 필드 스타일
+            .form-control.error {
+              border-color: $danger;
+              box-shadow: 0 0 0 0.1rem $shadows;
+              animation: shake 0.4s ease-in-out;
             }
 
             .btn-warning {
@@ -358,4 +406,13 @@
     padding: 1rem;
     max-width: ptr(300px);
   }
+}
+
+// 흔들림 애니메이션 (적당히 조정)
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-3px); }
+    40% { transform: translateX(3px); }
+    60% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
 }

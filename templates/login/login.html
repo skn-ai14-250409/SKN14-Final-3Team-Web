@@ -74,28 +74,28 @@
                     
                     <ul class="nav nav-tabs" id="loginTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="employee-tab" data-bs-toggle="tab" data-bs-target="#employee" type="button" role="tab">직원 로그인</button>
+                            <button class="nav-link {% if active_tab == 'employee' %}active{% endif %}" id="employee-tab" data-bs-toggle="tab" data-bs-target="#employee" type="button" role="tab">직원 로그인</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button" role="tab">관리자 로그인</button>
+                            <button class="nav-link {% if active_tab == 'admin' %}active{% endif %}" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button" role="tab">관리자 로그인</button>
                         </li>
                     </ul>
                     
                     
                     <div class="tab-content" id="loginTabContent">
-                        <div class="tab-pane fade show active" id="employee" role="tabpanel">
-                            <form method="post" class="login-form">
+                        <div class="tab-pane fade {% if active_tab == 'employee' %}show active{% endif %}" id="employee" role="tabpanel">
+                            <form method="post" class="login-form" novalidate>
                                 {% csrf_token %}
                                 <div class="mb-3-form-wrapper">
                                     <div class="mb-3 form-row">
                                         <label for="employee_id" class="form-label">사번</label>
-                                        <input type="text" class="form-control" id="employee_id" name="employee_id" placeholder="사번을 입력하세요 (예: KB2024001)" required>
+                                        <input type="text" class="form-control" id="employee_id" name="employee_id" placeholder="사번을 입력하세요 (예: KB2024001)">
                                     </div>
                                     
                                     <div class="mb-3 form-row">
                                         <label for="password" class="form-label">비밀번호</label>
                                         <div class="input-with-icon">
-                                            <input type="password" class="form-control" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+                                            <input type="password" class="form-control" id="password" name="password" placeholder="비밀번호를 입력하세요">
                                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
                                                 <i class="bi bi-eye-slash" id="passwordToggleIcon"></i>
                                             </button>
@@ -108,25 +108,26 @@
                                     <label class="form-check-label" for="save_id">
                                         사번 저장
                                     </label>
+                                    <span id="loginError" class="error-message" style="display: none;"></span>
                                 </div>
                                 
                                 <button type="submit" class="btn btn-warning w-100 btn-lg">로그인</button>
                             </form>
                         </div>
                         
-                        <div class="tab-pane fade" id="admin" role="tabpanel">
-                            <form method="post" class="login-form">
+                        <div class="tab-pane fade {% if active_tab == 'admin' %}show active{% endif %}" id="admin" role="tabpanel">
+                            <form method="post" class="login-form" novalidate>
                                 {% csrf_token %}
                                 <div class="mb-3-form-wrapper">
                                     <div class="mb-3 form-row">
                                         <label for="admin_id" class="form-label">관리자 ID</label>
-                                        <input type="text" class="form-control" id="admin_id" name="admin_id" placeholder="관리자 ID를 입력하세요" required>
+                                        <input type="text" class="form-control" id="admin_id" name="admin_id" placeholder="관리자 ID를 입력하세요">
                                     </div>
                                     
                                     <div class="mb-3 form-row">
                                         <label for="admin_password" class="form-label">비밀번호</label>
                                         <div class="input-with-icon">
-                                            <input type="password" class="form-control" id="admin_password" name="admin_password" placeholder="비밀번호를 입력하세요" required>
+                                            <input type="password" class="form-control" id="admin_password" name="admin_password" placeholder="비밀번호를 입력하세요">
                                             <button class="btn btn-outline-secondary" type="button" onclick="toggleAdminPassword()">
                                                 <i class="bi bi-eye-slash" id="adminPasswordToggleIcon"></i>
                                             </button>
@@ -139,6 +140,7 @@
                                     <label class="form-check-label" for="save_admin_id">
                                         관리자 ID 저장
                                     </label>
+                                    <span id="adminLoginError" class="error-message"></span>
                                 </div>
                                 
                                 <button type="submit" class="btn btn-warning w-100 btn-lg">관리자 로그인</button>
@@ -172,5 +174,17 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/kb_login.js' %}"></script>
+<script src="{% static 'js/login.js' %}"></script>
+{% if login_error %}
+<script>
+    // 페이지 로드 후 에러 메시지 표시
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if active_tab == 'admin' %}
+            showAdminLoginError('{{ login_error }}');
+        {% else %}
+            showLoginError('{{ login_error }}');
+        {% endif %}
+    });
+</script>
+{% endif %}
 {% endblock %}

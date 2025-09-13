@@ -88,41 +88,24 @@ WSGI_APPLICATION = "KB_FinAIssist.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 
-# MySQL 연결을 시도하고, 실패하면 SQLite 사용
-try:
-    # MySQL 설정이 있는지 확인
-    if config.DB_HOST and config.DB_NAME:
-        # MySQL 연결 테스트
-        import pymysql
-        pymysql.install_as_MySQLdb()
-        
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.mysql',
-                'NAME': config.DB_NAME,
-                'USER': config.DB_USER,
-                'PASSWORD': config.DB_PASSWORD,
-                'HOST': config.DB_HOST,
-                'PORT': config.DB_PORT,
-                'OPTIONS': {
-                    'charset': 'utf8mb4',
-                },
-            }
-        }
-        print("MySQL 데이터베이스 설정을 사용합니다.")
-    else:
-        raise Exception("MySQL 환경 변수가 설정되지 않음")
-        
-except Exception as e:
-    # MySQL 연결 실패 시 SQLite 사용
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+# MySQL 데이터베이스 설정
+import pymysql
+pymysql.install_as_MySQLdb()
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config.DB_NAME,
+        'USER': config.DB_USER,
+        'PASSWORD': config.DB_PASSWORD,
+        'HOST': config.DB_HOST,
+        'PORT': config.DB_PORT,
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
     }
-    print(f"MySQL 연결 실패: {e}")
-    print("SQLite 데이터베이스를 사용합니다.")
+}
+print("MySQL 데이터베이스 설정을 사용합니다.")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

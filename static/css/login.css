@@ -567,6 +567,24 @@ body {
   font-size: 0.75rem;
   margin-bottom: 1.875rem !important;
 }
+.login-page .login-main-content .login-content-wrapper .login-section .login-container .login-form .form-check .form-check-input:active,
+.login-page .login-main-content .login-content-wrapper .login-section .login-container .login-form .form-check .form-check-input:focus,
+.login-page .login-main-content .login-content-wrapper .login-section .login-container .login-form .form-check .form-check-input:checked,
+.login-page .login-main-content .login-content-wrapper .login-section .login-container .login-form .form-check .form-check-input:hover {
+  border: 0.2px !important;
+}
+.login-page .login-main-content .login-content-wrapper .login-section .login-container .login-form .form-check .error-message {
+  color: #dc3545;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+  display: inline-block;
+}
+.login-page .login-main-content .login-content-wrapper .login-section .login-container .login-form .form-control.error {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.1rem rgba(220, 53, 69, 0.25);
+  animation: shake 0.4s ease-in-out;
+}
 .login-page .login-main-content .login-content-wrapper .login-section .login-container .login-form .btn-warning {
   font-size: 0.75rem;
 }
@@ -643,5 +661,22 @@ body {
   .login-container {
     padding: 1rem;
     max-width: 18.75rem;
+  }
+}
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-3px);
+  }
+  40% {
+    transform: translateX(3px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
   }
 }/*# sourceMappingURL=login.css.map */
