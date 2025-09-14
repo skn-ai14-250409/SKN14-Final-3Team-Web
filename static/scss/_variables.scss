@@ -3,10 +3,18 @@
 // KB국민은행 공식 메인 컬러
 $kb-yellow: #ffbc00;           // Pantone 130 C, RGB(255, 188, 0)
 $kb-gray: #776c61;             // 로고 색이랑 똑같은 색으로 하다보니 바꾸게 됨 
-$kb-dark: #545049;             // Pantone 411C, RGB(84, 80, 69)
+$kb-dark: #392e1b;             // Pantone 411C, RGB(84, 80, 69)
+$kb-dark-light-line:rgba(255, 255, 255, 0.1);
+
 $kb-light-gray: #f8f9fa;
 $kb-border: #e9ecef;
 $kb-input-border: #e4e6ea;
+
+$kb-text-white: #eeeded;
+$kb-text-white-light: rgba(255, 255, 255, 0.7);
+$kb-text-white-light-2: rgba(255, 255, 255, 0.5);
+
+$kb-text-dark: #333;
 
 // 배경 색상
 $bg-light: #fff;
@@ -20,15 +28,10 @@ $border-color: #dee2e6;
 $border-radius-sm: 4px;
 
 // 레이아웃 높이 및 마진
-$header-height: ptr(40px);
-$header-margin-top: ptr(10px);
-$footer-height: ptr(40px);
-$footer-margin-bottom: ptr(10px);
-
-// 총 높이 계산 (높이 + 마진)
-$total-header-height: $header-height + $header-margin-top;
-$total-footer-height: $footer-height + $footer-margin-bottom;
-$total-header-footer-height: $total-header-height + $total-footer-height;
+$header-height: 2.5rem; // 40px
+$header-margin-top: 0.625rem; // 10px
+$footer-height: 2.5rem; // 40px
+$footer-margin-bottom: 0.625rem; // 10px
 
 // 텍스트 색상
 $text-dark: #333;

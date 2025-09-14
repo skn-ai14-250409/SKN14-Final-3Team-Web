@@ -9,8 +9,8 @@
 .header {
   color: $text-light;
   padding: ptr(8px) $spacing-lg;
-  margin-top: $header-margin-top;
-  height: $header-height;
+  // margin-top: ptr(10px);
+  height: ptr(40px);
   @include flex-between;
   align-items: center;
 
