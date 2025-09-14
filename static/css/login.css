@@ -587,7 +587,7 @@ body {
 }
 .login-page .login-main-content .login-content-wrapper .login-section #admin .form-check {
   font-size: 0.75rem;
-  margin-bottom: 1.875rem !important;
+  margin-bottom: 1.25rem !important;
 }
 .login-page .login-main-content .login-content-wrapper .login-section #admin .form-check .error-message {
   color: #dc3545;
