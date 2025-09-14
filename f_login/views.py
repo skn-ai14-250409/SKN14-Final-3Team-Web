@@ -80,6 +80,22 @@ def login_view(request):
     return render(request, 'login/login.html', {'login_error': None, 'active_tab': 'employee'})
 
 
+def dashboard_view(request):
+    """대시보드 페이지"""
+    # 세션에서 사용자 정보 가져오기
+    user_name = request.session.get('user_name', '사용자')
+    user_email = request.session.get('user_email', '')
+    employee_id = request.session.get('employee_id', '')
+    
+    context = {
+        'user_name': user_name,
+        'user_email': user_email,
+        'employee_id': employee_id,
+    }
+    
+    return render(request, 'dashboard/dashboard.html', context)
+
+
 def logout_view(request):
     """로그아웃"""
     request.session.flush()

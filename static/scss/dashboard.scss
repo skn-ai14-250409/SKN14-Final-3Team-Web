@@ -1,0 +1,54 @@
+// KB국민은행 직원 업무시스템 - 대시보드 SCSS
+
+// 변수 import
+@import 'variables';
+
+// 간단한 대시보드 스타일
+.dashboard-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: ptr(20px);
+}
+
+.dashboard-content {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: ptr(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: ptr(40px);
+  text-align: center;
+
+  h1 {
+    font-size: ptr(32px);
+    font-weight: 700;
+    color: #1e40af;
+    margin-bottom: ptr(20px);
+  }
+
+  p {
+    font-size: ptr(16px);
+    color: #374151;
+    margin: ptr(10px) 0;
+    line-height: 1.6;
+  }
+}
+
+// 반응형 디자인
+@include mobile {
+  .dashboard-container {
+    padding: ptr(10px);
+  }
+  
+  .dashboard-content {
+    padding: ptr(20px);
+    
+    h1 {
+      font-size: ptr(24px);
+    }
+    
+    p {
+      font-size: ptr(14px);
+    }
+  }
+}
