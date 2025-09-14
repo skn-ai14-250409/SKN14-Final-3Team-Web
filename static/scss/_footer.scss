@@ -10,11 +10,11 @@
   color: $text-light;
   padding: ptr(8px) $spacing-lg;
   font-size: ptr(11px);
-  height: ptr(40px);
+  height: $footer-height;
   @include flex-between;
   align-items: center;
   margin-top: auto; // sticky footer를 위해
-  margin-bottom: ptr(10px);
+  margin-bottom: $footer-margin-bottom;
 
   @include mobile {
     flex-direction: column;

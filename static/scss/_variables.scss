@@ -8,12 +8,6 @@ $kb-light-gray: #f8f9fa;
 $kb-border: #e9ecef;
 $kb-input-border: #e4e6ea;
 
-// 텍스트 색상
-$text-dark: #333;
-$text-light: $kb-gray;  // KB Gray로 변경
-$text-light-secondary: rgba(119, 108, 97, 0.8);  // KB Gray의 투명도 버전
-$text-secondary: #6c757d;
-
 // 배경 색상
 $bg-light: #fff;
 
@@ -25,6 +19,22 @@ $shadows: rgba(220, 53, 69, 0.25);
 $border-color: #dee2e6;
 $border-radius-sm: 4px;
 
+// 레이아웃 높이 및 마진
+$header-height: ptr(40px);
+$header-margin-top: ptr(10px);
+$footer-height: ptr(40px);
+$footer-margin-bottom: ptr(10px);
+
+// 총 높이 계산 (높이 + 마진)
+$total-header-height: $header-height + $header-margin-top;
+$total-footer-height: $footer-height + $footer-margin-bottom;
+$total-header-footer-height: $total-header-height + $total-footer-height;
+
+// 텍스트 색상
+$text-dark: #333;
+$text-light: $kb-gray;  // KB Gray로 변경
+$text-light-secondary: rgba(119, 108, 97, 0.8);  // KB Gray의 투명도 버전
+$text-secondary: #6c757d;
 
 // 폰트
 $font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
@@ -69,7 +79,3 @@ $breakpoint-xl: 1200px;
   justify-content: center;
 }
 
-// ptr 함수 (px to rem 변환)
-@function ptr($px) {
-  @return #{$px / 16}rem;
-}

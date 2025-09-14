@@ -1,15 +1,16 @@
 // KB국민은행 직원 업무시스템 SCSS 함수
 
+@use "sass:math";
 @import "variables";
 
 // 픽셀을 rem으로 변환하는 함수
 @function ptr($px: $default-font-size) {
-  @return #{$px / $default-font-size}rem;
+  @return #{math.div($px, $default-font-size)}rem;
 }
 
 // 픽셀을 em으로 변환하는 함수
 @function pte($px: $default-font-size) {
-  @return #{$px / $default-font-size}em;
+  @return #{math.div($px, $default-font-size)}em;
 }
 
 // 색상 투명도 조절 함수

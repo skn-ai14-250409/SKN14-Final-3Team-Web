@@ -5,50 +5,54 @@
 
 // 간단한 대시보드 스타일
 .dashboard-container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: ptr(20px);
-}
+    padding: ptr(20px);
+    height: calc(100vh - #{$total-header-footer-height});
+    display: flex;
+    flex-direction: column;
+  
+    .dashboard-content {
+        display: flex;
+        flex-direction: row;
+        gap: ptr(20px);
+        width: 100%;
+        flex: 1; // 남은 공간 모두 사용
 
-.dashboard-content {
-  max-width: 800px;
-  margin: 0 auto;
-  background: white;
-  border-radius: ptr(12px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  padding: ptr(40px);
-  text-align: center;
-
-  h1 {
-    font-size: ptr(32px);
-    font-weight: 700;
-    color: #1e40af;
-    margin-bottom: ptr(20px);
-  }
-
-  p {
-    font-size: ptr(16px);
-    color: #374151;
-    margin: ptr(10px) 0;
-    line-height: 1.6;
-  }
+        .first-column {
+            flex: 1;
+            height: 100%;
+            width: 100%;
+            background-color: red;
+        }
+        .second-column {
+            flex: 1;
+            height: 100%;
+            width: 100%;
+            background-color: yellow;
+        }
+        .third-column {
+            flex: 1;
+            height:100%;
+            width: 100%;
+            background-color: green;
+        }
+        .fourth-column {
+            flex: 1;
+            height: 100%;
+            width: 100%;
+            background-color: blue;
+        }
+    
+    }
 }
 
 // 반응형 디자인
 @include mobile {
-  .dashboard-container {
-    padding: ptr(10px);
-  }
-  
-  .dashboard-content {
-    padding: ptr(20px);
-    
-    h1 {
-      font-size: ptr(24px);
+    .dashboard-container {
+        padding: ptr(10px);
     }
     
-    p {
-      font-size: ptr(14px);
+    .dashboard-content {
+        padding: ptr(20px);
+
     }
-  }
 }
