@@ -438,3 +438,177 @@ body {
             justify-content: center;
   }
 }
+
+.exchange-rate-widget {
+  border-radius: 0.625rem;
+  padding: 0.625rem;
+  background-color: #f4f2f0;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.exchange-rate-widget .exchange-rate-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-bottom: 0.625rem;
+}
+.exchange-rate-widget .exchange-rate-header .header-left {
+  padding-left: 0.3125rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.3125rem;
+}
+.exchange-rate-widget .exchange-rate-header .header-left .header-icon {
+  height: 0.875rem;
+  border: 0.125rem solid #392e1b;
+}
+.exchange-rate-widget .exchange-rate-header .header-left .header-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #392e1b;
+}
+.exchange-rate-widget .exchange-rate-header .header-right {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.625rem;
+}
+.exchange-rate-widget .exchange-rate-header .header-right .last-update {
+  font-size: 0.625rem;
+  color: #333;
+}
+.exchange-rate-widget .exchange-rate-header .header-right .refresh-btn {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: none;
+  border-radius: 50%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  cursor: pointer;
+  background: #fff;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.exchange-rate-widget .exchange-rate-header .header-right .refresh-btn:hover {
+  background: #ffbc00;
+}
+.exchange-rate-widget .exchange-rate-header .header-right .refresh-btn i {
+  font-size: 0.75rem;
+}
+.exchange-rate-widget .exchange-rate-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 0.625rem;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+.exchange-rate-widget .exchange-rate-grid .currency-card {
+  border-radius: 0.5rem;
+  padding: 0.3125rem 0.625rem;
+  background-color: #fff;
+}
+.exchange-rate-widget .exchange-rate-grid .currency-card .currency-label {
+  font-size: 0.625rem;
+  font-weight: 400;
+  color: #392e1b;
+}
+.exchange-rate-widget .exchange-rate-grid .currency-card .currency-main-row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+.exchange-rate-widget .exchange-rate-grid .currency-card .currency-main-row .currency-rate {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #392e1b;
+}
+.exchange-rate-widget .exchange-rate-grid .currency-card .currency-main-row .currency-change {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.125rem;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+}
+.exchange-rate-widget .exchange-rate-grid .currency-card .currency-main-row .currency-change .change-value {
+  font-size: 0.625rem;
+  font-weight: 600;
+}
+.exchange-rate-widget .exchange-rate-grid .currency-card .currency-main-row .currency-change .change-value.positive {
+  color: #28a745;
+}
+.exchange-rate-widget .exchange-rate-grid .currency-card .currency-main-row .currency-change .change-value.negative {
+  color: #dc3545;
+}
+.exchange-rate-widget .exchange-rate-grid .currency-card .currency-main-row .currency-change .change-percent {
+  font-size: 0.625rem;
+  font-weight: 500;
+}
+.exchange-rate-widget .exchange-rate-grid .currency-card .currency-main-row .currency-change .change-percent.positive {
+  color: #28a745;
+}
+.exchange-rate-widget .exchange-rate-grid .currency-card .currency-main-row .currency-change .change-percent.negative {
+  color: #dc3545;
+}
+
+@media (max-width: 768px) {
+  .exchange-rate-widget .exchange-rate-header {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    gap: 0.625rem;
+    -webkit-box-align: start;
+        -ms-flex-align: start;
+            align-items: flex-start;
+  }
+  .exchange-rate-widget .exchange-rate-header .header-right {
+    width: 100%;
+    -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+            justify-content: space-between;
+  }
+  .exchange-rate-widget .exchange-rate-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 1fr);
+  }
+}
