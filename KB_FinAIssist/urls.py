@@ -19,9 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
 from django.shortcuts import render
-
-def dashboard_view(request):
-    return render(request, 'dashboard/dashboard.html')
+from f_login.views import dashboard_view
 
 def admin_view(request):
     return render(request, 'admin/admin.html')

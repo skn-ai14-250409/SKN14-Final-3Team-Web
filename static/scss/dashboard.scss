@@ -1,0 +1,795 @@
+// KB국민은행 직원 업무시스템 - 대시보드 SCSS
+
+// 변수, 함수 import
+@import 'base';
+
+// 대시보드 컨테이너
+.dashboard_container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    
+    .dashboard_content {
+        display: grid;
+        grid-template-columns: 0fr ptr(200px) 1fr ptr(200px);
+        width: 100%;
+        flex: 1;
+        min-height: 0;
+        
+        // 팀 채널 컬럼 (사이드바)
+        .team_channel_column {
+            grid-column: 1;
+            width: 100%;
+            background-color: $kb-dark;
+            display: flex;
+            flex-direction: column;
+            padding: ptr(10px);
+            gap: ptr(10px);
+            height: 100%;
+            overflow: hidden;
+            transition: width 0.3s ease;
+            cursor: pointer;
+            
+            // 축소된 상태 (기본)
+            &:not(.expanded) {
+                width: ptr(48);
+                
+                // 부모 grid 컬럼 크기 조정
+                .dashboard_content {
+                    grid-template-columns: ptr(48px) ptr(200px) 1fr ptr(200px);
+                }
+                
+                // 모든 텍스트 숨기기
+                h3,
+                .channel_name,
+                .member_name,
+                .member_dept,
+                .sender_name,
+                .message_time,
+                .message_content,
+                .team_info p,
+                .team_info h2,
+                .notification_badge,
+                .member_action {
+                    display: none !important;
+                }
+                
+                // 패딩 제거
+                .member_item {
+                    padding: 0 !important;
+                }
+                
+                // 하단 네비게이션과 메시지 입력창 숨기기
+                .bottom_nav,
+                .message_input_area {
+                    display: none !important;
+                }
+                
+                // 채팅 헤더도 숨기기
+                .chat_header {
+                    display: none !important;
+                }
+                
+                // 스크롤 제거하고 모든 팀원 보여주기
+                .member_list {
+                    overflow: visible !important;
+                    max-height: none !important;
+                    gap: ptr(10px) !important;
+                }
+                
+                // 채널 리스트 가로 스크롤 제거 및 # 아이콘 크기 조정
+                .channel_list {
+                    overflow: visible !important;
+                    
+                    .channel_item {
+                        justify-content: center !important;
+                        
+                        .channel_icon {
+                            font-size: ptr(12) !important;
+                            margin-right: 0 !important;
+                        }
+                    }
+                }
+                
+                // 팀 아이콘 크기 고정
+                .team_header .team_icon,
+                .team_icon {
+                    width: 22px !important;
+                    height: 22px !important;
+                    font-size: 12px !important;
+                    margin-right: 0 !important;
+                    min-width: 22px !important;
+                    min-height: 22px !important;
+                }
+            }
+            
+            // 확장된 상태
+            &.expanded {
+                width: ptr(200);
+                
+                // 부모 grid 컬럼 크기 조정
+                .dashboard_content {
+                    grid-template-columns: ptr(200) 200px 1fr 200px;
+                }
+            }
+            
+            // 팀 채팅 헤더
+            .team_chat_header {
+                display: flex;
+                align-items: center;
+                gap: ptr(10px);
+                padding-bottom: ptr(10px);
+                border-bottom: 1px solid $kb-dark-light-line;
+
+                .team_icon {
+                    @include flex-center;
+                    width: ptr(22px);
+                    height: ptr(22px);
+                    background-color: $kb-yellow;
+                    border-radius: 50%;
+                    color: $kb-dark;
+                    
+                    i {
+                        font-size: ptr(14px);
+                    }
+                    
+                }
+                
+                .team_info {
+                    h2 {
+                        font-size: ptr(12px);
+                        font-weight: 500;
+                        margin: 0;
+                        color: $kb-text-white;
+                    }
+                    
+                    p {
+                        font-size: ptr(10px);
+                        margin: 0;
+                        color: $kb-text-white-light;
+                    }
+                }
+            }
+            
+            // 채널 섹션 (고정 크기 - 채널 목록)
+            .channels_section {
+                flex: 0 0 auto;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                
+                h3 {
+                    font-size: ptr(10px);
+                    font-weight:400;
+                    margin: 0 0 ptr(10px) 0;
+                    color: $kb-text-white-light;
+                    text-transform: uppercase;
+                    letter-spacing: ptr(0.5px);
+                    flex: 0 0 auto;
+                }
+                
+                .channel_list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: ptr(4px);
+                    flex: 1;
+                    overflow-y: auto;
+                    padding-right: ptr(5px);
+                    
+                    &::-webkit-scrollbar {
+                        width: ptr(4px);
+                    }
+                    
+                    &::-webkit-scrollbar-track {
+                        background: rgba(255, 255, 255, 0.1);
+                        border-radius: ptr(2px);
+                    }
+                    
+                    &::-webkit-scrollbar-thumb {
+                        background: rgba(255, 255, 255, 0.3);
+                        border-radius: ptr(2px);
+                    }
+                    
+                    &::-webkit-scrollbar-thumb:hover {
+                        background: rgba(255, 255, 255, 0.5);
+                    }
+                }
+                
+                .channel_item {
+                    display: flex;
+                    align-items: center;
+                    padding: ptr(2px) ptr(12px);
+                    border-radius: ptr(6px);
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    position: relative;
+                    
+                    &:hover {
+                        background-color: $kb-dark-light-line;
+                    }
+                    
+                    &.active {
+                        background-color: $kb-dark-light-line;
+                        
+                        .channel_icon {
+                            color: $kb-yellow;
+                        }
+                    }
+                    
+                    .channel_icon {
+                        font-size: ptr(10px);
+                        font-weight: 600;
+                        color: $kb-text-white-light;
+                        margin-right: ptr(8px);
+                    }
+                    
+                .channel_name {
+                    font-size: ptr(10px);
+                    color: $kb-text-white;
+                    flex: 1;
+                    transition: all 0.3s ease;
+                }
+                    
+                    .notification_badge {
+                        @include flex-center;
+                        background-color:$danger;
+                        color: $kb-text-white;
+                        font-size: ptr(8px);
+                        font-weight: 400;
+                        padding: ptr(2px);
+                        border-radius: ptr(10px);
+                        width: ptr(12px);
+                        height: ptr(12px);
+                    }
+                }
+            }
+
+            // 팀원 섹션 (제한된 크기 - 팀원 목록)
+            .members_section {
+                flex: 0 0 30%;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                padding-bottom: ptr(5px);
+                
+                h3 {
+                    font-size: ptr(10px);
+                    font-weight: 400;
+                    margin: 0 0 ptr(10px) 0;
+                    color: $kb-text-white-light;
+                    text-transform: uppercase;
+                    letter-spacing: ptr(0.5px);
+                    flex: 0 0 auto;
+                }
+                
+                .member_list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: ptr(4px);
+                    flex: 1;
+                    overflow-y: auto;
+                    padding-right: ptr(5px);
+                    
+                    &::-webkit-scrollbar {
+                        width: ptr(4px);
+                    }
+                    
+                    &::-webkit-scrollbar-track {
+                        background: rgba(255, 255, 255, 0.1);
+                        border-radius: ptr(2px);
+                    }
+                    
+                    &::-webkit-scrollbar-thumb {
+                        background: rgba(255, 255, 255, 0.3);
+                        border-radius: ptr(2px);
+                    }
+                    
+                    &::-webkit-scrollbar-thumb:hover {
+                        background: rgba(255, 255, 255, 0.5);
+                    }
+                }
+                
+                .member_item {
+                    display: flex;
+                    align-items: center;
+                    padding: ptr(2px) ptr(12px);
+                    border-radius: ptr(6px);
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    
+                    &:hover {
+                        background-color: $kb-dark-light-line;
+                    }
+                    
+                    .member_avatar {
+                        position: relative;
+                        margin-right: ptr(12px);
+                        
+                        .avatar_text {
+                            @include flex-center;
+                            width: ptr(22px);
+                            height: ptr(22px);
+                            background-color: $kb-yellow;
+                            color: $kb-dark;
+                            border-radius: 50%;
+                            font-size: ptr(12px);
+                            font-weight: 600;
+                        }
+                        
+                        .status_dot {
+                            position: absolute;
+                            bottom: ptr(-1px);
+                            right: ptr(-1px);
+                            width: ptr(8px);
+                            height: ptr(8px);
+                            border-radius: 50%;
+                            border: 2px solid $kb-dark;
+                            
+                            &.green {
+                                background-color: #2ed573;
+                            }
+                            
+                            &.yellow {
+                                background-color: #ffa502;
+                            }
+                            
+                            &.red {
+                                background-color: #ff4757;
+                            }
+                            
+                            &.grey {
+                                background-color: #747d8c;
+                            }
+                        }
+                    }
+                    
+                    .member_info {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                        
+                        .member_name {
+                            font-size: ptr(10px);
+                            font-weight: 400;
+                            color: $kb-text-white;
+                            line-height: 1.2;
+                            transition: all 0.3s ease;
+                        }
+                        
+                        .member_dept {
+                            font-size: ptr(8px);
+                            color: $kb-text-white-light;
+                            line-height: 1.2;
+                            transition: all 0.3s ease;
+                        }
+                    }
+                    
+                    .member_action {
+                        @include flex-center;
+                        color: $kb-text-white-light-2;
+                        margin-left: auto;
+                        transition: all 0.2s ease;
+                        
+                        &:hover {
+                            color: $kb-yellow;
+                            transform: scale(1.1);
+                        }
+                        
+                        i {
+                            font-size: ptr(10px);
+                        }
+                    }
+                }
+            }
+            // 채팅 컨테이너 (남은 공간 모두 차지 - 채팅 영역)
+            .chat_container {
+               display: flex;
+               flex-direction: column;
+               flex: 1;
+               min-height: 0;
+                
+               // 채팅 헤더
+               .chat_header {
+                   justify-content: space-between;
+                   // padding-bottom: ptr(10px);
+                   background-color: $kb-dark-light-line;
+                   border-radius: ptr(5px);
+                   height: ptr(20px);
+                   display: flex;
+                   align-items: center;
+                   flex: 0 0 auto;
+                   
+                   .chat_title {
+                       display: flex;
+                       align-items: center;
+                       padding-left: ptr(10px);
+                       gap: ptr(8px);
+                       
+                       .channel_icon {
+                           font-size: ptr(10px);
+                           font-weight: 400;
+                           color: $kb-yellow;
+                       }
+                       
+                       .channel_name {
+                           font-size: ptr(10px);
+                           font-weight: 400;
+                           color: $kb-text-white;
+                       }
+                   }
+               }
+           
+                // 채팅 메시지 영역
+                .chat_messages {
+                    flex: 0 0 60%;
+                    overflow-y: auto;
+                    display: flex;
+                    flex-direction: column;
+                    gap: ptr(5px);
+                    padding: ptr(4px) ptr(12px);
+                    min-height: 0;
+                   
+                    &::-webkit-scrollbar {
+                        width: ptr(6px);
+                    }
+                    
+                    &::-webkit-scrollbar-track {
+                        background: rgba(255, 255, 255, 0.1);
+                        border-radius: ptr(3px);
+                    }
+                    
+                    &::-webkit-scrollbar-thumb {
+                        background: rgba(255, 255, 255, 0.3);
+                        border-radius: ptr(3px);
+                    }
+                    
+                    &::-webkit-scrollbar-thumb:hover {
+                        background: rgba(255, 255, 255, 0.5);
+                    }
+                    
+                    .message {
+                        .message_info {
+                            display: flex;
+                            align-items: center;
+                            gap: ptr(8px);
+                            margin-bottom: ptr(2px);
+                            
+                            .sender_name {
+                                font-size: ptr(10px);
+                                font-weight: 400;
+                                color: $kb-yellow;
+                            }
+                            
+                            .message_time {
+                                font-size: ptr(10px);
+                                color: $kb-text-white-light-2;
+                            }
+                        }
+                       
+                        .message_content {
+                            font-size: ptr(10px);
+                            color: $kb-text-white;
+                            line-height: 1.4;
+                        }
+                    }
+                }
+               
+                .bottom_nav {
+                    display: flex;
+                    justify-content: center;
+                    gap: ptr(40px);
+                    border-top: ptr(1px) solid $kb-dark-light-line;
+                    padding: ptr(5px);
+                    flex: 0 0 auto;
+           
+                   .nav_btn {
+                       @include flex-center;
+                       background: none;
+                       border: none;
+                       color: $kb-text-white-light;
+                       cursor: pointer;
+                       border-radius: ptr(8px);
+                       transition: all 0.2s ease;
+                       &:hover {
+                           background-color: $kb-dark-light-line;
+                           color: $kb-text-white;
+                       }
+                       
+                       i {
+                           font-size: ptr(12px);
+                       }
+                   }
+               }
+                // 메시지 입력 영역
+                .message_input_area {
+                    display: flex;
+                    align-items: center;
+                    border-top: ptr(1px) solid $kb-dark-light-line;
+                    gap: ptr(5px);
+                    padding-top: ptr(10px);
+                    flex: 0 0 auto;
+                   
+                   .message_input {
+                       flex: 1;
+                       background-color: $kb-dark-light-line;
+                       border: 1px solid $kb-dark-light-line;
+                       border-radius: ptr(10px);
+                       padding: ptr(4px);
+                       color: $kb-text-white;
+                       font-size: ptr(10px);
+                       outline: none;
+                       transition: all 0.2s ease;
+                       padding-left: ptr(10px);
+                       
+                       &::placeholder {
+                           color: $kb-text-white-light-2;
+                       }
+                       
+                       &:focus {
+                           border-color: $kb-yellow;
+                           background-color: $kb-dark-light-line;
+                       }
+                   }
+                   
+                   .send_btn {
+                       @include flex-center;
+                       background-color: $kb-yellow;
+                       border: none;
+                       border-radius: 50%;
+                       width: ptr(10px);
+                       height: ptr(10px);
+                       padding: ptr(10px);
+                       cursor: pointer;
+                       transition: all 0.2s ease;
+                       color: $kb-dark;
+                       
+                       &:hover {
+                           background-color: darken($kb-yellow, 10%);
+                           transform: scale(1.05);
+                       }
+                       
+                       i {
+                           font-size: ptr(10px);
+                       }
+                    }
+                }
+            }
+
+        }
+         // Second Column (유저 정보)
+         .second_column {
+            grid-column: 2;
+            min-height: 0;
+            padding: ptr(10px);
+            display: flex;
+            flex-direction: column;
+            gap: ptr(10px);
+             
+            // User Profile Card
+            .user_profile_card {
+                background-color: $kb-dark;
+                border-radius: ptr(8px);
+                padding: ptr(10px);
+                display: flex;
+                flex-direction: column;
+                gap: ptr(5px);
+                    
+                .user_avatar {
+                    width: ptr(30px);
+                    height: ptr(30px);
+                    background-color: $kb-yellow;
+                    border-radius: ptr(30px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                    
+                    i {
+                        color: $kb-dark;
+                        font-size: ptr(20px);
+                    }
+                }
+                 
+                .user_top_row {
+                    display: flex;
+                    align-items: center;
+                    gap: ptr(10px);
+                }
+                 
+                .user_info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: ptr(2px);
+                    
+                    .user_name {
+                        font-size: ptr(14px);
+                        font-weight: 500;
+                        color:$kb-text-white;
+                        margin: 0;
+                    }
+                    
+                    .user_position {
+                        font-size: ptr(12px);
+                        color: $kb-text-white-light;
+                        margin: 0;
+                    }
+                }
+                
+                .user_dept_container {
+                    .user_dept {
+                        font-size: ptr(10px);
+                        color: $kb-text-white-light-2;
+                        margin: 0;
+                    }
+                }
+            }
+            
+            // Navigation Menu
+            .nav_menu {
+                display: flex;
+                flex-direction: column;
+                gap: ptr(5px);
+                
+                .nav_item {
+                    display: flex;
+                    align-items: center;
+                    gap: ptr(10px);
+                    padding: ptr(4px) ptr(15px);
+                    border-radius: ptr(6px);
+                    cursor: pointer;
+                    transition: background-color 0.2s ease;
+                    
+                    &:hover {
+                        background-color: $kb-dark-light-line;
+                    }
+                     
+                    i {
+                        color: $kb-text-dark;
+                        font-size: ptr(12px);
+                        width: ptr(20px);
+                    }
+                     
+                     span {
+                         font-size: ptr(12px);
+                         color: $kb-text-dark;
+                    }
+                }
+            }
+             
+             // Tasks Section
+             .tasks_section {
+                border-top: ptr(1px) solid $kb-dark-light-line;
+                padding: ptr(15px) ptr(10px);
+
+                
+                 .tasks_header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: ptr(10px);
+                    
+                    .tasks_title {
+                        font-size: ptr(12px);
+                        font-weight: bold;
+                        color: $kb-text-dark;
+                        margin: 0;
+                    }
+                     
+                     .add_task_btn {
+                        width: ptr(20px);
+                        height: ptr(20px);
+                        border: none;
+                        font-weight: 600;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        
+                        &:hover {
+                            background-color: $kb-yellow;
+                            transform: scale(1.1);
+                        }
+                         
+                        i {
+                            font-size: ptr(12px);
+                        }
+                    }
+                }
+                
+                .tasks_list {
+                    display: flex;
+                    flex-direction: column;
+                    
+                    .task_item {
+                        display: flex;
+                        align-items: center;
+                        gap: ptr(10px);
+                        padding: ptr(5px) 0;
+                        
+                        &.completed {
+                            .task_text {
+                                text-decoration: line-through;
+                                color: $kb-gray;
+                            }
+                        }
+                        
+                        input[type="checkbox"] {
+                            width: ptr(12px);
+                            height: ptr(12px);
+                        }
+                        
+                        .task_text {
+                            font-size: ptr(12px);
+                            color: #333;
+                            flex: 1;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Third Column (서브 대시보드)
+        .third_column {
+            grid-column: 3;
+            border: 2px solid #9c27b0 !important;
+            display: grid;
+            grid-template-rows: ptr(20px) auto auto;
+            gap: ptr(10px);
+            padding: ptr(10px);
+            
+            // 1번째 줄 - 알림
+            .notice_container {
+                grid-row: 1;
+                display: flex;
+                gap: ptr(10px);
+                font-size: ptr(12px);
+            }
+            
+            // 2번째 줄 - 메인 카드와 캘린더
+            .second_row {
+                grid-row: 2;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: ptr(10px);
+            }
+            
+            // 3번째 줄 - 환율과 대기 고객
+            .third_row {
+                grid-row: 3;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: ptr(10px);
+            }
+        }
+        
+        // Fourth Column (추가 컬럼)
+        .fourth_column {
+            grid-column: 4;
+            border: 2px solid #4caf50 !important;
+        }
+    }
+}
+
+// 반응형 디자인
+@include mobile {
+    .team_channel_column {
+        width: 100%;
+        max-width: 280px;
+    }
+    
+    .chat_messages {
+        padding: ptr(16px);
+    }
+    
+    .message_input_area {
+        padding: ptr(12px) ptr(16px);
+    }
+    
+    .bottom_nav {
+        gap: ptr(10px);
+        padding: ptr(12px) 0;
+    }
+}
