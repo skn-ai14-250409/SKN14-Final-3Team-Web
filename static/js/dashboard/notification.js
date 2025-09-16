@@ -99,32 +99,6 @@ class NotificationWidget {
         console.log('알림 클릭됨:', notificationItem);
     }
     
-    // 새 알림 추가
-    addNotification(notification) {
-        const newNotification = {
-            id: Date.now(),
-            timestamp: Date.now(),
-            time: '방금 전',
-            ...notification
-        };
-        
-        this.notifications.unshift(newNotification);
-        this.updateDisplay();
-        this.renderNotifications();
-    }
-    
-    // 알림 제거
-    removeNotification(id) {
-        this.notifications = this.notifications.filter(n => n.id !== id);
-        this.updateDisplay();
-        this.renderNotifications();
-    }
-    
-    // 알림 목록 렌더링 (필요시)
-    renderNotifications() {
-        // 실제로는 동적으로 알림 목록을 업데이트할 때 사용
-        console.log('알림 목록 업데이트됨');
-    }
     
     // 특정 타입의 알림 개수 가져오기
     getNotificationCount(type = null) {
