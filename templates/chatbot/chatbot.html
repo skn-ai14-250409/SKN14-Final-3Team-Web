@@ -13,12 +13,21 @@
     <div class="chatbot_content">
         <!-- Team Channel Column (팀 채팅) -->
         {% include 'partials/team_channel_column.html' %}
+        
+        <!-- Chat History Column (채팅 히스토리) -->
+        {% include 'chatbot/chat_history_column.html' %}
 
+        <div class="main_chatbot_column">
+        </div>
+
+        <div class="chat_pdf_column">
+        </div>
 
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/components/team_channel_column.js' %}"></script>
+<script src="{% static 'js/partials/team_channel_column.js' %}"></script>
+<script src="{% static 'js/chatbot/chat_history_column.js' %}"></script>
 {% endblock %}

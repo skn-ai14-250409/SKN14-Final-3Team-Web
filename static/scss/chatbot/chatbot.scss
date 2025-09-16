@@ -1,5 +1,6 @@
 @import '../base';
 @import '../partials/team_channel_column';
+@import 'chat_history_column';
 
 .chatbot_container {
     display: flex;
@@ -10,9 +11,27 @@
     
     .chatbot_content {
         display: grid;
-        grid-template-columns: ptr(200px) 1fr;
+        grid-template-columns: 0fr ptr(240px) 1fr ptr(240px);
         width: 100%;
         flex: 1;
         min-height: 0;
+
+        .main_chatbot_column {
+            grid-column: 3;
+            min-height: 0;
+            padding: ptr(10px);
+            display: flex;
+            flex-direction: column;
+            background-color: blue;
+        }
+        .chat_pdf_column {
+            grid-column: 4;
+            min-height: 0;
+            padding: ptr(10px);
+            display: flex;
+            flex-direction: column;
+            background-color: green;
+        }
+
     }
 }
