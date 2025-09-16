@@ -31,6 +31,7 @@ urlpatterns = [
         path("login/", include("f_login.urls")),
         path("dashboard/", dashboard_view, name="dashboard"),
         path("chatbot/", include("f_chatbot.urls")),
+        path("credit_assessment/", include("f_loan.urls")),
         path("admin/", admin_view, name="admin"),
     ])),
 ]

@@ -13,6 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = '/kb_finaIssist/chatbot/';
     });
 
+    // KB 대시보드 클릭 이벤트
+    const creditAssessmentContainer = document.querySelector('.credit_assessment_container');
+    creditAssessmentContainer.addEventListener('click', function() {
+        window.location.href = '/kb_finaIssist/credit_assessment/';
+    });
+
     // 초기 상태: 줄어든 상태로 시작 (CSS에서 처리)
 
     if (teamChannelColumn) {
