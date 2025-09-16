@@ -20,8 +20,8 @@
         <div class="main_chatbot_column">
         </div>
 
-        <div class="chat_pdf_column">
-        </div>
+        <!-- Chat PDF Column (PDF 참조) -->
+        {% include 'chatbot/chat_pdf_column.html' %}
 
     </div>
 </div>
@@ -30,4 +30,5 @@
 {% block extra_js %}
 <script src="{% static 'js/partials/team_channel_column.js' %}"></script>
 <script src="{% static 'js/chatbot/chat_history_column.js' %}"></script>
+<script src="{% static 'js/chatbot/chat_pdf_column.js' %}"></script>
 {% endblock %}

@@ -26,7 +26,6 @@
             cursor: pointer;
             padding: ptr(6px) ptr(10px) ptr(6px) ptr(6px);
             border-radius: ptr(6px);
-
             .history_icon, .search_icon {
                 @include flex-center;
                 width: ptr(20px);
@@ -192,7 +191,6 @@
                 color: $kb-dark;
                 cursor: pointer;
                 transition: all 0.2s ease;
-                
                 i {
                     font-size: ptr(10px);
                 }

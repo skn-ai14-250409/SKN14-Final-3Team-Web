@@ -1,6 +1,7 @@
 @import '../base';
 @import '../partials/team_channel_column';
 @import 'chat_history_column';
+@import 'chat_pdf_column';
 
 .chatbot_container {
     display: flex;
@@ -22,15 +23,7 @@
             padding: ptr(10px);
             display: flex;
             flex-direction: column;
-            background-color: blue;
-        }
-        .chat_pdf_column {
-            grid-column: 4;
-            min-height: 0;
-            padding: ptr(10px);
-            display: flex;
-            flex-direction: column;
-            background-color: green;
+            background-color: white;
         }
 
     }
