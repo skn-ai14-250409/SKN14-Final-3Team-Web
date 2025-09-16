@@ -438,3 +438,209 @@ body {
             justify-content: center;
   }
 }
+
+.goal-achievement-widget {
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background-color: #fff;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  border: 1px solid #e2e1e0;
+  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.goal-achievement-widget:hover {
+  -webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  -webkit-transform: translateY(-1px);
+          transform: translateY(-1px);
+}
+.goal-achievement-widget .widget-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-bottom: 0.5rem;
+}
+.goal-achievement-widget .widget-header .header-left {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.375rem;
+}
+.goal-achievement-widget .widget-header .header-left .header-icon {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  background-color: #ffbc00;
+  border-radius: 50%;
+  color: #392e1b;
+}
+.goal-achievement-widget .widget-header .header-left .header-icon i {
+  font-size: 0.625rem;
+}
+.goal-achievement-widget .widget-header .header-left .header-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #392e1b;
+}
+.goal-achievement-widget .widget-header .header-right .period-selector {
+  font-size: 0.625rem;
+  color: #333;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.goal-achievement-widget .widget-header .header-right .period-selector:hover {
+  color: #ffbc00;
+}
+.goal-achievement-widget .achievement-content {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.goal-achievement-widget .achievement-content .goal-categories {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.625rem;
+}
+.goal-achievement-widget .achievement-content .goal-categories .goal-item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+.goal-achievement-widget .achievement-content .goal-categories .goal-item .goal-label {
+  width: 2.1875rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #392e1b;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.goal-achievement-widget .achievement-content .goal-categories .goal-item .progress-bar {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  height: 0.375rem;
+  background-color: #e2e1e0;
+  border-radius: 0.1875rem;
+  overflow: hidden;
+  position: relative;
+}
+.goal-achievement-widget .achievement-content .goal-categories .goal-item .progress-bar .progress-fill {
+  height: 100%;
+  background: -webkit-gradient(linear, left top, right top, from(#ffbc00), to(#cc9600));
+  background: linear-gradient(90deg, #ffbc00 0%, #cc9600 100%);
+  border-radius: 0.1875rem;
+  -webkit-transition: width 0.5s ease;
+  transition: width 0.5s ease;
+  position: relative;
+}
+.goal-achievement-widget .achievement-content .goal-categories .goal-item .progress-bar .progress-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: -webkit-gradient(linear, left top, right top, from(transparent), color-stop(50%, rgba(255, 255, 255, 0.3)), to(transparent));
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+  -webkit-animation: shimmer 2s infinite;
+          animation: shimmer 2s infinite;
+}
+.goal-achievement-widget .achievement-content .goal-categories .goal-item .goal-percentage {
+  width: 1.875rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #392e1b;
+  text-align: right;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+
+@-webkit-keyframes shimmer {
+  0% {
+    -webkit-transform: translateX(-100%);
+            transform: translateX(-100%);
+  }
+  100% {
+    -webkit-transform: translateX(100%);
+            transform: translateX(100%);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    -webkit-transform: translateX(-100%);
+            transform: translateX(-100%);
+  }
+  100% {
+    -webkit-transform: translateX(100%);
+            transform: translateX(100%);
+  }
+}
+@media (max-width: 768px) {
+  .goal-achievement-widget .achievement-content .goal-categories {
+    gap: 0.625rem;
+  }
+  .goal-achievement-widget .achievement-content .goal-categories .goal-item {
+    gap: 0.5rem;
+  }
+  .goal-achievement-widget .achievement-content .goal-categories .goal-item .goal-label {
+    width: 2.1875rem;
+    font-size: 0.6875rem;
+  }
+  .goal-achievement-widget .achievement-content .goal-categories .goal-item .progress-bar {
+    height: 0.375rem;
+  }
+  .goal-achievement-widget .achievement-content .goal-categories .goal-item .goal-percentage {
+    width: 1.875rem;
+    font-size: 0.6875rem;
+  }
+}

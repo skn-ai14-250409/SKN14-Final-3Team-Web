@@ -438,3 +438,156 @@ body {
             justify-content: center;
   }
 }
+
+.django-calendar {
+  font-size: 0.625rem;
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.django-calendar .calendar-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  margin-top: 0.125rem;
+  margin-bottom: 0.625rem;
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 auto;
+          flex: 0 0 auto;
+}
+.django-calendar .calendar-header .calendar-btn {
+  background: none;
+  border: none;
+  color: #392e1b;
+  cursor: pointer;
+  padding: 0.1875rem;
+  border-radius: 0.25rem;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  width: 1rem;
+  height: 1rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.django-calendar .calendar-header .calendar-btn:hover {
+  background-color: #ffbc00;
+  border-radius: 50%;
+}
+.django-calendar .calendar-header .calendar-btn i {
+  font-size: 0.5rem;
+}
+.django-calendar .calendar-header .calendar-month {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #392e1b;
+  margin: 0;
+}
+.django-calendar .calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.03125rem;
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 auto;
+          flex: 0 0 auto;
+}
+.django-calendar .calendar-weekdays .weekday {
+  text-align: center;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #776c61;
+  padding: 0.125rem 0;
+}
+.django-calendar .calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.03125rem;
+  margin-bottom: 0.125rem;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  min-height: 0;
+}
+.django-calendar .calendar-days .calendar-day {
+  aspect-ratio: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  font-size: 0.625rem;
+  color: #392e1b !important;
+  cursor: pointer;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  min-width: 0.625rem;
+  min-height: 0.625rem;
+}
+.django-calendar .calendar-days .calendar-day:hover {
+  background-color: #ffbc00;
+  border-radius: 0.25rem;
+}
+.django-calendar .calendar-days .calendar-day.empty {
+  cursor: default;
+  border: none;
+}
+.django-calendar .calendar-days .calendar-day.empty:hover {
+  background-color: transparent;
+}
+.django-calendar .calendar-days .calendar-day.today {
+  background-color: #ffbc00 !important;
+  border-color: #ffbc00 !important;
+}
+.django-calendar .calendar-days .calendar-day.today .day-number {
+  color: #392e1b !important;
+  font-weight: 700 !important;
+}
+.django-calendar .calendar-days .calendar-day.today:hover {
+  background-color: #cc9600 !important;
+}
+.django-calendar .calendar-days .calendar-day .day-number {
+  font-weight: 600;
+  font-size: 0.625rem;
+  color: #392e1b !important;
+  display: block;
+  text-align: center;
+  width: 100%;
+  line-height: 1;
+}
+.django-calendar .calendar-days .calendar-day .event {
+  font-size: 0.3125rem;
+  padding: 0.03125rem;
+  border-radius: 0.0625rem;
+  margin-bottom: 0.03125rem;
+  text-align: center;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

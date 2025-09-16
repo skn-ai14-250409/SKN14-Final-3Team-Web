@@ -9,10 +9,11 @@
     flex-direction: column;
     flex: 1;
     min-height: 0;
+    height: calc(100vh - #{$header-height} - #{$footer-height});
     
     .dashboard_content {
         display: grid;
-        grid-template-columns: 0fr ptr(200px) 1fr ptr(200px);
+        grid-template-columns: 0fr ptr(240px) 1fr ptr(280px);
         width: 100%;
         flex: 1;
         min-height: 0;
@@ -110,7 +111,7 @@
                 
                 // 부모 grid 컬럼 크기 조정
                 .dashboard_content {
-                    grid-template-columns: ptr(200) 200px 1fr 200px;
+                    grid-template-columns: ptr(200) ptr(200px) 1fr ptr(200px);
                 }
             }
             
@@ -121,7 +122,7 @@
                 gap: ptr(10px);
                 padding-bottom: ptr(10px);
                 border-bottom: 1px solid $kb-dark-light-line;
-
+                
                 .team_icon {
                     @include flex-center;
                     width: ptr(22px);
@@ -168,7 +169,7 @@
                     letter-spacing: ptr(0.5px);
                     flex: 0 0 auto;
                 }
-                
+    
                 .channel_list {
                     display: flex;
                     flex-direction: column;
@@ -195,7 +196,7 @@
                         background: rgba(255, 255, 255, 0.5);
                     }
                 }
-                
+    
                 .channel_item {
                     display: flex;
                     align-items: center;
@@ -224,12 +225,12 @@
                         margin-right: ptr(8px);
                     }
                     
-                .channel_name {
-                    font-size: ptr(10px);
-                    color: $kb-text-white;
-                    flex: 1;
-                    transition: all 0.3s ease;
-                }
+                    .channel_name {
+                        font-size: ptr(10px);
+                        color: $kb-text-white;
+                        flex: 1;
+                        transition: all 0.3s ease;
+                    }
                     
                     .notification_badge {
                         @include flex-center;
@@ -247,7 +248,7 @@
 
             // 팀원 섹션 (제한된 크기 - 팀원 목록)
             .members_section {
-                flex: 0 0 30%;
+                flex: 0 0 25%;
                 display: flex;
                 flex-direction: column;
                 min-height: 0;
@@ -343,7 +344,7 @@
                             }
                         }
                     }
-                    
+        
                     .member_info {
                         flex: 1;
                         display: flex;
@@ -382,47 +383,48 @@
                     }
                 }
             }
+
             // 채팅 컨테이너 (남은 공간 모두 차지 - 채팅 영역)
             .chat_container {
-               display: flex;
-               flex-direction: column;
-               flex: 1;
-               min-height: 0;
-                
-               // 채팅 헤더
-               .chat_header {
-                   justify-content: space-between;
-                   // padding-bottom: ptr(10px);
-                   background-color: $kb-dark-light-line;
-                   border-radius: ptr(5px);
-                   height: ptr(20px);
-                   display: flex;
-                   align-items: center;
-                   flex: 0 0 auto;
-                   
-                   .chat_title {
-                       display: flex;
-                       align-items: center;
-                       padding-left: ptr(10px);
-                       gap: ptr(8px);
-                       
-                       .channel_icon {
-                           font-size: ptr(10px);
-                           font-weight: 400;
-                           color: $kb-yellow;
-                       }
-                       
-                       .channel_name {
-                           font-size: ptr(10px);
-                           font-weight: 400;
-                           color: $kb-text-white;
-                       }
-                   }
-               }
-           
-                // 채팅 메시지 영역
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                min-height: 0;
+
+                // 채팅 헤더
+                .chat_header {
+                    justify-content: space-between;
+                    // padding-bottom: ptr(10px);
+                    background-color: $kb-dark-light-line;
+                    border-radius: ptr(5px);
+                    height: ptr(20px);
+                    display: flex;
+                    align-items: center;
+                    flex: 0 0 auto;
+
+                    .chat_title {
+                        display: flex;
+                        align-items: center;
+                        padding-left: ptr(10px);
+                        gap: ptr(8px);
+                        
+                        .channel_icon {
+                            font-size: ptr(10px);
+                            font-weight: 400;
+                            color: $kb-yellow;
+                        }
+                        
+                        .channel_name {
+                            font-size: ptr(10px);
+                            font-weight: 400;
+                            color: $kb-text-white;
+                        }
+                    }
+                }
+
+                // 채팅 메시지 영역 (제한된 크기)
                 .chat_messages {
-                    flex: 0 0 60%;
+                    flex: 0 0 65%;
                     overflow-y: auto;
                     display: flex;
                     flex-direction: column;
@@ -447,7 +449,7 @@
                     &::-webkit-scrollbar-thumb:hover {
                         background: rgba(255, 255, 255, 0.5);
                     }
-                    
+    
                     .message {
                         .message_info {
                             display: flex;
@@ -466,7 +468,7 @@
                                 color: $kb-text-white-light-2;
                             }
                         }
-                       
+                        
                         .message_content {
                             font-size: ptr(10px);
                             color: $kb-text-white;
@@ -474,7 +476,7 @@
                         }
                     }
                 }
-               
+
                 .bottom_nav {
                     display: flex;
                     justify-content: center;
@@ -484,23 +486,23 @@
                     flex: 0 0 auto;
            
                    .nav_btn {
-                       @include flex-center;
-                       background: none;
-                       border: none;
-                       color: $kb-text-white-light;
-                       cursor: pointer;
-                       border-radius: ptr(8px);
-                       transition: all 0.2s ease;
-                       &:hover {
-                           background-color: $kb-dark-light-line;
-                           color: $kb-text-white;
-                       }
-                       
-                       i {
-                           font-size: ptr(12px);
-                       }
-                   }
-               }
+                        @include flex-center;
+                        background: none;
+                        border: none;
+                        color: $kb-text-white-light;
+                        cursor: pointer;
+                        border-radius: ptr(8px);
+                        transition: all 0.2s ease;
+                        &:hover {
+                            background-color: $kb-dark-light-line;
+                            color: $kb-text-white;
+                        }
+                        
+                        i {
+                            font-size: ptr(12px);
+                        }
+                    }
+                }
                 // 메시지 입력 영역
                 .message_input_area {
                     display: flex;
@@ -509,62 +511,63 @@
                     gap: ptr(5px);
                     padding-top: ptr(10px);
                     flex: 0 0 auto;
-                   
-                   .message_input {
-                       flex: 1;
-                       background-color: $kb-dark-light-line;
-                       border: 1px solid $kb-dark-light-line;
-                       border-radius: ptr(10px);
-                       padding: ptr(4px);
-                       color: $kb-text-white;
-                       font-size: ptr(10px);
-                       outline: none;
-                       transition: all 0.2s ease;
-                       padding-left: ptr(10px);
-                       
-                       &::placeholder {
+    
+                    .message_input {
+                        flex: 1;
+                        background-color: $kb-dark-light-line;
+                        border: 1px solid $kb-dark-light-line;
+                        border-radius: ptr(10px);
+                        padding: ptr(4px);
+                        color: $kb-text-white;
+                        font-size: ptr(10px);
+                        outline: none;
+                        transition: all 0.2s ease;
+                        padding-left: ptr(10px);
+        
+                        &::placeholder {
                            color: $kb-text-white-light-2;
-                       }
-                       
-                       &:focus {
-                           border-color: $kb-yellow;
-                           background-color: $kb-dark-light-line;
-                       }
-                   }
-                   
-                   .send_btn {
+                        }
+                        
+                        &:focus {
+                            border-color: $kb-yellow;
+                                        background-color: $kb-dark-light-line;
+                        }
+                    }
+    
+                    .send_btn {
                        @include flex-center;
-                       background-color: $kb-yellow;
-                       border: none;
-                       border-radius: 50%;
-                       width: ptr(10px);
-                       height: ptr(10px);
-                       padding: ptr(10px);
-                       cursor: pointer;
-                       transition: all 0.2s ease;
-                       color: $kb-dark;
-                       
-                       &:hover {
-                           background-color: darken($kb-yellow, 10%);
-                           transform: scale(1.05);
-                       }
-                       
-                       i {
+                        background-color: $kb-yellow;
+                        border: none;
+                        border-radius: 50%;
+                        width: ptr(10px);
+                        height: ptr(10px);
+                        padding: ptr(10px);
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        color: $kb-dark;
+        
+                        &:hover {
+                            background-color: darken($kb-yellow, 10%);
+                            transform: scale(1.05);
+                        }
+                        
+                        i {
                            font-size: ptr(10px);
-                       }
+                        }
                     }
                 }
             }
 
         }
-         // Second Column (유저 정보)
-         .second_column {
+        // Second Column (유저 정보)
+        .second_column {
             grid-column: 2;
             min-height: 0;
             padding: ptr(10px);
             display: flex;
             flex-direction: column;
             gap: ptr(10px);
+            border-right: ptr(1px) solid $kb-border;
              
             // User Profile Card
             .user_profile_card {
@@ -641,7 +644,7 @@
                     transition: background-color 0.2s ease;
                     
                     &:hover {
-                        background-color: $kb-dark-light-line;
+                        background-color: $kb-background-gray;
                     }
                      
                     i {
@@ -661,84 +664,18 @@
              .tasks_section {
                 border-top: ptr(1px) solid $kb-dark-light-line;
                 padding: ptr(15px) ptr(10px);
-
-                
-                 .tasks_header {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    margin-bottom: ptr(10px);
-                    
-                    .tasks_title {
-                        font-size: ptr(12px);
-                        font-weight: bold;
-                        color: $kb-text-dark;
-                        margin: 0;
-                    }
-                     
-                     .add_task_btn {
-                        width: ptr(20px);
-                        height: ptr(20px);
-                        border: none;
-                        font-weight: 600;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        cursor: pointer;
-                        transition: all 0.2s ease;
-                        
-                        &:hover {
-                            background-color: $kb-yellow;
-                            transform: scale(1.1);
-                        }
-                         
-                        i {
-                            font-size: ptr(12px);
-                        }
-                    }
-                }
-                
-                .tasks_list {
-                    display: flex;
-                    flex-direction: column;
-                    
-                    .task_item {
-                        display: flex;
-                        align-items: center;
-                        gap: ptr(10px);
-                        padding: ptr(5px) 0;
-                        
-                        &.completed {
-                            .task_text {
-                                text-decoration: line-through;
-                                color: $kb-gray;
-                            }
-                        }
-                        
-                        input[type="checkbox"] {
-                            width: ptr(12px);
-                            height: ptr(12px);
-                        }
-                        
-                        .task_text {
-                            font-size: ptr(12px);
-                            color: #333;
-                            flex: 1;
-                        }
-                    }
-                }
             }
         }
         
         // Third Column (서브 대시보드)
         .third_column {
             grid-column: 3;
-            border: 2px solid #9c27b0 !important;
             display: grid;
-            grid-template-rows: ptr(20px) auto auto;
+            grid-template-rows: auto auto auto auto;
             gap: ptr(10px);
-            padding: ptr(10px);
+            padding: ptr(20px);
+            height: 100%;
+            min-height: 0;
             
             // 1번째 줄 - 알림
             .notice_container {
@@ -746,14 +683,102 @@
                 display: flex;
                 gap: ptr(10px);
                 font-size: ptr(12px);
+                
+                .notice_label {
+                    @include flex-center;
+                    width: ptr(40px);
+                    background-color: $kb-yellow;
+                    border-radius: ptr(10px);
+                    font-weight: 600;
+                    font-size: ptr(10px);
+                }
             }
             
             // 2번째 줄 - 메인 카드와 캘린더
             .second_row {
                 grid-row: 2;
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 4fr 1fr;
                 gap: ptr(10px);
+                min-height: 0;
+
+                .main_cards_container {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr 1fr ;
+                    grid-template-rows: 1.2fr 1fr;
+                    gap: ptr(10px);
+                    min-height: 0;
+
+                    .search_product_container,
+                    .search_customer_container,
+                    .report_management_container,
+                    .chatbot_container,
+                    .credit_assessment_container,
+                    .schedule_management_container {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        text-align: center;
+                        padding: ptr(15px);
+                        border-radius: ptr(8px);
+                        border: 1px solid $kb-border;
+                        transition: all 0.2s ease;
+                        cursor: pointer;
+                        
+                        &:hover {
+                            // background-color: lighten($kb-yellow, 35%);
+                            border-color: $kb-yellow;
+                            transform: translateY(-2px);
+                            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+                        }
+                        
+                        .icon {
+                            background-color: $kb-yellow;
+                            border-radius: 50%;
+                            width: ptr(20px);
+                            height: ptr(20px);
+                            i {
+                                font-size: ptr(10px);
+                                color: $kb-dark;
+                            }
+                        }
+                        
+                        .title {
+                            font-size: ptr(12px);
+                            font-weight: 600;
+                            color: $kb-dark;
+                        }
+                        
+                        .description {
+                            font-size: ptr(10px);
+                            color: $kb-dark;
+                            line-height: 1.4;
+                        }
+                    }
+
+                    .icon {
+                        @include flex-center;
+                    }
+                }
+                
+                .calendar_container {
+                    border-radius: ptr(8px);
+                    border: ptr(1px) solid $kb-border;
+                    padding: ptr(10px);
+                    min-height: 0;
+                    display: flex;
+                    flex-direction: column;
+        
+                    &:hover {
+                        // background-color: lighten($kb-yellow, 35%);
+                        border-color: $kb-yellow;
+                        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+                    }
+                    // 캘린더 스타일은 별도 calendar.scss 파일에서 관리
+                    
+
+                }
             }
             
             // 3번째 줄 - 환율과 대기 고객
@@ -762,13 +787,320 @@
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: ptr(10px);
+                min-height: 0;
+                
+                .interest_rate_container {
+                    min-height: 0;
+                }
+            }
+            
+            .fourth_row {
+                grid-row: 4;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: ptr(10px);
+                min-height: 0;
+                
+                .transaction_status_container {
+                    min-height: 0;
+                }
+                
+                .notification_container {
+                    min-height: 0;
+                }
             }
         }
         
-        // Fourth Column (추가 컬럼)
+        // Fourth Column (서브 대시보드)
         .fourth_column {
             grid-column: 4;
-            border: 2px solid #4caf50 !important;
+            min-height: 0;
+            padding: ptr(6px);
+            display: flex;
+            flex-direction: column;
+            gap: ptr(6px);
+            border-left: ptr(1px) solid $kb-border;
+            
+            // 목표 달성률 카드
+            .goal_achievement_card {
+                background-color: $bg-light;
+                border-radius: ptr(6px);
+                padding: ptr(8px);
+                border: 1px solid $kb-border;
+                transition: all 0.2s ease;
+                cursor: pointer;
+                
+                &:hover {
+                    border-color: $kb-yellow;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+                }
+                
+                .card_header {
+                    display: flex;
+                    align-items: center;
+                    gap: ptr(6px);
+                    margin-bottom: ptr(8px);
+                    
+                    .header_icon {
+                        @include flex-center;
+                        width: ptr(16px);
+                        height: ptr(16px);
+                        background-color: $kb-yellow;
+                        border-radius: 50%;
+                        color: $kb-dark;
+                        
+                        i {
+                            font-size: ptr(10px);
+                        }
+                    }
+                    
+                    .header_title {
+                        font-size: ptr(12px);
+                        font-weight: 600;
+                        color: $kb-dark;
+                    }
+                }
+                
+                .goal_items {
+                    display: flex;
+                    flex-direction: column;
+                    gap: ptr(8px);
+                    
+                    .goal_item {
+                        display: flex;
+                        align-items: center;
+                        gap: ptr(6px);
+                        
+                        .goal_label {
+                            width: ptr(30px);
+                            font-size: ptr(10px);
+                            font-weight: 500;
+                            color: $kb-dark;
+                            flex-shrink: 0;
+                        }
+                        
+                        .progress_bar {
+                            flex: 1;
+                            height: ptr(4px);
+                            background-color: $kb-border;
+                            border-radius: ptr(2px);
+                            overflow: hidden;
+                            
+                            .progress_fill {
+                                height: 100%;
+                                background-color: $kb-dark;
+                                border-radius: ptr(2px);
+                                transition: width 0.3s ease;
+                            }
+                        }
+                        
+                        .goal_percentage {
+                            width: ptr(25px);
+                            font-size: ptr(10px);
+                            font-weight: 600;
+                            color: $kb-dark;
+                            text-align: right;
+                            flex-shrink: 0;
+                        }
+                    }
+                }
+            }
+            
+            // 최근 활동 카드
+            .recent_activity_card {
+                background-color: $bg-light;
+                border-radius: ptr(6px);
+                padding: ptr(8px);
+                border: 1px solid $kb-border;
+                transition: all 0.2s ease;
+                cursor: pointer;
+                
+                &:hover {
+                    border-color: $kb-yellow;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+                }
+                
+                .card_header {
+                    display: flex;
+                    align-items: center;
+                    gap: ptr(6px);
+                    margin-bottom: ptr(8px);
+                    
+                    .header_icon {
+                        @include flex-center;
+                        width: ptr(16px);
+                        height: ptr(16px);
+                        background-color: $positive;
+                        border-radius: 50%;
+                        color: white;
+                        
+                        i {
+                            font-size: ptr(10px);
+                        }
+                    }
+                    
+                    .header_title {
+                        font-size: ptr(12px);
+                        font-weight: 600;
+                        color: $kb-dark;
+                    }
+                }
+                
+                .activity_list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: ptr(6px);
+                    
+                    .activity_item {
+                        display: flex;
+                        align-items: center;
+                        gap: ptr(6px);
+                        padding: ptr(4px);
+                        border-radius: ptr(4px);
+                        transition: background-color 0.2s ease;
+                        
+                        &:hover {
+                            background-color: $kb-background-gray;
+                        }
+                        
+                        .activity_icon {
+                            @include flex-center;
+                            width: ptr(18px);
+                            height: ptr(18px);
+                            border-radius: 50%;
+                            flex-shrink: 0;
+                            
+                            &.success {
+                                background-color: $positive;
+                                color: white;
+                            }
+                            
+                            &.warning {
+                                background-color: $kb-yellow;
+                                color: $kb-dark;
+                            }
+                            
+                            &.info {
+                                background-color: #17a2b8;
+                                color: white;
+                            }
+                            
+                            i {
+                                font-size: ptr(8px);
+                            }
+                        }
+                        
+                        .activity_content {
+                            flex: 1;
+                            
+                            .activity_title {
+                                font-size: ptr(9px);
+                                font-weight: 500;
+                                color: $kb-dark;
+                                margin-bottom: ptr(1px);
+                            }
+                            
+                            .activity_time {
+                                font-size: ptr(8px);
+                                color: $kb-text-dark;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 업무 현황 카드
+            .work_status_card {
+                background-color: $bg-light;
+                border-radius: ptr(6px);
+                padding: ptr(8px);
+                border: 1px solid $kb-border;
+                transition: all 0.2s ease;
+                cursor: pointer;
+                
+                &:hover {
+                    border-color: $kb-yellow;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+                }
+                
+                .card_header {
+                    display: flex;
+                    align-items: center;
+                    gap: ptr(6px);
+                    margin-bottom: ptr(8px);
+                    
+                    .header_icon {
+                        @include flex-center;
+                        width: ptr(16px);
+                        height: ptr(16px);
+                        background-color: #17a2b8;
+                        border-radius: 50%;
+                        color: white;
+                        
+                        i {
+                            font-size: ptr(10px);
+                        }
+                    }
+                    
+                    .header_title {
+                        font-size: ptr(12px);
+                        font-weight: 600;
+                        color: $kb-dark;
+                    }
+                }
+                
+                .work_stats {
+                    display: flex;
+                    flex-direction: column;
+                    gap: ptr(6px);
+                    
+                    .stat_item {
+                        display: flex;
+                        align-items: center;
+                        gap: ptr(6px);
+                        padding: ptr(4px);
+                        border-radius: ptr(4px);
+                        transition: background-color 0.2s ease;
+                        
+                        &:hover {
+                            background-color: $kb-background-gray;
+                        }
+                        
+                        .stat_icon {
+                            @include flex-center;
+                            width: ptr(18px);
+                            height: ptr(18px);
+                            background-color: $kb-yellow;
+                            border-radius: 50%;
+                            color: $kb-dark;
+                            flex-shrink: 0;
+                            
+                            i {
+                                font-size: ptr(8px);
+                            }
+                        }
+                        
+                        .stat_info {
+                            flex: 1;
+                            
+                            .stat_value {
+                                font-size: ptr(12px);
+                                font-weight: 600;
+                                color: $kb-dark;
+                                margin-bottom: ptr(1px);
+                            }
+                            
+                            .stat_label {
+                                font-size: ptr(9px);
+                                color: $kb-text-dark;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -1,0 +1,294 @@
+@import 'base';
+
+// 고객 만족도 위젯 스타일
+.customer-satisfaction-widget {
+    border-radius: ptr(10px);
+    padding: ptr(15px);
+    background-color: $kb-background-gray;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    
+    .widget-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: ptr(15px);
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: ptr(8px);
+            
+            .header-icon {
+                @include flex-center;
+                width: ptr(20px);
+                height: ptr(20px);
+                background-color: $positive;
+                border-radius: 50%;
+                color: white;
+                
+                i {
+                    font-size: ptr(12px);
+                }
+            }
+            
+            .header-title {
+                font-size: ptr(14px);
+                font-weight: 600;
+                color: $kb-dark;
+            }
+        }
+        
+        .header-right {
+            .trend-indicator {
+                display: flex;
+                align-items: center;
+                gap: ptr(4px);
+                font-size: ptr(10px);
+                
+                &.up {
+                    color: $positive;
+                }
+                
+                &.down {
+                    color: $danger;
+                }
+                
+                &.stable {
+                    color: $kb-text-dark;
+                }
+                
+                i {
+                    font-size: ptr(8px);
+                }
+            }
+        }
+    }
+    
+    .satisfaction-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: ptr(15px);
+        
+        .satisfaction-score {
+            text-align: center;
+            
+            .score-display {
+                position: relative;
+                display: inline-block;
+                
+                .score-circle {
+                    width: ptr(80px);
+                    height: ptr(80px);
+                    border-radius: 50%;
+                    background: conic-gradient(
+                        $positive 0deg 288deg,
+                        $kb-border 288deg 360deg
+                    );
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    position: relative;
+                    
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        width: 70%;
+                        height: 70%;
+                        background-color: $kb-background-gray;
+                        border-radius: 50%;
+                    }
+                }
+                
+                .score-text {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    text-align: center;
+                    z-index: 1;
+                    
+                    .score-value {
+                        font-size: ptr(20px);
+                        font-weight: 700;
+                        color: $kb-dark;
+                        line-height: 1;
+                    }
+                    
+                    .score-label {
+                        font-size: ptr(8px);
+                        color: $kb-text-dark;
+                        margin-top: ptr(2px);
+                    }
+                }
+            }
+            
+            .score-description {
+                margin-top: ptr(10px);
+                font-size: ptr(11px);
+                color: $kb-text-dark;
+            }
+        }
+        
+        .satisfaction-breakdown {
+            .breakdown-title {
+                font-size: ptr(12px);
+                font-weight: 600;
+                color: $kb-dark;
+                margin-bottom: ptr(8px);
+            }
+            
+            .breakdown-items {
+                display: flex;
+                flex-direction: column;
+                gap: ptr(6px);
+                
+                .breakdown-item {
+                    display: flex;
+                    align-items: center;
+                    gap: ptr(8px);
+                    padding: ptr(6px);
+                    background-color: $bg-light;
+                    border-radius: ptr(6px);
+                    
+                    .rating-stars {
+                        display: flex;
+                        gap: ptr(2px);
+                        
+                        .star {
+                            width: ptr(10px);
+                            height: ptr(10px);
+                            color: $kb-yellow;
+                            
+                            &.empty {
+                                color: $kb-border;
+                            }
+                        }
+                    }
+                    
+                    .rating-label {
+                        flex: 1;
+                        font-size: ptr(10px);
+                        color: $kb-dark;
+                    }
+                    
+                    .rating-count {
+                        font-size: ptr(10px);
+                        font-weight: 600;
+                        color: $kb-dark;
+                    }
+                }
+            }
+        }
+        
+        .satisfaction-trend {
+            .trend-title {
+                font-size: ptr(12px);
+                font-weight: 600;
+                color: $kb-dark;
+                margin-bottom: ptr(8px);
+            }
+            
+            .trend-chart {
+                height: ptr(60px);
+                background-color: $bg-light;
+                border-radius: ptr(6px);
+                padding: ptr(8px);
+                position: relative;
+                
+                .trend-line {
+                    position: absolute;
+                    bottom: ptr(8px);
+                    left: ptr(8px);
+                    right: ptr(8px);
+                    height: ptr(2px);
+                    background-color: $positive;
+                    border-radius: ptr(1px);
+                    
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        top: ptr(-2px);
+                        right: 0;
+                        width: ptr(6px);
+                        height: ptr(6px);
+                        background-color: $positive;
+                        border-radius: 50%;
+                    }
+                }
+                
+                .trend-points {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    
+                    .trend-point {
+                        position: absolute;
+                        width: ptr(4px);
+                        height: ptr(4px);
+                        background-color: $positive;
+                        border-radius: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                }
+            }
+        }
+        
+        .satisfaction-actions {
+            display: flex;
+            gap: ptr(8px);
+            
+            .action-btn {
+                flex: 1;
+                padding: ptr(6px) ptr(8px);
+                border: 1px solid $kb-border;
+                border-radius: ptr(6px);
+                background: $bg-light;
+                color: $kb-dark;
+                font-size: ptr(10px);
+                cursor: pointer;
+                transition: all 0.2s ease;
+                
+                &:hover {
+                    background-color: $kb-yellow;
+                    border-color: $kb-yellow;
+                }
+                
+                &.primary {
+                    background-color: $positive;
+                    border-color: $positive;
+                    color: white;
+                    
+                    &:hover {
+                        background-color: darken($positive, 10%);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// 반응형 디자인
+@media (max-width: 768px) {
+    .customer-satisfaction-widget {
+        .satisfaction-content {
+            .satisfaction-score {
+                .score-display {
+                    .score-circle {
+                        width: ptr(70px);
+                        height: ptr(70px);
+                    }
+                }
+            }
+            
+            .satisfaction-actions {
+                flex-direction: column;
+                gap: ptr(6px);
+            }
+        }
+    }
+}

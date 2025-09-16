@@ -1,0 +1,166 @@
+@import 'base';
+
+// 목표 달성률 위젯 스타일
+.goal-achievement-widget {
+    border-radius: ptr(8px);
+    padding: ptr(12px);
+    background-color: $bg-light;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid $kb-border;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+    
+    .widget-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: ptr(8px);
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: ptr(6px);
+            
+            .header-icon {
+                @include flex-center;
+                width: ptr(16px);
+                height: ptr(16px);
+                background-color: $kb-yellow;
+                border-radius: 50%;
+                color: $kb-dark;
+                
+                i {
+                    font-size: ptr(10px);
+                }
+            }
+            
+            .header-title {
+                font-size: ptr(12px);
+                font-weight: 600;
+                color: $kb-dark;
+            }
+        }
+        
+        .header-right {
+            .period-selector {
+                font-size: ptr(10px);
+                color: $kb-text-dark;
+                background: none;
+                border: none;
+                cursor: pointer;
+                
+                &:hover {
+                    color: $kb-yellow;
+                }
+            }
+        }
+    }
+    
+    .achievement-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: ptr(12px);
+        margin-top: ptr(8px);
+        
+        .goal-categories {
+            display: flex;
+            flex-direction: column;
+            gap: ptr(10px);
+            
+            .goal-item {
+                display: flex;
+                align-items: center;
+                gap: ptr(8px);
+                padding: ptr(4px) 0;
+                
+                .goal-label {
+                    width: ptr(35px);
+                    font-size: ptr(11px);
+                    font-weight: 500;
+                    color: $kb-dark;
+                    flex-shrink: 0;
+                }
+                
+                .progress-bar {
+                    flex: 1;
+                    height: ptr(6px);
+                    background-color: $kb-border;
+                    border-radius: ptr(3px);
+                    overflow: hidden;
+                    position: relative;
+                    
+                    .progress-fill {
+                        height: 100%;
+                        background: linear-gradient(90deg, $kb-yellow 0%, darken($kb-yellow, 10%) 100%);
+                        border-radius: ptr(3px);
+                        transition: width 0.5s ease;
+                        position: relative;
+                        
+                        &::after {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+                            animation: shimmer 2s infinite;
+                        }
+                    }
+                }
+                
+                .goal-percentage {
+                    width: ptr(30px);
+                    font-size: ptr(11px);
+                    font-weight: 600;
+                    color: $kb-dark;
+                    text-align: right;
+                    flex-shrink: 0;
+                }
+            }
+        }
+    }
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+// 반응형 디자인
+@media (max-width: 768px) {
+    .goal-achievement-widget {
+        .achievement-content {
+            .goal-categories {
+                gap: ptr(10px);
+                
+                .goal-item {
+                    gap: ptr(8px);
+                    
+                    .goal-label {
+                        width: ptr(35px);
+                        font-size: ptr(11px);
+                    }
+                    
+                    .progress-bar {
+                        height: ptr(6px);
+                    }
+                    
+                    .goal-percentage {
+                        width: ptr(30px);
+                        font-size: ptr(11px);
+                    }
+                }
+            }
+        }
+    }
+}

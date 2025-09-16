@@ -5,9 +5,12 @@ $kb-yellow: #ffbc00;           // Pantone 130 C, RGB(255, 188, 0)
 $kb-gray: #776c61;             // 로고 색이랑 똑같은 색으로 하다보니 바꾸게 됨 
 $kb-dark: #392e1b;             // Pantone 411C, RGB(84, 80, 69)
 $kb-dark-light-line:rgba(255, 255, 255, 0.1);
+$kb-background-gray:#f4f2f0;
+$kb-background-dark-gray:#796e64;
 
 $kb-light-gray: #f8f9fa;
-$kb-border: #e9ecef;
+// $kb-border: #e9ecef;
+$kb-border: #e2e1e0;
 $kb-input-border: #e4e6ea;
 
 $kb-text-white: #eeeded;
@@ -21,7 +24,8 @@ $bg-light: #fff;
 
 // 경고/위험 색상
 $danger: #dc3545;
-$shadows: rgba(220, 53, 69, 0.25);
+$shadows: rgba(220, 53, 70, 0.538);
+$positive: #28a745;
 
 // 테두리 색상
 $border-color: #dee2e6;

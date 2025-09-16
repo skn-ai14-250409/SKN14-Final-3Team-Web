@@ -438,3 +438,153 @@ body {
             justify-content: center;
   }
 }
+
+.transaction-status-widget {
+  border-radius: 0.625rem;
+  padding: 0.625rem;
+  background-color: #f4f2f0;
+}
+.transaction-status-widget .transaction-status-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-bottom: 0.625rem;
+}
+.transaction-status-widget .transaction-status-header .header-left {
+  padding-left: 0.3125rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.3125rem;
+}
+.transaction-status-widget .transaction-status-header .header-left .header-icon {
+  height: 0.875rem;
+  border: 0.125rem solid #392e1b;
+}
+.transaction-status-widget .transaction-status-header .header-left .header-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #392e1b;
+}
+.transaction-status-widget .transaction-status-header .header-right {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.625rem;
+}
+.transaction-status-widget .transaction-status-header .header-right .last-update {
+  font-size: 0.625rem;
+  color: #333;
+}
+.transaction-status-widget .transaction-status-header .header-right .refresh-btn {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: none;
+  border-radius: 50%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  cursor: pointer;
+  background: #fff;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.transaction-status-widget .transaction-status-header .header-right .refresh-btn:hover {
+  background: #ffbc00;
+}
+.transaction-status-widget .transaction-status-header .header-right .refresh-btn:active {
+  -webkit-transform: scale(0.95);
+          transform: scale(0.95);
+}
+.transaction-status-widget .transaction-status-header .header-right .refresh-btn i {
+  font-size: 0.75rem;
+}
+.transaction-status-widget .transaction-status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 0.5rem;
+}
+.transaction-status-widget .transaction-status-grid .transaction-item {
+  padding: 0.3125rem 0.625rem;
+  border-radius: 0.375rem;
+  background-color: #fff;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.transaction-status-widget .transaction-status-grid .transaction-item .transaction-label {
+  font-size: 0.5625rem;
+  color: #776c61;
+  margin-bottom: 0.25rem;
+}
+.transaction-status-widget .transaction-status-grid .transaction-item .transaction-main-row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+.transaction-status-widget .transaction-status-grid .transaction-item .transaction-main-row .transaction-rate {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #392e1b;
+  line-height: 1;
+}
+.transaction-status-widget .transaction-status-grid .transaction-item .transaction-main-row .transaction-change {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+  gap: 0.3125rem;
+}
+.transaction-status-widget .transaction-status-grid .transaction-item .transaction-main-row .transaction-change .change-value {
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.transaction-status-widget .transaction-status-grid .transaction-item .transaction-main-row .transaction-change .change-value.positive {
+  color: #28a745;
+}
+.transaction-status-widget .transaction-status-grid .transaction-item .transaction-main-row .transaction-change .change-value.negative {
+  color: #dc3545;
+}
+.transaction-status-widget .transaction-status-grid .transaction-item .transaction-main-row .transaction-change .change-percent {
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1;
+}
+.transaction-status-widget .transaction-status-grid .transaction-item .transaction-main-row .transaction-change .change-percent.positive {
+  color: #28a745;
+}
+.transaction-status-widget .transaction-status-grid .transaction-item .transaction-main-row .transaction-change .change-percent.negative {
+  color: #dc3545;
+}
