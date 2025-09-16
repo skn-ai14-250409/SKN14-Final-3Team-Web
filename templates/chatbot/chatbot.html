@@ -3,12 +3,22 @@
 
 {% block title %}KB국민은행 직원 업무시스템 - 챗봇{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
+{% endblock %}
+
 {% block content %}
 <!-- 챗봇 컨테이너 -->
-<div class="chatbot-container">
-    <div class="chatbot-content">
-        <div>챗봇봇</div>
+<div class="chatbot_container">
+    <div class="chatbot_content">
+        <!-- Team Channel Column (팀 채팅) -->
+        {% include 'partials/team_channel_column.html' %}
+
 
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/components/team_channel_column.js' %}"></script>
 {% endblock %}

@@ -3,12 +3,34 @@
 
 {% block title %}KB국민은행 직원 업무시스템 - 여신 심사사{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/credit_assessment.css' %}">
+{% endblock %}
+
 {% block content %}
 <!-- 챗봇 컨테이너 -->
-<div class="credit_assessment">
-    <div class="credit_assessment">
-        <div>여신심사</div>
+<div class="credit_assessment_container">
+    <div class="credit_assessment_content">
+        <!-- Team Channel Column (팀 채팅) -->
+        {% include 'partials/team_channel_column.html' %}
+        <div class = "second_column">
+
+        </div>
+        <div class = "third_column">
+
+        </div>
+        <div class="fourth_column">
+
+        </div>
 
     </div>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/components/team_channel_column.js' %}"></script>
+{% endblock %}
+
+
+
+
