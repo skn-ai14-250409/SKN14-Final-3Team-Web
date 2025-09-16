@@ -179,12 +179,6 @@ class ExchangeRateWidget {
     }
 }
 
-// 전역 함수로 새로고침 버튼용
-function refreshExchangeRates() {
-    if (window.exchangeRateWidget) {
-        window.exchangeRateWidget.fetchExchangeRates();
-    }
-}
 
 // 페이지 로드 시 위젯 초기화
 document.addEventListener('DOMContentLoaded', function() {

@@ -4,90 +4,61 @@
 <div class="work-distribution-widget">
     <div class="widget-header">
         <div class="header-left">
-            <div class="header-icon">
-                <i class="bi bi-pie-chart"></i>
-            </div>
-            <div class="header-title">업무 분포표</div>
+            <span class="header-icon">
+            </span>
+            <span class="header-title">업무 분포표</span>
         </div>
         <div class="header-right">
             <div class="chart-type-selector">
-                <button class="chart-btn active" data-type="bar">
-                    <i class="bi bi-bar-chart"></i>
-                </button>
-                <button class="chart-btn" data-type="doughnut">
+                <button class="chart-btn active" data-type="doughnut">
                     <i class="bi bi-pie-chart"></i>
+                </button>
+                <button class="chart-btn " data-type="bar">
+                    <i class="bi bi-bar-chart"></i>
                 </button>
             </div>
         </div>
     </div>
     
     <div class="distribution-content">
+        <!-- 왼쪽: 차트 -->
         <div class="chart-container">
-            <!-- 막대 차트 (기본) -->
-            <div class="bar-chart active">
-                <div class="bar-item">
-                    <div class="bar high" style="height: 80%"></div>
-                    <div class="bar-label">대출<br>상담</div>
-                    <div class="bar-value">45</div>
-                </div>
-                <div class="bar-item">
-                    <div class="bar medium" style="height: 60%"></div>
-                    <div class="bar-label">예금<br>상담</div>
-                    <div class="bar-value">32</div>
-                </div>
-                <div class="bar-item">
-                    <div class="bar low" style="height: 40%"></div>
-                    <div class="bar-label">신용<br>상담</div>
-                    <div class="bar-value">18</div>
-                </div>
-                <div class="bar-item">
-                    <div class="bar medium" style="height: 70%"></div>
-                    <div class="bar-label">보험<br>상담</div>
-                    <div class="bar-value">28</div>
-                </div>
-                <div class="bar-item">
-                    <div class="bar high" style="height: 85%"></div>
-                    <div class="bar-label">투자<br>상담</div>
-                    <div class="bar-value">52</div>
-                </div>
-            </div>
             
-            <!-- 도넛 차트 (숨김) -->
+            <!-- 도넛 차트  -->
             <div class="doughnut-chart">
                 <div class="chart-circle"></div>
                 <div class="chart-center">
-                    <div class="center-value">175</div>
+                    <div class="center-value">190</div>
                     <div class="center-label">총 상담</div>
                 </div>
             </div>
         </div>
         
-        <div class="distribution-legend">
-            <div class="legend-item">
-                <div class="legend-color high"></div>
-                <div class="legend-text">대출 상담</div>
-                <div class="legend-value">45건</div>
+        <!-- 오른쪽: 상담 데이터 그리드 -->
+        <div class="consultation-grid">
+            <div class="consultation-item">
+                <div class="consultation-label">대출 상담</div>
+                <div class="consultation-value">45</div>
             </div>
-            <div class="legend-item">
-                <div class="legend-color medium"></div>
-                <div class="legend-text">예금 상담</div>
-                <div class="legend-value">32건</div>
+            <div class="consultation-item">
+                <div class="consultation-label">예금 상담</div>
+                <div class="consultation-value">32</div>
             </div>
-            <div class="legend-item">
-                <div class="legend-color low"></div>
-                <div class="legend-text">신용 상담</div>
-                <div class="legend-value">18건</div>
+            <div class="consultation-item">
+                <div class="consultation-label">신용 상담</div>
+                <div class="consultation-value">18</div>
             </div>
-        </div>
-        
-        <div class="distribution-stats">
-            <div class="stat-item">
-                <div class="stat-value">175</div>
-                <div class="stat-label">총 상담</div>
+            <div class="consultation-item">
+                <div class="consultation-label">보험 상담</div>
+                <div class="consultation-value">28</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-value">97</div>
-                <div class="stat-label">완료</div>
+            <div class="consultation-item">
+                <div class="consultation-label">투자 상담</div>
+                <div class="consultation-value">52</div>
+            </div>
+            <div class="consultation-item">
+                <div class="consultation-label">기타 상담</div>
+                <div class="consultation-value">15</div>
             </div>
         </div>
     </div>

@@ -1,4 +1,5 @@
 // KB국민은행 직원 업무시스템 - 캘린더 JavaScript
+// 임시로 만든거라서 나중에 할때는 api 로 바꿔야함함
 
 let currentYear = new Date().getFullYear();
 let currentMonth = new Date().getMonth() + 1;
@@ -12,17 +13,7 @@ function changeMonth(direction) {
         currentMonth = 12;
         currentYear--;
     }
-    
-    // AJAX로 캘린더 업데이트 (임시로 비활성화)
-    // fetch(`/kb_finaIssist/calendar/ajax/?year=${currentYear}&month=${currentMonth}`)
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         updateCalendar(data);
-    //     })
-    //     .catch(error => {
-    //         console.error('Error:', error);
-    //     });
-    
+
     // 임시로 페이지 새로고침으로 월 변경
     window.location.href = `?year=${currentYear}&month=${currentMonth}`;
 }

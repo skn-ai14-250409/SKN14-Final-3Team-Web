@@ -117,18 +117,6 @@ class TransactionStatusWidget {
         });
     }
     
-    onTransactionItemClick(event) {
-        const transactionItem = event.currentTarget;
-        const transactionType = transactionItem.dataset.type;
-        const transactionValue = this.transactions[transactionType];
-
-        // 클릭 시 애니메이션 효과
-        transactionItem.style.transform = 'scale(0.98)';
-        setTimeout(() => {
-            transactionItem.style.transform = '';
-        }, 150);
-    }
-    
     // 특정 거래 타입의 값을 가져오는 메서드
     getTransactionCount(type) {
         return this.transactions[type] || null;

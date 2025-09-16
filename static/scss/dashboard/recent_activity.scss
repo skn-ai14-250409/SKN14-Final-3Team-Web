@@ -1,52 +1,38 @@
-@import 'base';
+@import '../base';
 
 // 최근 활동 위젯 스타일
 .recent-activity-widget {
     border-radius: ptr(8px);
-    padding: ptr(12px);
+    padding: ptr(10px);
     background-color: $bg-light;
     height: 100%;
     display: flex;
     flex-direction: column;
-    border: 1px solid $kb-border;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease;
-    
-    &:hover {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        transform: translateY(-1px);
-    }
-    
+    border: ptr(1px) solid $kb-border;
+    box-shadow: 0 ptr(2px) 4px rgba(0, 0, 0, 0.05);
     .widget-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: ptr(15px);
+        margin-bottom: ptr(8px);
         
         .header-left {
+            padding-left: ptr(5px);
             display: flex;
             align-items: center;
-            gap: ptr(8px);
+            gap: ptr(5px);
             
             .header-icon {
-                @include flex-center;
-                width: ptr(20px);
-                height: ptr(20px);
-                background-color: $positive;
-                border-radius: 50%;
-                color: white;
-                
-                i {
-                    font-size: ptr(12px);
-                }
+                height: ptr(14px);
+                border: ptr(2px) solid $kb-dark;
             }
             
             .header-title {
-                font-size: ptr(14px);
+                font-size: ptr(12px);
                 font-weight: 600;
                 color: $kb-dark;
             }
-        }
+        }   
         
         .header-right {
             .view-all-btn {
@@ -68,8 +54,9 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: ptr(10px);
         overflow-y: auto;
+        gap: ptr(5px);
+        padding-right: ptr(4px);
         
         &::-webkit-scrollbar {
             width: ptr(4px);
@@ -85,96 +72,80 @@
             border-radius: ptr(2px);
         }
         
+        &::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
         .activity-item {
             display: flex;
             align-items: flex-start;
-            gap: ptr(10px);
-            padding: ptr(8px);
+            padding: ptr(5px);
             background-color: $bg-light;
             border-radius: ptr(8px);
             transition: all 0.2s ease;
+            width: 100%;
             
             &:hover {
-                background-color: lighten($kb-yellow, 35%);
-                transform: translateX(ptr(2px));
+                background-color: $kb-background-gray;
             }
             
-            .activity-icon {
-                @include flex-center;
-                width: ptr(24px);
-                height: ptr(24px);
-                border-radius: 50%;
-                flex-shrink: 0;
-                
-                &.success {
-                    background-color: $positive;
-                    color: white;
-                }
-                
-                &.warning {
-                    background-color: $kb-yellow;
-                    color: $kb-dark;
-                }
-                
-                &.info {
-                    background-color: #17a2b8;
-                    color: white;
-                }
-                
-                &.danger {
-                    background-color: $danger;
-                    color: white;
-                }
-                
-                i {
-                    font-size: ptr(10px);
-                }
-            }
-            
-            .activity-content {
-                flex: 1;
+            .activity-container {
+                width: 100%;
                 display: flex;
                 flex-direction: column;
-                gap: ptr(2px);
-                
+            }
+            
+            .activity-inside {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                gap: ptr(5px);
+                width: 100%;
+
+                .activity-status {
+                    @include flex-center;
+                    width: ptr(8px);
+                    height: ptr(8px);
+                    border-radius: 50%;
+                    flex-shrink: 0;
+                    
+                    &.completed {
+                        background-color: $positive;
+                    }
+                    
+                    &.pending {
+                        background-color: $kb-yellow;
+                    }
+                    
+                    &.failed {
+                        background-color: $danger;
+                    }
+                }
+
                 .activity-title {
-                    font-size: ptr(11px);
+                    display: flex;
+                    align-items: center;
+                    font-size: ptr(10px);
                     font-weight: 500;
                     color: $kb-dark;
                     line-height: 1.3;
-                }
-                
-                .activity-description {
-                    font-size: ptr(9px);
-                    color: $kb-text-dark;
-                    line-height: 1.3;
+                    flex: 1;
                 }
                 
                 .activity-time {
+                    @include flex-center;
                     font-size: ptr(8px);
                     color: $kb-text-dark;
                     margin-top: ptr(2px);
+                    flex-shrink: 0;
                 }
             }
-            
-            .activity-status {
-                @include flex-center;
-                width: ptr(8px);
-                height: ptr(8px);
-                border-radius: 50%;
-                flex-shrink: 0;
-                
-                &.completed {
-                    background-color: $positive;
-                }
-                
-                &.pending {
-                    background-color: $kb-yellow;
-                }
-                
-                &.failed {
-                    background-color: $danger;
-                }
+            .activity-description {
+                font-size: ptr(10px);
+                color: $kb-text-dark;
+                line-height: 1.4;
+                width: 100%;
+                margin-top: ptr(2px);
             }
         }
         
@@ -217,7 +188,6 @@
             
             .summary-item {
                 text-align: center;
-                padding: ptr(6px);
                 background-color: $bg-light;
                 border-radius: ptr(4px);
                 

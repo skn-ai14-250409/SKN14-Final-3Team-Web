@@ -113,17 +113,8 @@ class InterestRateWidget {
         return this.rates[type] || null;
     }
     
-    // 특정 금리 타입의 값을 설정하는 메서드
-    setRate(type, value) {
-        if (this.rates.hasOwnProperty(type)) {
-            this.rates[type] = value;
-            this.updateDisplay();
-        }
-    }
 }
 
-// 전역 함수들
-// 전역 함수 제거됨 - 이제 setupRefreshButton에서 직접 처리
 
 // 페이지 로드 시 위젯 초기화
 document.addEventListener('DOMContentLoaded', function() {
@@ -152,4 +143,3 @@ window.addEventListener('beforeunload', function() {
     }
 });
 
-// CSS 애니메이션 제거됨 - 이제 SCSS에서 transition으로 처리

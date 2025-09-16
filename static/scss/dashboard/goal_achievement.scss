@@ -1,22 +1,13 @@
-@import 'base';
+@import '../base';
 
 // 목표 달성률 위젯 스타일
 .goal-achievement-widget {
     border-radius: ptr(8px);
-    padding: ptr(12px);
-    background-color: $bg-light;
-    height: 100%;
+    padding: ptr(10px);
     display: flex;
     flex-direction: column;
     border: 1px solid $kb-border;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease;
-    
-    &:hover {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        transform: translateY(-1px);
-    }
-    
+
     .widget-header {
         display: flex;
         justify-content: space-between;
@@ -24,21 +15,14 @@
         margin-bottom: ptr(8px);
         
         .header-left {
+            padding-left: ptr(5px);
             display: flex;
             align-items: center;
-            gap: ptr(6px);
+            gap: ptr(5px);
             
             .header-icon {
-                @include flex-center;
-                width: ptr(16px);
-                height: ptr(16px);
-                background-color: $kb-yellow;
-                border-radius: 50%;
-                color: $kb-dark;
-                
-                i {
-                    font-size: ptr(10px);
-                }
+                height: ptr(14px);
+                border: ptr(2px) solid $kb-dark;
             }
             
             .header-title {
@@ -46,30 +30,13 @@
                 font-weight: 600;
                 color: $kb-dark;
             }
-        }
-        
-        .header-right {
-            .period-selector {
-                font-size: ptr(10px);
-                color: $kb-text-dark;
-                background: none;
-                border: none;
-                cursor: pointer;
-                
-                &:hover {
-                    color: $kb-yellow;
-                }
-            }
-        }
+        }   
     }
     
     .achievement-content {
-        flex: 1;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: ptr(12px);
-        margin-top: ptr(8px);
         
         .goal-categories {
             display: flex;
@@ -80,11 +47,10 @@
                 display: flex;
                 align-items: center;
                 gap: ptr(8px);
-                padding: ptr(4px) 0;
                 
                 .goal-label {
-                    width: ptr(35px);
-                    font-size: ptr(11px);
+                    width: ptr(25px);
+                    font-size: ptr(10px);
                     font-weight: 500;
                     color: $kb-dark;
                     flex-shrink: 0;
@@ -92,16 +58,16 @@
                 
                 .progress-bar {
                     flex: 1;
-                    height: ptr(6px);
+                    height: 6px;
                     background-color: $kb-border;
-                    border-radius: ptr(3px);
+                    border-radius: 3px;
                     overflow: hidden;
                     position: relative;
                     
                     .progress-fill {
                         height: 100%;
-                        background: linear-gradient(90deg, $kb-yellow 0%, darken($kb-yellow, 10%) 100%);
-                        border-radius: ptr(3px);
+                        background: $kb-dark;
+                        border-radius: 3px;
                         transition: width 0.5s ease;
                         position: relative;
                         
@@ -120,7 +86,7 @@
                 
                 .goal-percentage {
                     width: ptr(30px);
-                    font-size: ptr(11px);
+                    font-size: ptr(10px);
                     font-weight: 600;
                     color: $kb-dark;
                     text-align: right;
@@ -152,7 +118,7 @@
                     }
                     
                     .progress-bar {
-                        height: ptr(6px);
+                        height: 6px;
                     }
                     
                     .goal-percentage {

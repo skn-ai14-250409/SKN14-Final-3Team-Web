@@ -7,6 +7,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const memberNames = document.querySelectorAll('.member_name');
     const memberDepts = document.querySelectorAll('.member_dept');
     
+    // KB 업무 지원 챗봇 클릭 이벤트
+    const chatbotContainer = document.querySelector('.chatbot_container');
+    chatbotContainer.addEventListener('click', function() {
+        window.location.href = '/kb_finaIssist/chatbot/';
+    });
+
     // 초기 상태: 줄어든 상태로 시작 (CSS에서 처리)
 
     if (teamChannelColumn) {

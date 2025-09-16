@@ -1,7 +1,7 @@
 // KB국민은행 직원 업무시스템 - 대시보드 SCSS
 
 // 변수, 함수 import
-@import 'base';
+@import '../base';
 
 // 대시보드 컨테이너
 .dashboard_container {
@@ -17,7 +17,7 @@
         width: 100%;
         flex: 1;
         min-height: 0;
-        
+
         // 팀 채널 컬럼 (사이드바)
         .team_channel_column {
             grid-column: 1;
@@ -111,7 +111,7 @@
                 
                 // 부모 grid 컬럼 크기 조정
                 .dashboard_content {
-                    grid-template-columns: ptr(200) ptr(200px) 1fr ptr(200px);
+                    grid-template-columns: ptr(200) ptr(50px) 1fr ptr(200px);
                 }
             }
             
@@ -815,292 +815,12 @@
         .fourth_column {
             grid-column: 4;
             min-height: 0;
-            padding: ptr(6px);
-            display: flex;
-            flex-direction: column;
-            gap: ptr(6px);
+            padding: ptr(20px);
+            display: grid;
+            gap: ptr(10px);
             border-left: ptr(1px) solid $kb-border;
-            
-            // 목표 달성률 카드
-            .goal_achievement_card {
-                background-color: $bg-light;
-                border-radius: ptr(6px);
-                padding: ptr(8px);
-                border: 1px solid $kb-border;
-                transition: all 0.2s ease;
-                cursor: pointer;
-                
-                &:hover {
-                    border-color: $kb-yellow;
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
-                }
-                
-                .card_header {
-                    display: flex;
-                    align-items: center;
-                    gap: ptr(6px);
-                    margin-bottom: ptr(8px);
-                    
-                    .header_icon {
-                        @include flex-center;
-                        width: ptr(16px);
-                        height: ptr(16px);
-                        background-color: $kb-yellow;
-                        border-radius: 50%;
-                        color: $kb-dark;
-                        
-                        i {
-                            font-size: ptr(10px);
-                        }
-                    }
-                    
-                    .header_title {
-                        font-size: ptr(12px);
-                        font-weight: 600;
-                        color: $kb-dark;
-                    }
-                }
-                
-                .goal_items {
-                    display: flex;
-                    flex-direction: column;
-                    gap: ptr(8px);
-                    
-                    .goal_item {
-                        display: flex;
-                        align-items: center;
-                        gap: ptr(6px);
-                        
-                        .goal_label {
-                            width: ptr(30px);
-                            font-size: ptr(10px);
-                            font-weight: 500;
-                            color: $kb-dark;
-                            flex-shrink: 0;
-                        }
-                        
-                        .progress_bar {
-                            flex: 1;
-                            height: ptr(4px);
-                            background-color: $kb-border;
-                            border-radius: ptr(2px);
-                            overflow: hidden;
-                            
-                            .progress_fill {
-                                height: 100%;
-                                background-color: $kb-dark;
-                                border-radius: ptr(2px);
-                                transition: width 0.3s ease;
-                            }
-                        }
-                        
-                        .goal_percentage {
-                            width: ptr(25px);
-                            font-size: ptr(10px);
-                            font-weight: 600;
-                            color: $kb-dark;
-                            text-align: right;
-                            flex-shrink: 0;
-                        }
-                    }
-                }
-            }
-            
-            // 최근 활동 카드
-            .recent_activity_card {
-                background-color: $bg-light;
-                border-radius: ptr(6px);
-                padding: ptr(8px);
-                border: 1px solid $kb-border;
-                transition: all 0.2s ease;
-                cursor: pointer;
-                
-                &:hover {
-                    border-color: $kb-yellow;
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
-                }
-                
-                .card_header {
-                    display: flex;
-                    align-items: center;
-                    gap: ptr(6px);
-                    margin-bottom: ptr(8px);
-                    
-                    .header_icon {
-                        @include flex-center;
-                        width: ptr(16px);
-                        height: ptr(16px);
-                        background-color: $positive;
-                        border-radius: 50%;
-                        color: white;
-                        
-                        i {
-                            font-size: ptr(10px);
-                        }
-                    }
-                    
-                    .header_title {
-                        font-size: ptr(12px);
-                        font-weight: 600;
-                        color: $kb-dark;
-                    }
-                }
-                
-                .activity_list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: ptr(6px);
-                    
-                    .activity_item {
-                        display: flex;
-                        align-items: center;
-                        gap: ptr(6px);
-                        padding: ptr(4px);
-                        border-radius: ptr(4px);
-                        transition: background-color 0.2s ease;
-                        
-                        &:hover {
-                            background-color: $kb-background-gray;
-                        }
-                        
-                        .activity_icon {
-                            @include flex-center;
-                            width: ptr(18px);
-                            height: ptr(18px);
-                            border-radius: 50%;
-                            flex-shrink: 0;
-                            
-                            &.success {
-                                background-color: $positive;
-                                color: white;
-                            }
-                            
-                            &.warning {
-                                background-color: $kb-yellow;
-                                color: $kb-dark;
-                            }
-                            
-                            &.info {
-                                background-color: #17a2b8;
-                                color: white;
-                            }
-                            
-                            i {
-                                font-size: ptr(8px);
-                            }
-                        }
-                        
-                        .activity_content {
-                            flex: 1;
-                            
-                            .activity_title {
-                                font-size: ptr(9px);
-                                font-weight: 500;
-                                color: $kb-dark;
-                                margin-bottom: ptr(1px);
-                            }
-                            
-                            .activity_time {
-                                font-size: ptr(8px);
-                                color: $kb-text-dark;
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // 업무 현황 카드
-            .work_status_card {
-                background-color: $bg-light;
-                border-radius: ptr(6px);
-                padding: ptr(8px);
-                border: 1px solid $kb-border;
-                transition: all 0.2s ease;
-                cursor: pointer;
-                
-                &:hover {
-                    border-color: $kb-yellow;
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
-                }
-                
-                .card_header {
-                    display: flex;
-                    align-items: center;
-                    gap: ptr(6px);
-                    margin-bottom: ptr(8px);
-                    
-                    .header_icon {
-                        @include flex-center;
-                        width: ptr(16px);
-                        height: ptr(16px);
-                        background-color: #17a2b8;
-                        border-radius: 50%;
-                        color: white;
-                        
-                        i {
-                            font-size: ptr(10px);
-                        }
-                    }
-                    
-                    .header_title {
-                        font-size: ptr(12px);
-                        font-weight: 600;
-                        color: $kb-dark;
-                    }
-                }
-                
-                .work_stats {
-                    display: flex;
-                    flex-direction: column;
-                    gap: ptr(6px);
-                    
-                    .stat_item {
-                        display: flex;
-                        align-items: center;
-                        gap: ptr(6px);
-                        padding: ptr(4px);
-                        border-radius: ptr(4px);
-                        transition: background-color 0.2s ease;
-                        
-                        &:hover {
-                            background-color: $kb-background-gray;
-                        }
-                        
-                        .stat_icon {
-                            @include flex-center;
-                            width: ptr(18px);
-                            height: ptr(18px);
-                            background-color: $kb-yellow;
-                            border-radius: 50%;
-                            color: $kb-dark;
-                            flex-shrink: 0;
-                            
-                            i {
-                                font-size: ptr(8px);
-                            }
-                        }
-                        
-                        .stat_info {
-                            flex: 1;
-                            
-                            .stat_value {
-                                font-size: ptr(12px);
-                                font-weight: 600;
-                                color: $kb-dark;
-                                margin-bottom: ptr(1px);
-                            }
-                            
-                            .stat_label {
-                                font-size: ptr(9px);
-                                color: $kb-text-dark;
-                            }
-                        }
-                    }
-                }
-            }
+            grid-template-rows: ptr(280px) ptr(120px) auto;
+            padding-top: ptr(50px);
         }
     }
 }

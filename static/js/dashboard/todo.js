@@ -192,12 +192,6 @@ class TodoWidget {
     }
 }
 
-// 전역 함수들
-function showTodoModal() {
-    if (window.todoWidget) {
-        window.todoWidget.showModal();
-    }
-}
 
 // 페이지 로드 시 위젯 초기화
 document.addEventListener('DOMContentLoaded', function() {

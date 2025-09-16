@@ -368,127 +368,26 @@
             
         </div>
         <div class="fourth_column">
-            <!-- 목표 달성률 카드 -->
-            <div class="goal_achievement_card">
-                <div class="card_header">
-                    <div class="header_icon">
-                        <i class="bi bi-target"></i>
-                    </div>
-                    <div class="header_title">목표 달성률</div>
-                </div>
-                <div class="goal_items">
-                    <div class="goal_item">
-                        <div class="goal_label">대출</div>
-                        <div class="progress_bar">
-                            <div class="progress_fill" style="width: 78%"></div>
-                        </div>
-                        <div class="goal_percentage">78%</div>
-                    </div>
-                    <div class="goal_item">
-                        <div class="goal_label">예금</div>
-                        <div class="progress_bar">
-                            <div class="progress_fill" style="width: 92%"></div>
-                        </div>
-                        <div class="goal_percentage">92%</div>
-                    </div>
-                    <div class="goal_item">
-                        <div class="goal_label">신규</div>
-                        <div class="progress_bar">
-                            <div class="progress_fill" style="width: 65%"></div>
-                        </div>
-                        <div class="goal_percentage">65%</div>
-                    </div>
-                </div>
-            </div>
             
             <!-- 최근 활동 카드 -->
-            <div class="recent_activity_card">
-                <div class="card_header">
-                    <div class="header_icon">
-                        <i class="bi bi-activity"></i>
-                    </div>
-                    <div class="header_title">최근 활동</div>
-                </div>
-                <div class="activity_list">
-                    <div class="activity_item">
-                        <div class="activity_icon success">
-                            <i class="bi bi-check-circle"></i>
-                        </div>
-                        <div class="activity_content">
-                            <div class="activity_title">고객 상담 완료</div>
-                            <div class="activity_time">5분 전</div>
-                        </div>
-                    </div>
-                    <div class="activity_item">
-                        <div class="activity_icon warning">
-                            <i class="bi bi-exclamation-triangle"></i>
-                        </div>
-                        <div class="activity_content">
-                            <div class="activity_title">승인 대기</div>
-                            <div class="activity_time">15분 전</div>
-                        </div>
-                    </div>
-                    <div class="activity_item">
-                        <div class="activity_icon info">
-                            <i class="bi bi-info-circle"></i>
-                        </div>
-                        <div class="activity_content">
-                            <div class="activity_title">새로운 예금 상품</div>
-                            <div class="activity_time">1시간 전</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% include 'dashboard/recent_activity.html' %}
+            
+            <!-- 목표 달성 카드 -->
+            {% include 'dashboard/goal_achievement.html' %}
             
             <!-- 업무 현황 카드 -->
-            <div class="work_status_card">
-                <div class="card_header">
-                    <div class="header_icon">
-                        <i class="bi bi-pie-chart"></i>
-                    </div>
-                    <div class="header_title">업무 현황</div>
-                </div>
-                <div class="work_stats">
-                    <div class="stat_item">
-                        <div class="stat_icon">
-                            <i class="bi bi-people"></i>
-                        </div>
-                        <div class="stat_info">
-                            <div class="stat_value">45</div>
-                            <div class="stat_label">대출 상담</div>
-                        </div>
-                    </div>
-                    <div class="stat_item">
-                        <div class="stat_icon">
-                            <i class="bi bi-bank"></i>
-                        </div>
-                        <div class="stat_info">
-                            <div class="stat_value">32</div>
-                            <div class="stat_label">예금 상담</div>
-                        </div>
-                    </div>
-                    <div class="stat_item">
-                        <div class="stat_icon">
-                            <i class="bi bi-credit-card"></i>
-                        </div>
-                        <div class="stat_info">
-                            <div class="stat_value">18</div>
-                            <div class="stat_label">신용 상담</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% include 'dashboard/work_distribution.html' %}
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/dashboard.js' %}"></script>
-<script src="{% static 'js/calendar.js' %}"></script>
-<script src="{% static 'js/exchange_rate.js' %}"></script>
-<script src="{% static 'js/interest_rate.js' %}"></script>
-<script src="{% static 'js/todo.js' %}"></script>
-<script src="{% static 'js/transaction_status.js' %}"></script>
-<script src="{% static 'js/notification.js' %}"></script>
+<script src="{% static 'js/dashboard/dashboard.js' %}"></script>
+<script src="{% static 'js/dashboard/calendar.js' %}"></script>
+<script src="{% static 'js/dashboard/exchange_rate.js' %}"></script>
+<script src="{% static 'js/dashboard/interest_rate.js' %}"></script>
+<script src="{% static 'js/dashboard/todo.js' %}"></script>
+<script src="{% static 'js/dashboard/transaction_status.js' %}"></script>
+<script src="{% static 'js/dashboard/notification.js' %}"></script>
 {% endblock %}
