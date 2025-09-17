@@ -18,6 +18,109 @@
         {% include 'chatbot/chat_history_column.html' %}
 
         <div class="main_chatbot_column">
+            <!-- 챗봇 메시지 영역 -->
+            <div class="chat_messages_area">
+                <!-- 봇 환영 메시지 -->
+                <div class="bot_message">
+                    <div class="message_avatar">
+                        <img src="{% static 'images/KB_SymbolMark.png' %}" alt="KB 챗봇" class="avatar_image">
+                    </div>
+                    <div class="message_content">
+                        <div class="message_bubble">
+                             안녕하세요! KB 업무 지원 챗봇입니다. 궁금한 업무나 규정에 대해 언제든 문의해 주세요.
+                        </div>
+                        <div class="message_time">오후 05:51</div>
+                    </div>
+                </div>
+
+                <!-- 자주 묻는 질문 -->
+                <div class="suggested_questions_container">
+                    <div class="suggested_questions">
+                        <div class="suggested_questions_header">
+                            자주 묻는 질문을 선택하거나 직접 입력해주세요
+                        </div>
+                        <div class="suggested_questions_grid">
+                            <div class="suggested_question_card">
+                                <div class="question_radio">
+                                    <i class="bi bi-chat"></i>
+                                </div>
+                                <div class="question_content">
+                                    <div class="question_title">대출 금리 조회</div>
+                                    <div class="question_description">현재 적용 금리 및 우대조건</div>
+                                </div>
+                                <div class="question_tag">대출</div>
+                            </div>
+                            <div class="suggested_question_card">
+                                <div class="question_radio">
+                                    <i class="bi bi-chat"></i>
+                                </div>
+                                <div class="question_content">
+                                    <div class="question_title">고객 상담 스크립트</div>
+                                    <div class="question_description">상황별 표준 응답 가이드</div>
+                                </div>
+                                <div class="question_tag">상담</div>
+                            </div>
+                            <div class="suggested_question_card">
+                                <div class="question_radio">
+                                    <i class="bi bi-chat"></i>
+                                </div>
+                                <div class="question_content">
+                                    <div class="question_title">신용평가 기준</div>
+                                    <div class="question_description">개인/기업 신용평가 기준</div>
+                                </div>
+                                <div class="question_tag">심사</div>
+                            </div>
+                            <div class="suggested_question_card">
+                                <div class="question_radio">
+                                    <i class="bi bi-chat"></i>
+                                </div>
+                                <div class="question_content">
+                                    <div class="question_title">예금 상품 안내</div>
+                                    <div class="question_description">예적금 상품별 특징 및 조건</div>
+                                </div>
+                                <div class="question_tag">예금</div>
+                            </div>
+                            <div class="suggested_question_card">
+                                <div class="question_radio">
+                                    <i class="bi bi-chat"></i>
+                                </div>
+                                <div class="question_content">
+                                    <div class="question_title">외환 업무 가이드</div>
+                                    <div class="question_description">외환거래 절차 및 규정</div>
+                                </div>
+                                <div class="question_tag">외환</div>
+                            </div>
+                            <div class="suggested_question_card">
+                                <div class="question_radio">
+                                    <i class="bi bi-chat"></i>
+                                </div>
+                                <div class="question_content">
+                                    <div class="question_title">컴플라이언스 체크</div>
+                                    <div class="question_description">준법감시 관련 확인사항</div>
+                                </div>
+                                <div class="question_tag">컴플라이언스</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 입력 영역 -->
+            <div class="chat_input_area">
+                <div class="input_container">
+                    <button class="attach_button">
+                        <i class="bi bi-plus"></i>
+                    </button>
+                    <div class="input_separator"></div>
+                    <input type="text" class="chat_input" placeholder="무엇이든 물어보세요">
+                    <button class="voice_button">
+                        <i class="bi bi-mic"></i>
+                    </button>
+                    <button class="voice_wave_button">
+                        <i class="bi bi-soundwave"></i>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Chat PDF Column (PDF 참조) -->

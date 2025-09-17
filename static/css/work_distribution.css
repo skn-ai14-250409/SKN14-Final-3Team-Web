@@ -564,7 +564,7 @@ body {
   position: absolute;
   width: 60%;
   height: 60%;
-  background-color: #f4f2f0;
+  background-color: #f6f6f6;
   border-radius: 50%;
 }
 .work-distribution-widget .distribution-content .chart-container .doughnut-chart .chart-center {
@@ -618,7 +618,7 @@ body {
   transition: all 0.2s ease;
 }
 .work-distribution-widget .distribution-content .consultation-grid .consultation-item:hover {
-  background-color: #f4f2f0;
+  background-color: #f6f6f6;
   -webkit-transform: translateY(-1px);
           transform: translateY(-1px);
 }

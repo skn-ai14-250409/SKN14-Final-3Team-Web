@@ -338,7 +338,7 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #f4f2f0;
+  background-color: #f6f6f6;
 }
 .interest-rate-widget .interest-rate-header {
   display: flex;

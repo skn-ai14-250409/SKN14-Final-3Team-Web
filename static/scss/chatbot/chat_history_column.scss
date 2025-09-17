@@ -9,6 +9,7 @@
     flex-direction: column;
     gap: ptr(10px);
     width: 100%;
+    border-right: ptr(1px) solid $kb-border;
     
     // Chat History Header
     .chat_history_header {

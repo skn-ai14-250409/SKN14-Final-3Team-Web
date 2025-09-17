@@ -335,7 +335,7 @@ body {
 .transaction-status-widget {
   border-radius: 0.625rem;
   padding: 0.625rem;
-  background-color: #f4f2f0;
+  background-color: #f6f6f6;
 }
 .transaction-status-widget .transaction-status-header {
   display: flex;
