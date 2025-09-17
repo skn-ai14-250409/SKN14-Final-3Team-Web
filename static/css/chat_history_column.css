@@ -519,7 +519,7 @@ body {
   transition: opacity 0.2s ease;
 }
 .chat_history_column .chat_history_header .new_chat_section:hover, .chat_history_column .chat_history_header .chat_search_section:hover {
-  background-color: #f6f6f6;
+  background-color: #f8f8f8;
   border-radius: 0.375rem;
 }
 .chat_history_column .chat_history_header .new_chat_section:hover .new_chat_shortcut, .chat_history_column .chat_history_header .new_chat_section:hover .chat_search_shortcut, .chat_history_column .chat_history_header .chat_search_section:hover .new_chat_shortcut, .chat_history_column .chat_history_header .chat_search_section:hover .chat_search_shortcut {
@@ -575,10 +575,10 @@ body {
           align-items: center;
 }
 .chat_history_column .chat_history_list .history_item:hover {
-  background-color: #f6f6f6;
+  background-color: #f8f8f8;
 }
 .chat_history_column .chat_history_list .history_item.active {
-  background-color: #f6f6f6;
+  background-color: #f8f8f8;
 }
 .chat_history_column .chat_history_list .history_item.active .history_title {
   color: #392e1b;
@@ -649,7 +649,7 @@ body {
   color: #333;
 }
 .chat_history_column .chat_history_list .history_item .function_icon .context_menu .menu_item:hover {
-  background-color: #f6f6f6;
+  background-color: #f8f8f8;
 }
 .chat_history_column .chat_history_list .history_item .function_icon .context_menu .menu_item:first-child {
   border-radius: 0.375rem 0.375rem 0 0;
@@ -722,7 +722,7 @@ body {
   border-radius: 0.375rem;
 }
 .chat_history_column .history_footer .chat_storage_section:hover, .chat_history_column .history_footer .chat_setting_section:hover {
-  background-color: #f6f6f6;
+  background-color: #f8f8f8;
   border-radius: 0.375rem;
 }
 .chat_history_column .history_footer .chat_storage_section .storage_icon, .chat_history_column .history_footer .chat_storage_section .setting_icon, .chat_history_column .history_footer .chat_setting_section .storage_icon, .chat_history_column .history_footer .chat_setting_section .setting_icon {

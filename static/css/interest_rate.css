@@ -451,7 +451,7 @@ body {
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
-  background-color: #f6f6f6;
+  background-color: #f8f8f8;
 }
 .interest-rate-widget .interest-rate-header {
   display: -webkit-box;

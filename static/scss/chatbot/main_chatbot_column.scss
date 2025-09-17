@@ -104,11 +104,13 @@
             }
         }
 
+
         .suggested_questions_container{
             @include flex-center;
+            margin-bottom: ptr(10px);
             
             .suggested_questions {
-                width: 85%;
+                width: 75%;
                 
                 .suggested_questions_header {
                     text-align: center;
@@ -184,9 +186,145 @@
         }
     }
     
+    .suggested_questions_button_container {
+        @include flex-center;
+        width: 90%;
+        
+        .show_questions_button {
+            @include flex-center;
+            gap: ptr(6px);
+            color: $kb-dark;
+            border: none;
+            border-radius: ptr(8px);
+            padding: ptr(4px) ptr(10px);
+            font-size: ptr(10px);
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: ptr(10px);
+            
+            &:hover {
+                background-color: $kb-yellow;
+                transform: translateY(-1px);
+                font-weight: 500;
+            }
+            
+            &:active {
+                transform: translateY(0);
+            }
+            
+            i {
+                font-size: ptr(12px);
+            }
+        }
+    }
+    
+    .suggested_questions_cards_container {
+        width: 60%;
+        margin-bottom: ptr(10px);
+        border-radius: ptr(12px);
+        background-color: $kb-background-gray;
+
+        .suggested_questions_grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: ptr(3px);
+            padding: ptr(8px);
+            
+            .grid_header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: ptr(10px);
+                font-weight: 500;
+                color: $kb-dark;
+                grid-column: 1 / -1;
+                
+                .header_text {
+                    font-size: ptr(11px);
+                    font-weight: 500;
+                    color: $kb-dark;
+                    padding-left: ptr(10px);
+                    gap: ptr(10px)
+                }
+                
+                .close_questions_button {
+                    @include flex-center;
+                    width: ptr(24px);
+                    height: ptr(24px);
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    color: $kb-text-light;
+                    transition: all 0.2s ease;
+                    border-radius: 50%;
+                    
+                    &:hover {
+                        background-color: rgba($kb-text-light, 0.1);
+                        color: $kb-dark;
+                    }
+                    
+                    i {
+                        font-size: ptr(16px);
+                    }
+                }
+            }
+            
+            .suggested_question_card {
+                border: 1px solid $kb-border;
+                border-radius: ptr(6px);
+                padding: ptr(8px);
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                gap: ptr(6px);
+                background-color: $bg-light;
+                
+                &:hover {
+                    border-color: $kb-yellow;
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.1);
+                    .question_tag{
+                        background-color: $kb-yellow;
+                        border:none;
+                    }
+                }
+
+                .question_radio {
+                    @include flex-center;
+                    
+                    i{
+                        font-size: ptr(10px);
+                        color: $kb-text-light;
+                    }
+                }
+                
+                .question_content {
+                    flex: 1;
+                    
+                    .question_title {
+                        font-size: ptr(9px);
+                        font-weight: 400;
+                        color: $kb-dark;
+                    }
+                }
+                
+                .question_tag {
+                    color: $kb-dark;
+                    font-size: ptr(7px);
+                    font-weight: 500;
+                    padding: ptr(2px) ptr(4px);
+                    border-radius: ptr(6px);
+                    flex-shrink: 0;
+                    border: 1px solid $kb-border;
+                }
+            }
+        }
+    }
+    
     .chat_input_area {
         width: 90%;
-        padding-top: ptr(10px);
         background-color: white;
         
         .input_container {

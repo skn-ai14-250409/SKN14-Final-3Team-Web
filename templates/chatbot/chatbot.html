@@ -36,11 +36,11 @@
                 <!-- 사용자 메시지들 (동적으로 추가됨) -->
                 <div id="user_messages_container"></div>
 
-                <!-- 자주 묻는 질문 -->
+                <!-- 자주 묻는 질문 카드들 (대화창 바로 밑) -->
                 <div class="suggested_questions_container">
                     <div class="suggested_questions">
                         <div class="suggested_questions_header">
-                            자주 묻는 질문을 선택하거나 직접 입력해주세요
+                            <span class="header_text">자주 묻는 질문을 선택하거나 직접 입력해주세요</span>
                         </div>
                         <div class="suggested_questions_grid">
                             <div class="suggested_question_card">
@@ -48,8 +48,8 @@
                                     <i class="bi bi-chat"></i>
                                 </div>
                                 <div class="question_content">
-                                    <div class="question_title">대출 금리 조회</div>
-                                    <div class="question_description">현재 적용 금리 및 우대조건</div>
+                                    <div class="question_title">개인 대출 서류</div>
+                                    <div class="question_description">개인 여신 대출 기본 서류 안내</div>
                                 </div>
                                 <div class="question_tag">대출</div>
                             </div>
@@ -58,53 +58,130 @@
                                     <i class="bi bi-chat"></i>
                                 </div>
                                 <div class="question_content">
-                                    <div class="question_title">고객 상담 스크립트</div>
-                                    <div class="question_description">상황별 표준 응답 가이드</div>
+                                    <div class="question_title">전세 대출 서류</div>
+                                    <div class="question_description">전세 대출 기본 서류 안내</div>
                                 </div>
-                                <div class="question_tag">상담</div>
+                                <div class="question_tag">대출</div>
                             </div>
                             <div class="suggested_question_card">
                                 <div class="question_radio">
                                     <i class="bi bi-chat"></i>
                                 </div>
                                 <div class="question_content">
-                                    <div class="question_title">신용평가 기준</div>
-                                    <div class="question_description">개인/기업 신용평가 기준</div>
+                                    <div class="question_title">대출 유의사항</div>
+                                    <div class="question_description">대출 거래 시 알아야할 것</div>
                                 </div>
-                                <div class="question_tag">심사</div>
+                                <div class="question_tag">대출</div>
                             </div>
                             <div class="suggested_question_card">
                                 <div class="question_radio">
                                     <i class="bi bi-chat"></i>
                                 </div>
                                 <div class="question_content">
-                                    <div class="question_title">예금 상품 안내</div>
-                                    <div class="question_description">예적금 상품별 특징 및 조건</div>
+                                    <div class="question_title">연체 수수료 안내</div>
+                                    <div class="question_description">대출 상환 연체 배상금 안내</div>
                                 </div>
-                                <div class="question_tag">예금</div>
+                                <div class="question_tag">대출</div>
                             </div>
                             <div class="suggested_question_card">
                                 <div class="question_radio">
                                     <i class="bi bi-chat"></i>
                                 </div>
                                 <div class="question_content">
-                                    <div class="question_title">외환 업무 가이드</div>
-                                    <div class="question_description">외환거래 절차 및 규정</div>
+                                    <div class="question_title">금리 안내</div>
+                                    <div class="question_description">대출 금리 구성 항목 소개</div>
                                 </div>
-                                <div class="question_tag">외환</div>
+                                <div class="question_tag">대출</div>
                             </div>
                             <div class="suggested_question_card">
                                 <div class="question_radio">
                                     <i class="bi bi-chat"></i>
                                 </div>
                                 <div class="question_content">
-                                    <div class="question_title">컴플라이언스 체크</div>
-                                    <div class="question_description">준법감시 관련 확인사항</div>
+                                    <div class="question_title">중도 상환 수수료</div>
+                                    <div class="question_description">중도 상환 및 대출 갈아타기 방법</div>
                                 </div>
-                                <div class="question_tag">컴플라이언스</div>
+                                <div class="question_tag">대출</div>
                             </div>
                         </div>
                     </div>
+                </div>
+
+            </div>
+
+            <!-- 자주 묻는 질문 버튼/카드 (input 위에 위치) -->
+            <div class="suggested_questions_button_container" style="display: none;">
+                <button class="show_questions_button">
+                    <i class="bi bi-question-circle"></i>
+                    자주 묻는 질문
+                </button>
+            </div>
+            
+            <!-- 자주 묻는 질문 카드들 (input 위에 위치) -->
+            <div class="suggested_questions_cards_container" style="display: none;">
+                <div class="suggested_questions_grid">
+                    <div class="grid_header">
+                        <span class="header_text">
+                            자주 묻는 질문
+                        </span>
+                        <button class="close_questions_button">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                    <div class="suggested_question_card">
+                        <div class="question_radio">
+                            <i class="bi bi-chat"></i>
+                        </div>
+                        <div class="question_content">
+                            <div class="question_title">개인 대출 서류</div>
+                        </div>
+                        <div class="question_tag">대출</div>
+                    </div>
+                    <div class="suggested_question_card">
+                        <div class="question_radio">
+                            <i class="bi bi-chat"></i>
+                        </div>
+                        <div class="question_content">
+                            <div class="question_title">전세 대출 서류</div>
+                        </div>
+                        <div class="question_tag">대출</div>
+                    </div>
+                    <div class="suggested_question_card">
+                        <div class="question_radio">
+                            <i class="bi bi-chat"></i>
+                        </div>
+                        <div class="question_content">
+                            <div class="question_title">대출 유의사항</div>
+                        </div>
+                        <div class="question_tag">대출</div>
+                    </div>
+                    <div class="suggested_question_card">
+                        <div class="question_radio">
+                            <i class="bi bi-chat"></i>
+                        </div>
+                        <div class="question_content">
+                            <div class="question_title">연체 수수료 안내</div>
+                        </div>
+                        <div class="question_tag">대출</div>
+                    </div>
+                    <div class="suggested_question_card">
+                        <div class="question_radio">
+                            <i class="bi bi-chat"></i>
+                    </div>
+                    <div class="question_content">
+                        <div class="question_title">금리 안내</div>
+                    </div>
+                    <div class="question_tag">대출</div>
+                </div>
+                <div class="suggested_question_card">
+                    <div class="question_radio">
+                        <i class="bi bi-chat"></i>
+                    </div>
+                    <div class="question_content">
+                        <div class="question_title">중도 상환 수수료</div>
+                    </div>
+                    <div class="question_tag">대출</div>
+                </div>
                 </div>
             </div>
 

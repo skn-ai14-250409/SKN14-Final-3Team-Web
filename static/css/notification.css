@@ -443,7 +443,7 @@ body {
 .notification-widget {
   border-radius: 0.625rem;
   padding: 0.625rem;
-  background-color: #f6f6f6;
+  background-color: #f8f8f8;
 }
 .notification-widget .notification-header {
   display: -webkit-box;

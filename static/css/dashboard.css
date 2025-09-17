@@ -1201,7 +1201,7 @@ body {
   transition: background-color 0.2s ease;
 }
 .dashboard_container .dashboard_content .second_column .nav_menu .nav_item:hover {
-  background-color: #f6f6f6;
+  background-color: #f8f8f8;
 }
 .dashboard_container .dashboard_content .second_column .nav_menu .nav_item i {
   font-size: 0.875rem;
