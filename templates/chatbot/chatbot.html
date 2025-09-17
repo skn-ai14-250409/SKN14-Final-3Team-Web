@@ -27,11 +27,14 @@
                     </div>
                     <div class="message_content">
                         <div class="message_bubble">
-                             안녕하세요! KB 업무 지원 챗봇입니다. 궁금한 업무나 규정에 대해 언제든 문의해 주세요.
+                            안녕하세요! KB 업무 지원 챗봇입니다. 궁금한 업무나 규정에 대해 언제든 문의해 주세요.
                         </div>
                         <div class="message_time">오후 05:51</div>
                     </div>
                 </div>
+
+                <!-- 사용자 메시지들 (동적으로 추가됨) -->
+                <div id="user_messages_container"></div>
 
                 <!-- 자주 묻는 질문 -->
                 <div class="suggested_questions_container">
@@ -134,4 +137,5 @@
 <script src="{% static 'js/partials/team_channel_column.js' %}"></script>
 <script src="{% static 'js/chatbot/chat_history_column.js' %}"></script>
 <script src="{% static 'js/chatbot/chat_pdf_column.js' %}"></script>
+<script src="{% static 'js/chatbot/main_chatbot.js' %}"></script>
 {% endblock %}

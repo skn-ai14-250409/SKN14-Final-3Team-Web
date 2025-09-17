@@ -129,6 +129,7 @@
                 cursor: pointer;
                 opacity: 0;
                 transition: all 0.2s ease;
+                position: relative;
                 
                 &:hover {
                     color: $kb-dark;
@@ -136,6 +137,86 @@
                 
                 i {
                     font-size: ptr(12px);
+                }
+                
+                .context_menu {
+                    position: absolute;
+                    top: 100%;
+                    right: 0;
+                    background: white;
+                    border: 1px solid $kb-border;
+                    border-radius: ptr(6px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    z-index: 1000;
+                    min-width: ptr(80px);
+                    opacity: 0;
+                    visibility: hidden;
+                    transform: translateY(-10px);
+                    transition: all 0.2s ease;
+                    
+                    &.show {
+                        opacity: 1;
+                        visibility: visible;
+                        transform: translateY(0);
+                    }
+                    
+                    .menu_item {
+                        display: flex;
+                        align-items: center;
+                        gap: ptr(6px);
+                        padding: ptr(6px) ptr(8px);
+                        cursor: pointer;
+                        transition: background-color 0.2s ease;
+                        font-size: ptr(10px);
+                        color: $kb-text-dark;
+                        
+                        &:hover {
+                            background-color: $kb-background-gray;
+                        }
+                        
+                        &:first-child {
+                            border-radius: ptr(6px) ptr(6px) 0 0;
+                        }
+                        
+                        &:last-child {
+                            border-radius: 0 0 ptr(6px) ptr(6px);
+                        }
+                        
+                        &:only-child {
+                            border-radius: ptr(6px);
+                        }
+                        
+                        i {
+                            font-size: ptr(10px);
+                            color: $kb-text-light;
+                        }
+                        
+                        span {
+                            font-weight: 400;
+                        }
+                        
+                        &[data-action="delete"] {
+                            &:hover {
+                                background-color: rgba(220, 53, 69, 0.1);
+                                color: #dc3545;
+                                
+                                i {
+                                    color: #dc3545;
+                                }
+                            }
+                        }
+                        
+                        &[data-action="save"] {
+                            &:hover {
+                                background-color: rgba(40, 167, 69, 0.1);
+                                color: #28a745;
+                                
+                                i {
+                                    color: #28a745;
+                                }
+                            }
+                        }
+                    }
                 }
             }
             

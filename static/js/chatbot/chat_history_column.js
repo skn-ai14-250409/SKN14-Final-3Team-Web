@@ -64,6 +64,13 @@ class ChatHistoryColumn {
         console.log('Chat Search Section found:', chatSearchSection);
         console.log('History Items found:', historyItems.length);
         
+        // 메뉴 외부 클릭 시 메뉴 닫기
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.function_icon')) {
+                this.closeAllMenus();
+            }
+        });
+        
         // 새 채팅 섹션 클릭
         if (newChatSection) {
             newChatSection.addEventListener('click', (e) => {
@@ -184,15 +191,58 @@ class ChatHistoryColumn {
     showContextMenu(event, index) {
         console.log('Showing context menu for item:', index);
         
-        // 컨텍스트 메뉴 표시 (실제 구현 시 드롭다운 메뉴 생성)
-        const menuItems = [
-            { label: '이름 변경', action: () => this.renameChat(index) },
-            { label: '삭제', action: () => this.deleteChat(index) },
-            { label: '내보내기', action: () => this.exportChat(index) }
-        ];
+        // 다른 메뉴들 닫기
+        this.closeAllMenus();
         
-        // 임시로 알림으로 표시 (실제로는 드롭다운 메뉴 구현)
-        alert(`컨텍스트 메뉴: ${this.chatHistory[index]?.title || 'Unknown'}`);
+        // 현재 메뉴 표시
+        const functionIcon = event.currentTarget;
+        const contextMenu = functionIcon.querySelector('.context_menu');
+        
+        if (contextMenu) {
+            contextMenu.classList.add('show');
+            
+            // 메뉴 아이템 클릭 이벤트 추가
+            const menuItems = contextMenu.querySelectorAll('.menu_item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const action = item.getAttribute('data-action');
+                    this.handleMenuAction(action, index);
+                    this.closeAllMenus();
+                });
+            });
+        }
+    }
+    
+    closeAllMenus() {
+        const allMenus = document.querySelectorAll('.context_menu');
+        allMenus.forEach(menu => {
+            menu.classList.remove('show');
+        });
+    }
+    
+    handleMenuAction(action, index) {
+        console.log('Menu action:', action, 'for item:', index);
+        
+        switch (action) {
+            case 'save':
+                this.saveChat(index);
+                break;
+            case 'delete':
+                this.deleteChat(index);
+                break;
+            default:
+                console.log('Unknown action:', action);
+        }
+    }
+    
+    saveChat(index) {
+        const chat = this.chatHistory[index];
+        if (chat) {
+            console.log('Saving chat:', chat.title);
+            // 실제 저장 로직 구현
+            alert(`"${chat.title}" 채팅이 저장되었습니다.`);
+        }
     }
     
     renameChat(index) {
@@ -252,6 +302,16 @@ class ChatHistoryColumn {
                 </div>
                 <div class="function_icon">
                     <i class="bi bi-three-dots-vertical"></i>
+                    <div class="context_menu">
+                        <div class="menu_item" data-action="save">
+                            <i class="bi bi-bookmark"></i>
+                            <span>저장</span>
+                        </div>
+                        <div class="menu_item" data-action="delete">
+                            <i class="bi bi-trash"></i>
+                            <span>삭제</span>
+                        </div>
+                    </div>
                 </div>
             `;
             

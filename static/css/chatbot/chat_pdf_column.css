@@ -484,7 +484,7 @@ body {
 }
 .chat_pdf_column .current_pdfs_section .current_pdf_item .pdf_info .pdf_name {
   font-size: 0.5625rem;
-  font-weight: 600;
+  font-weight: 400;
   color: #333;
   margin-bottom: 0.0625rem;
   overflow: hidden;
