@@ -1,11 +1,51 @@
 document.addEventListener('DOMContentLoaded', function() {
     const chatInput = document.querySelector('.chat_input');
     const userMessagesContainer = document.getElementById('user_messages_container');
+    const welcomeMessageContainer = document.getElementById('welcome_message_container');
     const showQuestionsButton = document.querySelector('.show_questions_button');
     const suggestedQuestionsButtonContainer = document.querySelector('.suggested_questions_button_container');
     const suggestedQuestionsCardsContainer = document.querySelector('.suggested_questions_cards_container');
     const suggestedQuestionsContainer = document.querySelector('.suggested_questions_container');
     const closeQuestionsButton = document.querySelector('.close_questions_button');
+    
+    // 페이지 로드 시 환영 메시지 표시 및 새 채팅 생성
+    showWelcomeMessage();
+    createNewChatInHistory();
+    
+    // 채팅 히스토리에 새 채팅을 추가하는 함수
+    function createNewChatInHistory() {
+        // ChatHistoryColumn 인스턴스에 접근하여 새 채팅 생성
+        if (window.chatHistoryColumn && typeof window.chatHistoryColumn.createNewChat === 'function') {
+            window.chatHistoryColumn.createNewChat();
+        } else {
+            // ChatHistoryColumn이 아직 초기화되지 않은 경우 잠시 후 재시도
+            setTimeout(() => {
+                if (window.chatHistoryColumn && typeof window.chatHistoryColumn.createNewChat === 'function') {
+                    window.chatHistoryColumn.createNewChat();
+                }
+            }, 100);
+        }
+    }
+    
+    // 환영 메시지를 표시하는 함수
+    function showWelcomeMessage() {
+        const welcomeMessage = document.createElement('div');
+        welcomeMessage.className = 'bot_message';
+        welcomeMessage.innerHTML = `
+            <div class="message_avatar">
+                <img src="/static/images/KB_SymbolMark.png" alt="KB 챗봇" class="avatar_image">
+            </div>
+            <div class="message_content">
+                <div class="message_bubble">
+                    안녕하세요! KB 업무 지원 챗봇입니다. 궁금한 업무나 규정에 대해 언제든 문의해 주세요.
+                </div>
+                <div class="message_time">${getCurrentTime()}</div>
+            </div>
+        `;
+        
+        // 환영 메시지를 컨테이너에 추가
+        welcomeMessageContainer.appendChild(welcomeMessage);
+    }
     
     // 현재 시간을 포맷팅하는 함수
     function getCurrentTime() {
@@ -189,5 +229,48 @@ document.addEventListener('DOMContentLoaded', function() {
         attachButton.addEventListener('click', function() {
             console.log('파일 첨부 기능은 향후 구현 예정입니다.');
         });
+    }
+    
+    // 채팅 히스토리 액션 이벤트 리스너
+    document.addEventListener('chatHistoryAction', function(event) {
+        const { action, data } = event.detail;
+        
+        if (action === 'new_chat') {
+            console.log('새 채팅 시작:', data);
+            startNewChat();
+        } else if (action === 'load_chat') {
+            console.log('채팅 로드:', data);
+            loadChat(data);
+        }
+    });
+    
+    // 새 채팅을 시작하는 함수
+    function startNewChat() {
+        // 기존 메시지들 제거
+        userMessagesContainer.innerHTML = '';
+        welcomeMessageContainer.innerHTML = '';
+        
+        // 환영 메시지 다시 표시
+        showWelcomeMessage();
+        
+        // 자주 묻는 질문 섹션 다시 표시
+        if (suggestedQuestionsContainer) {
+            suggestedQuestionsContainer.style.display = 'flex';
+        }
+        if (suggestedQuestionsButtonContainer) {
+            suggestedQuestionsButtonContainer.style.display = 'none';
+        }
+        if (suggestedQuestionsCardsContainer) {
+            suggestedQuestionsCardsContainer.style.display = 'none';
+        }
+        
+        // 스크롤을 맨 위로
+        const chatMessagesArea = document.querySelector('.chat_messages_area');
+        chatMessagesArea.scrollTop = 0;
+    }
+    
+    // 기존 채팅을 로드하는 함수 (향후 구현)
+    function loadChat(chatData) {
+        console.log('채팅 로드 기능은 향후 구현 예정입니다:', chatData);
     }
 });
