@@ -549,6 +549,7 @@ body {
   -webkit-box-direction: reverse;
       -ms-flex-direction: row-reverse;
           flex-direction: row-reverse;
+  width: 100%;
 }
 .main_chatbot_column .chat_messages_area .user_message .message_content .message_bubble {
   background-color: rgba(255, 188, 0, 0.6);
