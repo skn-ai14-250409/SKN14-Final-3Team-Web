@@ -460,8 +460,7 @@ body {
   -webkit-box-flex: 1;
       -ms-flex: 1;
           flex: 1;
-  width: 90%;
-  overflow-y: auto;
+  width: 100%;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -469,13 +468,40 @@ body {
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.625rem;
+}
+.main_chatbot_column .chat_messages_area::-webkit-scrollbar {
+  width: 0.375rem;
+}
+.main_chatbot_column .chat_messages_area::-webkit-scrollbar-track {
+  background: transparent;
+}
+.main_chatbot_column .chat_messages_area::-webkit-scrollbar-thumb {
+  background: rgba(102, 102, 102, 0.3);
+  border-radius: 0.1875rem;
+  -webkit-transition: background 0.2s ease;
+  transition: background 0.2s ease;
+}
+.main_chatbot_column .chat_messages_area::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 102, 102, 0.5);
+}
+.main_chatbot_column .chat_messages_area::-webkit-scrollbar-thumb:active {
+  background: rgba(102, 102, 102, 0.7);
+}
+.main_chatbot_column .chat_messages_area .chat_messages_area_inner {
+  width: 90%;
 }
 .main_chatbot_column .chat_messages_area .bot_message {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   gap: 0.5rem;
-  padding: 0.625rem 0;
+  padding: 0.9375rem 0;
 }
 .main_chatbot_column .chat_messages_area .bot_message .message_avatar {
   display: -webkit-box;
@@ -535,7 +561,8 @@ body {
   -webkit-box-pack: end;
       -ms-flex-pack: end;
           justify-content: flex-end;
-  padding: 0.625rem 0;
+  padding: 0.9375rem 0;
+  position: relative;
 }
 .main_chatbot_column .chat_messages_area .user_message .message_content {
   display: -webkit-box;
@@ -716,6 +743,7 @@ body {
   -webkit-transition: all 0.2s ease;
   transition: all 0.2s ease;
   margin-bottom: 0.625rem;
+  margin-top: 0.625rem;
 }
 .main_chatbot_column .suggested_questions_button_container .show_questions_button:hover {
   background-color: #ffbc00;

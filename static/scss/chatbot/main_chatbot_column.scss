@@ -7,18 +7,46 @@
     align-items: center;
     min-height: 0;
 
-
     .chat_messages_area {
         flex: 1;
-        width: 90%;
-        overflow-y: auto;
+        width: 100%;
         display: flex;
         flex-direction: column;
+        align-items: center; 
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: ptr(10px); // 여백 제거하여 90% 전체 활용
+        
+        // 커스텀 스크롤바 스타일
+        &::-webkit-scrollbar {
+            width: ptr(6px);
+        }
+        
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        &::-webkit-scrollbar-thumb {
+            background: rgba($kb-text-light, 0.3);
+            border-radius: ptr(3px);
+            transition: background 0.2s ease;
+            
+            &:hover {
+                background: rgba($kb-text-light, 0.5);
+            }
+        }
+        
+        &::-webkit-scrollbar-thumb:active {
+            background: rgba($kb-text-light, 0.7);
+        }
+        .chat_messages_area_inner {
+            width: 90%;
+        }
         
         .bot_message {
             display: flex;
             gap: ptr(8px);
-            padding: ptr(10px) 0;
+            padding: ptr(15px) 0;
             
             .message_avatar {
                 @include flex-center;
@@ -63,7 +91,8 @@
             display: flex;
             gap: ptr(8px);
             justify-content: flex-end; // 사용자 메시지는 오른쪽 정렬
-            padding: ptr(10px) 0;
+            padding: ptr(15px) 0;
+            position: relative;
 
             .message_content {
                 display: flex;
@@ -203,6 +232,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
             margin-bottom: ptr(10px);
+            margin-top: ptr(10px);
             
             &:hover {
                 background-color: $kb-yellow;

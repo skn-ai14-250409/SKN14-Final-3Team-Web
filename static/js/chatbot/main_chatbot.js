@@ -113,15 +113,45 @@ document.addEventListener('DOMContentLoaded', function() {
     // AI 서버 연결 상태를 확인하는 함수
     async function checkAIServerConnection() {
         try {
-            // AI 서버 연결 확인을 위한 간단한 요청
-            const response = await fetch('/api/chat/health', {
+            const response = await fetch('/kb_finaIssist/chatbot/api/chat/health/', {
                 method: 'GET',
                 timeout: 3000
             });
-            return response.ok;
+            const data = await response.json();
+            return data.connected;
         } catch (error) {
             console.log('AI 서버 연결 실패:', error);
             return false;
+        }
+    }
+    
+    // AI 서버에 메시지를 전송하는 함수
+    async function sendMessageToAI(message) {
+        try {
+            const response = await fetch('/kb_finaIssist/chatbot/api/chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                return data;
+            } else {
+                throw new Error('AI 서버 응답 오류');
+            }
+        } catch (error) {
+            console.error('AI 통신 오류:', error);
+            return {
+                success: false,
+                response: 'AI 추론 서버가 연결 되어 있지 않습니다.',
+                sources: [],
+                category: 'error'
+            };
         }
     }
     
@@ -149,20 +179,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const chatMessagesArea = document.querySelector('.chat_messages_area');
         chatMessagesArea.scrollTop = chatMessagesArea.scrollHeight;
         
-        // AI 서버 연결 상태 확인 후 응답 처리
-        const isServerConnected = await checkAIServerConnection();
-        
-        if (!isServerConnected) {
-            // 서버가 연결되지 않은 경우 에러 메시지 표시
-            setTimeout(() => {
-                addAIResponse('AI 추론 서버가 연결 되어 있지 않습니다.');
-            }, 500);
-        } else {
-            // 서버가 연결된 경우 실제 AI 응답 처리 (향후 구현)
-            setTimeout(() => {
-                addAIResponse('AI 응답이 여기에 표시됩니다. (서버 연결됨)');
-            }, 1000);
-        }
+        // AI 서버에 메시지 전송하고 응답 받기
+        setTimeout(async () => {
+            const aiResult = await sendMessageToAI(message);
+            
+            if (aiResult.success) {
+                addAIResponse(aiResult.response);
+                
+                // 소스 정보가 있으면 표시 (선택사항)
+                if (aiResult.sources && aiResult.sources.length > 0) {
+                    console.log('참고 문서:', aiResult.sources);
+                }
+                
+                // 카테고리 정보가 있으면 표시 (선택사항)
+                if (aiResult.category) {
+                    console.log('질문 카테고리:', aiResult.category);
+                }
+            } else {
+                addAIResponse(aiResult.response);
+            }
+        }, 500);
     }
     
     // Enter 키로 메시지 전송
@@ -274,3 +310,4 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('채팅 로드 기능은 향후 구현 예정입니다:', chatData);
     }
 });
+
