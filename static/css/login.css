@@ -299,6 +299,7 @@ body {
           justify-content: flex-start;
   align-items: center;
   gap: 0.5rem;
+  cursor: pointer;
 }
 .header .kb-logo-img {
   height: 2rem;

@@ -298,6 +298,7 @@ body {
           justify-content: flex-start;
   align-items: center;
   gap: 0.5rem;
+  cursor: pointer;
 }
 .header .kb-logo-img {
   height: 2rem;
@@ -541,7 +542,7 @@ body {
   width: 100%;
 }
 .recent-activity-widget .activity-content .activity-item:hover {
-  background-color: #f4f2f0;
+  background-color: #f8f8f8;
 }
 .recent-activity-widget .activity-content .activity-item .activity-container {
   width: 100%;

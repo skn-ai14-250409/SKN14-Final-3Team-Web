@@ -3,12 +3,210 @@
 
 {% block title %}KB국민은행 직원 업무시스템 - 챗봇{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
+{% endblock %}
+
 {% block content %}
 <!-- 챗봇 컨테이너 -->
-<div class="chatbot-container">
-    <div class="chatbot-content">
+<div class="chatbot_container">
+    <div class="chatbot_content">
+        <!-- Team Channel Column (팀 채팅) -->
+        {% include 'partials/team_channel_column.html' %}
         
-        
+        <!-- Chat History Column (채팅 히스토리) -->
+        {% include 'chatbot/chat_history_column.html' %}
+
+        <div class="main_chatbot_column">
+            <!-- 챗봇 메시지 영역 -->
+            <div class="chat_messages_area">
+
+                <div class="chat_messages_area_inner">
+                    <!-- 챗봇 환영 메시지 (동적으로 생성됨) -->
+                    <div id="welcome_message_container"></div>
+    
+                    <!-- 사용자 메시지들 (동적으로 추가됨) -->
+                    <div id="user_messages_container"></div>
+    
+                    <!-- 자주 묻는 질문 카드들 (대화창 바로 밑) -->
+                    <div class="suggested_questions_container">
+                        <div class="suggested_questions">
+                            <div class="suggested_questions_header">
+                                <span class="header_text">자주 묻는 질문을 선택하거나 직접 입력해주세요</span>
+                            </div>
+                            <div class="suggested_questions_grid">
+                                <div class="suggested_question_card">
+                                    <div class="question_radio">
+                                        <i class="bi bi-chat"></i>
+                                    </div>
+                                    <div class="question_content">
+                                        <div class="question_title">개인 대출 서류</div>
+                                        <div class="question_description">개인 여신 대출 기본 서류 안내</div>
+                                    </div>
+                                    <div class="question_tag">대출</div>
+                                </div>
+                                <div class="suggested_question_card">
+                                    <div class="question_radio">
+                                        <i class="bi bi-chat"></i>
+                                    </div>
+                                    <div class="question_content">
+                                        <div class="question_title">전세 대출 서류</div>
+                                        <div class="question_description">전세 대출 기본 서류 안내</div>
+                                    </div>
+                                    <div class="question_tag">대출</div>
+                                </div>
+                                <div class="suggested_question_card">
+                                    <div class="question_radio">
+                                        <i class="bi bi-chat"></i>
+                                    </div>
+                                    <div class="question_content">
+                                        <div class="question_title">대출 유의사항</div>
+                                        <div class="question_description">대출 거래 시 알아야할 것</div>
+                                    </div>
+                                    <div class="question_tag">대출</div>
+                                </div>
+                                <div class="suggested_question_card">
+                                    <div class="question_radio">
+                                        <i class="bi bi-chat"></i>
+                                    </div>
+                                    <div class="question_content">
+                                        <div class="question_title">연체 수수료 안내</div>
+                                        <div class="question_description">대출 상환 연체 배상금 안내</div>
+                                    </div>
+                                    <div class="question_tag">대출</div>
+                                </div>
+                                <div class="suggested_question_card">
+                                    <div class="question_radio">
+                                        <i class="bi bi-chat"></i>
+                                    </div>
+                                    <div class="question_content">
+                                        <div class="question_title">금리 안내</div>
+                                        <div class="question_description">대출 금리 구성 항목 소개</div>
+                                    </div>
+                                    <div class="question_tag">대출</div>
+                                </div>
+                                <div class="suggested_question_card">
+                                    <div class="question_radio">
+                                        <i class="bi bi-chat"></i>
+                                    </div>
+                                    <div class="question_content">
+                                        <div class="question_title">중도 상환 수수료</div>
+                                        <div class="question_description">중도 상환 및 대출 갈아타기 방법</div>
+                                    </div>
+                                    <div class="question_tag">대출</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+
+            </div>
+
+            <!-- 자주 묻는 질문 버튼/카드 (input 위에 위치) -->
+            <div class="suggested_questions_button_container" style="display: none;">
+                <button class="show_questions_button">
+                    <i class="bi bi-question-circle"></i>
+                    자주 묻는 질문
+                </button>
+            </div>
+            
+            <!-- 자주 묻는 질문 카드들 (input 위에 위치) -->
+            <div class="suggested_questions_cards_container" style="display: none;">
+                <div class="suggested_questions_grid">
+                    <div class="grid_header">
+                        <span class="header_text">
+                            자주 묻는 질문
+                        </span>
+                        <button class="close_questions_button">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                    <div class="suggested_question_card">
+                        <div class="question_radio">
+                            <i class="bi bi-chat"></i>
+                        </div>
+                        <div class="question_content">
+                            <div class="question_title">개인 대출 서류</div>
+                        </div>
+                        <div class="question_tag">대출</div>
+                    </div>
+                    <div class="suggested_question_card">
+                        <div class="question_radio">
+                            <i class="bi bi-chat"></i>
+                        </div>
+                        <div class="question_content">
+                            <div class="question_title">전세 대출 서류</div>
+                        </div>
+                        <div class="question_tag">대출</div>
+                    </div>
+                    <div class="suggested_question_card">
+                        <div class="question_radio">
+                            <i class="bi bi-chat"></i>
+                        </div>
+                        <div class="question_content">
+                            <div class="question_title">대출 유의사항</div>
+                        </div>
+                        <div class="question_tag">대출</div>
+                    </div>
+                    <div class="suggested_question_card">
+                        <div class="question_radio">
+                            <i class="bi bi-chat"></i>
+                        </div>
+                        <div class="question_content">
+                            <div class="question_title">연체 수수료 안내</div>
+                        </div>
+                        <div class="question_tag">대출</div>
+                    </div>
+                    <div class="suggested_question_card">
+                        <div class="question_radio">
+                            <i class="bi bi-chat"></i>
+                    </div>
+                    <div class="question_content">
+                        <div class="question_title">금리 안내</div>
+                    </div>
+                    <div class="question_tag">대출</div>
+                </div>
+                <div class="suggested_question_card">
+                    <div class="question_radio">
+                        <i class="bi bi-chat"></i>
+                    </div>
+                    <div class="question_content">
+                        <div class="question_title">중도 상환 수수료</div>
+                    </div>
+                    <div class="question_tag">대출</div>
+                </div>
+                </div>
+            </div>
+
+            <!-- 입력 영역 -->
+            <div class="chat_input_area">
+                <div class="input_container">
+                    <button class="attach_button">
+                        <i class="bi bi-plus"></i>
+                    </button>
+                    <div class="input_separator"></div>
+                    <input type="text" class="chat_input" placeholder="무엇이든 물어보세요">
+                    <button class="voice_button">
+                        <i class="bi bi-mic"></i>
+                    </button>
+                    <button class="voice_wave_button">
+                        <i class="bi bi-soundwave"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat PDF Column (PDF 참조) -->
+        {% include 'chatbot/chat_pdf_column.html' %}
+
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/partials/team_channel_column.js' %}"></script>
+<script src="{% static 'js/chatbot/chat_history_column.js' %}"></script>
+<script src="{% static 'js/chatbot/chat_pdf_column.js' %}"></script>
+<script src="{% static 'js/chatbot/main_chatbot.js' %}"></script>
 {% endblock %}

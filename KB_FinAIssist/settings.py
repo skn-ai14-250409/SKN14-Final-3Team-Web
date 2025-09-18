@@ -152,3 +152,6 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# FastAPI 서버 설정
+FASTAPI_URL = "http://127.0.0.1:8001"

@@ -298,6 +298,7 @@ body {
           justify-content: flex-start;
   align-items: center;
   gap: 0.5rem;
+  cursor: pointer;
 }
 .header .kb-logo-img {
   height: 2rem;
@@ -442,7 +443,7 @@ body {
 .exchange-rate-widget {
   border-radius: 0.625rem;
   padding: 0.625rem;
-  background-color: #f4f2f0;
+  background-color: #f8f8f8;
   height: 100%;
   display: -webkit-box;
   display: -ms-flexbox;
