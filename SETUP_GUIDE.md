@@ -41,10 +41,44 @@ npm install
 
 ### 5. **데이터베이스 설정**
 ```bash
+# 만들어진 DB가 없는 경우
 # 마이그레이션 실행
 python manage.py makemigrations
+python manage.py migrate f_user
+python manage.py migrate
+
+# 이미 만들어진 DB가 있는 경우
+# setup.sql에서 아래 코드 먼저 실행
+# DB 초기화(setup.sql 코드)
+DROP DATABASE KB_FinAIssist_db_test;
+
+# DB안에 table 하나도 없는 것 확인(setup.sql 코드)
+use KB_FinAIssist_db_test;
+show tables;
+
+# f_user 보다 먼저 들어간 게 있으면 삭제(setup.sql 코드)
+DELETE FROM django_migrations WHERE app='f_chatbot';
+DELETE FROM django_migrations WHERE app='f_calendar';
+DELETE FROM django_migrations WHERE app='f_todo';
+DELETE FROM django_migrations WHERE app='f_document';
+
+# DB안에 아무것도 없는거 확인한 후 아래 코드 실행
+python manage.py makemigrations
+python manage.py migrate f_user
 python manage.py migrate
 ```
+
+## 📝 환경 변수 설정 (선택사항)
+
+MySQL을 사용하려면 `.env` 파일 생성:
+```env
+DB_NAME=your_database_name
+DB_USER=your_username
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=3306
+```
+
 
 ### 6. **SCSS 자동 컴파일 설정**
 
@@ -123,16 +157,7 @@ source .venv/bin/activate
 chmod +x .venv/bin/activate
 ```
 
-## 📝 환경 변수 설정 (선택사항)
 
-MySQL을 사용하려면 `.env` 파일 생성:
-```env
-DB_NAME=your_database_name
-DB_USER=your_username
-DB_PASSWORD=your_password
-DB_HOST=localhost
-DB_PORT=3306
-```
 
 ## 🎯 최종 확인
 
