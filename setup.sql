@@ -1,4 +1,4 @@
--- Active: 1753665101512@@127.0.0.1@3306@mysql
+-- Active: 1753665103106@@127.0.0.1@3306@mysql
 DROP DATABASE KB_FinAIssist_db_test;
 
 CREATE DATABASE KB_FinAIssist_db_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
