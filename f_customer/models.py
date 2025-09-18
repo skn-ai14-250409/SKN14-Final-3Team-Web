@@ -5,6 +5,18 @@ class Customer(models.Model):
     class CustomerType(models.TextChoices):
         INDIVIDUAL = "INDIVIDUAL"
         CORPORATE = "CORPORATE"
+    
+    class Status(models.TextChoices):
+        ONLINE = "ONLINE"
+        OFFLINE = "OFFLINE"
+        AWAY = "AWAY"
+        ON_MEETING = "ON_MEETING"
+
+    class Segment(models.TextChoices):
+        RETAIL = "RETAIL"
+        SME = "SME"
+        CORP = "CORP"
+        MVP = "MVP"
 
     seq_id = models.BigAutoField(primary_key=True)
     customer_type = models.CharField(max_length=16, choices=CustomerType.choices, default=CustomerType.INDIVIDUAL)
@@ -49,14 +61,23 @@ class CustomerCorporate(models.Model):
     incorporation_date = models.DateField()
     employees_count = models.IntegerField()
     mobile = models.CharField(max_length=32)
-    roa = models.DecimalField(max_digits=10, decimal_places=4)
-    net_profit_margin = models.DecimalField(max_digits=10, decimal_places=4)
-    operating_roa = models.DecimalField(max_digits=10, decimal_places=4)
-    operating_margin = models.DecimalField(max_digits=10, decimal_places=4)
-    current_ratio = models.DecimalField(max_digits=10, decimal_places=4)
-    quick_ratio = models.DecimalField(max_digits=10, decimal_places=4)
-    debt_ratio = models.DecimalField(max_digits=10, decimal_places=4)
-    equity_ratio = models.DecimalField(max_digits=10, decimal_places=4)
-    equity_to_debt_ratio = models.DecimalField(max_digits=10, decimal_places=4)
-    long_term_debt_to_equity_ratio = models.DecimalField(max_digits=10, decimal_places=4)
-    asset_turnover = models.DecimalField(max_digits=10, decimal_places=4)
+
+    # 재무 숫자 (NUMERIC(20,2))
+    current_assets = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    cost_of_goods_sold = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    depreciation_amortization = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    ebitda = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    inventory = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    net_income = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    total_receivables = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    market_value = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)          # "Market value"
+    net_sales = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    total_assets = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    total_long_term_debt = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    ebit = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    gross_profit = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    total_current_liabilities = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    retained_earnings = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    total_revenue = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    total_liabilities = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    total_operating_expenses = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
