@@ -113,11 +113,16 @@
             }
             
             &.active {
-                background-color: $kb-background-gray;
+                background-color: $kb-primary;
+                border-left: 3px solid $kb-dark;
 
                 .history_title {
-                    color: $kb-dark;
+                    color: white;
                     font-weight: 600;
+                }
+                
+                .history_time {
+                    color: rgba(255, 255, 255, 0.8);
                 }
             }
             

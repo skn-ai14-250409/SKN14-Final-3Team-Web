@@ -48,6 +48,10 @@ def chat_api(request):
         ai_service = AIService()
         result = ai_service.send_message_with_langgraph_rag(message, chat_id, chat_history)
         
+        # AI 응답 결과 로깅
+        logger.info(f"AI Service Result: {result}")
+        logger.info(f"initial_topic_summary: {result.get('initial_topic_summary', 'NOT_FOUND')}")
+        
         # AI 응답을 히스토리에 추가
         if result.get('success'):
             chat_history.append({

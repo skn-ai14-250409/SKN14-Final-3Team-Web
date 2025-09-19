@@ -7,11 +7,7 @@ from .s3_utils import upload_file_to_s3
 def document(request) : 
     return render(request, 'document/document.html')
 
-# 업로드 페이지를 보여주는 뷰
-def document_upload_page(request):
-    return render(request, 'f_document/upload_page.html') # 템플릿 파일 경로
-
-# 실제 파일 업로드를 처리하는 API 뷰
+# 파일 업로드를 처리하는 API 뷰
 def upload_api(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'POST 요청만 허용됩니다.'}, status=405)

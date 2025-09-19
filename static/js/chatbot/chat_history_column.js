@@ -3,44 +3,7 @@
 class ChatHistoryColumn {
     constructor() {
         this.currentChatId = null;
-        this.chatHistory = [
-            {
-                id: 1,
-                title: "주택담보대출 조건 문의",
-                time: "2시간 전",
-                timestamp: Date.now() - 2 * 60 * 60 * 1000
-            },
-            {
-                id: 2,
-                title: "정기예금 금리와 조건 질문",
-                time: "1일 전",
-                timestamp: Date.now() - 24 * 60 * 60 * 1000
-            },
-            {
-                id: 3,
-                title: "신용카드 발급 절차 문의",
-                time: "2일 전",
-                timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000
-            },
-            {
-                id: 4,
-                title: "보험 상품 비교 문의",
-                time: "3일 전",
-                timestamp: Date.now() - 3 * 24 * 60 * 60 * 1000
-            },
-            {
-                id: 5,
-                title: "온라인 계좌 개설 방법",
-                time: "1주 전",
-                timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000
-            },
-            {
-                id: 6,
-                title: "펀드 투자 상담",
-                time: "2주 전",
-                timestamp: Date.now() - 14 * 24 * 60 * 60 * 1000
-            }
-        ];
+        this.chatHistory = []; // 빈 배열로 시작
         
         this.init();
     }
@@ -175,6 +138,12 @@ class ChatHistoryColumn {
     selectChat(index) {
         console.log('Selecting chat:', index);
         
+        // 히스토리가 비어있으면 선택할 수 없음
+        if (this.chatHistory.length === 0) {
+            console.log('No chat history available');
+            return;
+        }
+        
         // 모든 히스토리 아이템에서 active 클래스 제거
         const historyItems = document.querySelectorAll('.history_item');
         historyItems.forEach(item => {
@@ -182,17 +151,12 @@ class ChatHistoryColumn {
         });
         
         // 선택된 아이템에 active 클래스 추가
-        if (historyItems[index]) {
+        if (historyItems[index] && this.chatHistory[index]) {
             historyItems[index].classList.add('active');
             this.currentChatId = this.chatHistory[index].id;
             
             // 메인 챗봇 영역에 채팅 로드 알림
             this.notifyMainChatbot('load_chat', this.chatHistory[index]);
-            
-            // 메인 챗봇의 currentChatId 업데이트
-            if (window.mainChatbot && window.mainChatbot.currentChatId !== undefined) {
-                window.mainChatbot.currentChatId = this.currentChatId;
-            }
         }
     }
     
@@ -295,6 +259,20 @@ class ChatHistoryColumn {
         // 기존 히스토리 아이템 제거
         historyList.innerHTML = '';
         
+        // 히스토리가 비어있으면 빈 상태 메시지 표시
+        if (this.chatHistory.length === 0) {
+            historyList.innerHTML = `
+                <div class="empty_history">
+                    <div class="empty_message">
+                        <i class="bi bi-chat-dots"></i>
+                        <p>아직 대화 기록이 없습니다.</p>
+                        <p>새 채팅을 시작해보세요!</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
         // 새로운 히스토리 아이템 생성
         this.chatHistory.forEach((chat, index) => {
             const historyItem = document.createElement('div');
@@ -365,13 +343,33 @@ class ChatHistoryColumn {
         }
     }
     
-    updateChatTitle(chatId, newTitle) {
-        const chat = this.chatHistory.find(c => c.id === chatId);
-        if (chat) {
-            chat.title = newTitle;
+    // 채팅 제목 업데이트 함수
+    updateChatTitle(chatId, title) {
+        console.log('updateChatTitle called:', { chatId, title });
+        console.log('Current chat history:', this.chatHistory);
+        
+        // 해당 채팅 ID를 가진 채팅 찾기 (타입 변환 고려)
+        const chatIndex = this.chatHistory.findIndex(chat => 
+            chat.id === chatId || 
+            chat.id === parseInt(chatId) || 
+            chat.id === String(chatId)
+        );
+        console.log('Found chat index:', chatIndex);
+        
+        if (chatIndex !== -1) {
+            const currentTitle = this.chatHistory[chatIndex].title;
+            console.log('Current title:', currentTitle);
             
-            // UI 업데이트
-            this.renderHistoryList();
+            // 제목 업데이트 (조건 완화)
+            if (title && title.trim()) {
+                this.chatHistory[chatIndex].title = title.trim();
+                this.renderHistoryList();
+                console.log('Chat title updated successfully from', currentTitle, 'to', title.trim());
+            } else {
+                console.log('Title not updated - no valid title provided:', title);
+            }
+        } else {
+            console.log('Chat not found for ID:', chatId);
         }
     }
 }
