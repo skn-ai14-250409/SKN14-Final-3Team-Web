@@ -167,6 +167,9 @@ class ChatHistoryColumn {
         
         // 메인 챗봇 영역에 새 채팅 알림
         this.notifyMainChatbot('new_chat', newChat);
+        
+        // 새 채팅 ID 반환
+        return newChat.id;
     }
     
     selectChat(index) {
@@ -185,6 +188,11 @@ class ChatHistoryColumn {
             
             // 메인 챗봇 영역에 채팅 로드 알림
             this.notifyMainChatbot('load_chat', this.chatHistory[index]);
+            
+            // 메인 챗봇의 currentChatId 업데이트
+            if (window.mainChatbot && window.mainChatbot.currentChatId !== undefined) {
+                window.mainChatbot.currentChatId = this.currentChatId;
+            }
         }
     }
     

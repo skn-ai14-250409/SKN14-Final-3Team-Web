@@ -7,32 +7,71 @@ document.addEventListener('DOMContentLoaded', function() {
     const suggestedQuestionsCardsContainer = document.querySelector('.suggested_questions_cards_container');
     const suggestedQuestionsContainer = document.querySelector('.suggested_questions_container');
     const closeQuestionsButton = document.querySelector('.close_questions_button');
+    const inputContainer = document.querySelector('.input_container');
+    const countPdfs = document.querySelector('.pdf_count');
+    const currentPdfsItems = document.querySelectorAll('.current_pdf_item');
+    
+    // 현재 채팅 ID (멀티턴을 위해 필요)
+    let currentChatId = null;
+    
+    // 전역 접근을 위해 window 객체에 할당
+    window.mainChatbot = { currentChatId: currentChatId };
     
     // 페이지 로드 시 환영 메시지 표시 및 새 채팅 생성
     showWelcomeMessage();
-    
+
+    // 페이지 로드 시 입력 영역 포커스
+    focusInput();
+
+    // 페이지 로드 시 PDF 개수 업데이트
+    updatePDFCount();
+
     // 초기 로드 시에는 show_questions_button 숨김
     if (suggestedQuestionsButtonContainer) {
         suggestedQuestionsButtonContainer.style.display = 'none';
     }
     
+    // 페이지 로드 시 새 채팅 생성
     createNewChatInHistory();
     
     // 채팅 히스토리에 새 채팅을 추가하는 함수
     function createNewChatInHistory() {
         // ChatHistoryColumn 인스턴스에 접근하여 새 채팅 생성
         if (window.chatHistoryColumn && typeof window.chatHistoryColumn.createNewChat === 'function') {
-            window.chatHistoryColumn.createNewChat();
+            const newChatId = window.chatHistoryColumn.createNewChat();
+            currentChatId = newChatId; // 새 채팅 ID 설정
+            window.mainChatbot.currentChatId = newChatId; // 전역 객체 업데이트
         } else {
             // ChatHistoryColumn이 아직 초기화되지 않은 경우 잠시 후 재시도
             setTimeout(() => {
                 if (window.chatHistoryColumn && typeof window.chatHistoryColumn.createNewChat === 'function') {
-                    window.chatHistoryColumn.createNewChat();
+                    const newChatId = window.chatHistoryColumn.createNewChat();
+                    currentChatId = newChatId; // 새 채팅 ID 설정
+                    window.mainChatbot.currentChatId = newChatId; // 전역 객체 업데이트
                 }
             }, 100);
         }
     }
-    
+
+    // 입력 영역 포커스
+    function focusInput() {
+        if (inputContainer) {
+            chatInput.focus();
+            // 커서를 입력 필드 끝으로 이동
+            const length = chatInput.value.length;
+            chatInput.setSelectionRange(length, length);
+        }
+    }
+
+    // PDF 개수 업데이트
+    function updatePDFCount() {
+        if (currentPdfsItems.length > 0) {
+            countPdfs.textContent = `총 ${currentPdfsItems.length}개`;
+        } else {
+            countPdfs.textContent = `총 0개`;
+        }
+    }
+
     // 환영 메시지를 표시하는 함수
     function showWelcomeMessage() {
         const welcomeMessage = document.createElement('div');
@@ -393,13 +432,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // AI 서버에 메시지를 전송하는 함수
     async function sendMessageToAI(message) {
         try {
+            console.log('Sending message with chat_id:', currentChatId);
             const response = await fetch('/kb_finaIssist/chatbot/api/chat/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    message: message
+                    message: message,
+                    chat_id: currentChatId
                 })
             });
             
