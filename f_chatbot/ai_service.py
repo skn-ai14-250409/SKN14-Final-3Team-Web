@@ -33,15 +33,42 @@ class AIService:
             logger.error(f"FastAPI 서버 연결 실패: {e}")
             return False
     
-    def send_message_with_langgraph_rag(self, message):
+    def send_message_with_langgraph_rag(self, message, chat_id=None, chat_history=None):
         """실험용 LangGraph RAG 엔드포인트"""
         try:
             langgraph_endpoint = self.endpoints.get('LANGGRAPH_RAG', '/api/v1/langgraph/langgraph_rag')
+            # 요청 데이터 구성
+            request_data = {
+                self.prompt_key: message
+            }
+            
+            # chat_id가 있으면 추가
+            if chat_id:
+                request_data['chat_id'] = chat_id
+                logger.info(f"[LANGGRAPH] Sending chat_id: {chat_id}")
+            else:
+                logger.info(f"[LANGGRAPH] No chat_id provided")
+            
+            # 대화 히스토리가 있으면 컨텍스트로 포함
+            if chat_history and len(chat_history) > 1:
+                # 이전 대화를 컨텍스트로 포함한 메시지 생성
+                context_messages = []
+                for msg in chat_history[-6:]:  # 최근 6개 메시지만 사용
+                    if msg['role'] == 'user':
+                        context_messages.append(f"사용자: {msg['content']}")
+                    elif msg['role'] == 'assistant':
+                        context_messages.append(f"AI: {msg['content']}")
+                
+                context = "\n".join(context_messages)
+                enhanced_message = f"이전 대화 내용:\n{context}\n\n현재 질문: {message}"
+                request_data[self.prompt_key] = enhanced_message
+                logger.info(f"[LANGGRAPH] Enhanced message with context from {len(chat_history)} messages")
+            else:
+                logger.info(f"[LANGGRAPH] No chat_history provided")
+            
             response = requests.post(
                 f"{self.base_url}{langgraph_endpoint}",
-                json={
-                    self.prompt_key: message
-                },
+                json=request_data,
                 timeout=self.langgraph_timeout
             )
             response.raise_for_status()
@@ -84,9 +111,6 @@ class AIService:
                         if key in data and data[key]:
                             sources_data = data[key] if isinstance(data[key], list) else [data[key]]
                             break
-                
-                # sources 데이터 구조 정규화 및 디버깅
-                logger.info(f"원본 sources_data: {sources_data}")
                 
                 normalized_sources = []
                 for source in sources_data:
@@ -142,8 +166,14 @@ class AIService:
                     'response': response_text,
                     'sources': sources_data,
                     'category': data.get('category', ''),
-                    'product_name': data.get('product_name', ''),  # 이 줄 추가!
+                    'product_name': data.get('product_name', ''),
                     'key_facts': data.get('key_facts', {}),
+                    'session_info': data.get('session_info', {}),
+                    'initial_intent': data.get('initial_intent', ''),
+                    'initial_topic_summary': data.get('initial_topic_summary', ''),
+                    'conversation_mode': data.get('conversation_mode', ''),
+                    'current_topic': data.get('current_topic', ''),
+                    'active_product': data.get('active_product', ''),
                     'experimental': True,
                     'workflow_type': 'langgraph'
                 }
@@ -153,6 +183,14 @@ class AIService:
                     'response': data.get('response', '실험용 LangGraph RAG 처리 중 오류가 발생했습니다.'),
                     'sources': [],
                     'category': 'error',
+                    'product_name': '',
+                    'key_facts': {},
+                    'session_info': {},
+                    'initial_intent': '',
+                    'initial_topic_summary': '',
+                    'conversation_mode': 'error',
+                    'current_topic': '',
+                    'active_product': '',
                     'experimental': True,
                     'workflow_type': 'langgraph'
                 }
@@ -164,6 +202,14 @@ class AIService:
                 'response': f'실험용 LangGraph RAG 응답 시간 초과 ({self.langgraph_timeout}초).',
                 'sources': [],
                 'category': 'error',
+                'product_name': '',
+                'key_facts': {},
+                'session_info': {},
+                'initial_intent': '',
+                'initial_topic_summary': '',
+                'conversation_mode': 'timeout',
+                'current_topic': '',
+                'active_product': '',
                 'experimental': True,
                 'workflow_type': 'langgraph'
             }
@@ -174,6 +220,14 @@ class AIService:
                 'response': '실험용 LangGraph RAG 서버에 연결할 수 없습니다.',
                 'sources': [],
                 'category': 'error',
+                'product_name': '',
+                'key_facts': {},
+                'session_info': {},
+                'initial_intent': '',
+                'initial_topic_summary': '',
+                'conversation_mode': 'connection_error',
+                'current_topic': '',
+                'active_product': '',
                 'experimental': True,
                 'workflow_type': 'langgraph'
             }
@@ -184,6 +238,14 @@ class AIService:
                 'response': f'실험용 LangGraph RAG 요청 오류: {str(e)}',
                 'sources': [],
                 'category': 'error',
+                'product_name': '',
+                'key_facts': {},
+                'session_info': {},
+                'initial_intent': '',
+                'initial_topic_summary': '',
+                'conversation_mode': 'request_error',
+                'current_topic': '',
+                'active_product': '',
                 'experimental': True,
                 'workflow_type': 'langgraph'
             }
@@ -194,6 +256,14 @@ class AIService:
                 'response': f'실험용 LangGraph RAG 처리 중 예상치 못한 오류가 발생했습니다: {str(e)}',
                 'sources': [],
                 'category': 'error',
+                'product_name': '',
+                'key_facts': {},
+                'session_info': {},
+                'initial_intent': '',
+                'initial_topic_summary': '',
+                'conversation_mode': 'unexpected_error',
+                'current_topic': '',
+                'active_product': '',
                 'experimental': True,
                 'workflow_type': 'langgraph'
             }

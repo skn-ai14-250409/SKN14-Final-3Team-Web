@@ -449,12 +449,12 @@
             background-color: white;
             border-radius: ptr(20px);
             padding: ptr(4px) ptr(6px);
-            border: 1px solid $kb-border;
+            border: 1px solid $kb-border !important;
             transition: all 0.2s ease;
             
             &:focus-within {
-                border-color: $kb-yellow;
-                box-shadow: 0 0 0 3px rgba($kb-yellow, 0.1);
+                border-color: $kb-yellow !important;
+                box-shadow: 0 0 0 3px rgba($kb-yellow, 0.1) !important;
             }
             
             .attach_button {
