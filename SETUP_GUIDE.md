@@ -78,7 +78,10 @@ DB_PASSWORD=your_password
 DB_HOST=localhost
 DB_PORT=3306
 ```
-
+# 더미 데이터 만들기
+```
+python manage.py seed_all2
+```
 
 ### 6. **SCSS 자동 컴파일 설정**
 

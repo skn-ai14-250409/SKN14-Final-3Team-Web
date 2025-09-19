@@ -31,7 +31,7 @@ def chat_api(request):
         
         # AI 서비스 호출
         ai_service = AIService()
-        result = ai_service.send_message_with_intent_routing(message)
+        result = ai_service.send_message_with_langgraph_rag(message)
         
         return JsonResponse(result)
         

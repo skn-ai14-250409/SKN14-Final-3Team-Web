@@ -48,6 +48,44 @@
             gap: ptr(8px);
             padding: ptr(15px) 0;
             
+            &.loading_message {
+                .loading_bubble {
+                    display: flex;
+                    align-items: center;
+                    gap: ptr(8px);
+                    
+                    .loading_dots {
+                        display: flex;
+                        gap: ptr(4px);
+                        
+                        span {
+                            width: ptr(6px);
+                            height: ptr(6px);
+                            background-color: $kb-yellow;
+                            border-radius: 50%;
+                            animation: loading-dots 1.4s infinite ease-in-out both;
+                            
+                            &:nth-child(1) {
+                                animation-delay: -0.32s;
+                            }
+                            
+                            &:nth-child(2) {
+                                animation-delay: -0.16s;
+                            }
+                            
+                            &:nth-child(3) {
+                                animation-delay: 0s;
+                            }
+                        }
+                    }
+                    
+                    .loading_text {
+                        color : $kb-dark;
+                        font-size: ptr(12px);
+                    }
+                }
+            }
+            
             .message_avatar {
                 @include flex-center;
                 width: ptr(30px);
@@ -77,6 +115,52 @@
                     line-height: 1.3;
                     color: $kb-dark;
                     max-width: 80%;
+                    
+                    // 메타데이터 스타일
+                    .message_metadata {
+                        margin-top: ptr(12px);
+                        padding-top: ptr(12px);
+                        border-top: 1px solid rgba($kb-text-light, 0.2);
+                        
+                        .metadata_sources,
+                        .metadata_category,
+                        .metadata_key_facts {
+                            margin-bottom: ptr(8px);
+                            
+                            &:last-child {
+                                margin-bottom: 0;
+                            }
+                        }
+                        
+                        .metadata_label {
+                            font-size: ptr(11px);
+                            font-weight: 600;
+                            color: $kb-text-light;
+                            margin-bottom: ptr(4px);
+                        }
+                        
+                        .metadata_value {
+                            font-size: ptr(11px);
+                            color: $kb-text-dark;
+                            background-color: rgba($kb-yellow, 0.1);
+                            padding: ptr(4px) ptr(8px);
+                            border-radius: ptr(4px);
+                            display: inline-block;
+                        }
+                        
+                        .metadata_list {
+                            .metadata_item {
+                                font-size: ptr(11px);
+                                color: $kb-text-dark;
+                                margin-bottom: ptr(2px);
+                                padding-left: ptr(8px);
+                                
+                                &:last-child {
+                                    margin-bottom: 0;
+                                }
+                            }
+                        }
+                    }
                 }
                 
                 .message_time {
@@ -252,6 +336,7 @@
     
     .suggested_questions_cards_container {
         width: 60%;
+        margin-top: ptr(10px);
         margin-bottom: ptr(10px);
         border-radius: ptr(12px);
         background-color: $kb-background-gray;
@@ -457,5 +542,17 @@
                 }
             }
         }
+    }
+}
+
+// 로딩 애니메이션 키프레임
+@keyframes loading-dots {
+    0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
     }
 }
