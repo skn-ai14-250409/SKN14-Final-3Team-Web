@@ -386,3 +386,7 @@ $RECYCLE.BIN/
 # Streamlit secrets
 .streamlit/
 .streamlit/secrets.toml
+
+# node_modules (npm)
+node_modules/
+npm-debug.log*

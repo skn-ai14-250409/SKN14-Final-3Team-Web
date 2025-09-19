@@ -1,0 +1,18 @@
+@import '../base';
+@import '../partials/team_channel_column';
+
+.credit_assessment_container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    height: calc(100vh - #{$header-height} - #{$footer-height});
+    
+    .credit_assessment_content {
+        display: grid;
+        grid-template-columns: ptr(200px) 1fr;
+        width: 100%;
+        flex: 1;
+        min-height: 0;
+    }
+}

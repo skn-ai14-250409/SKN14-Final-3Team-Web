@@ -18,16 +18,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
+from django.shortcuts import render
+from f_login.views import dashboard_view
+
+def admin_view(request):
+    return render(request, 'admin/admin.html')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("KB_FinAIssist/", include("f_user.urls")),
-    path("todo/", include("f_todo.urls")),
-    path("calendar/", include("f_calendar.urls")),
-    path("chatbot/", include("f_chatbot.urls")),
-    path("customer/", include("f_customer.urls")),
-    path("document/", include("f_document.urls")),   
-    path("common/", include("f_common.urls")), 
-    path("loan/", include("f_loan.urls")), 
-    path("", RedirectView.as_view(url="/KB_FinAIssist/"), name="main"),
+    path("", RedirectView.as_view(url="/kb_finaIssist/login/"), name="main"),
+    path("kb_finaIssist/", include([
+        path("login/", include("f_login.urls")),
+        path("dashboard/", dashboard_view, name="dashboard"),
+        path("chatbot/", include("f_chatbot.urls")),
+        path("credit_assessment/", include("f_loan.urls")),
+        path("admin/", admin_view, name="admin"),
+    ])),
 ]

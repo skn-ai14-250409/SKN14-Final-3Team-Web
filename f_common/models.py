@@ -34,19 +34,36 @@ class CIndustryCode(models.Model):
         db_table = "c_industry_code"
 
 class CEducationLevel(models.Model):
+    class Education(models.TextChoices):
+        High_School = "HIGH_SCHOOL"
+        Associate = "ASSOCIATE"
+        Bachelor = "BACHELOR"
+        Master = "MASTER"
+        Doctorate = "DOCTORATE"
+    
     seq_id = models.BigAutoField(primary_key=True)
     code = models.CharField(max_length=64, unique=True)
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=16, choices=Education.choices, default=Education.High_School)
     description = models.CharField(max_length=255, null=True, blank=True)
+    sort_order = models.PositiveSmallIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
     class Meta:
         db_table = "c_education_level"
 
 class CHousingStatus(models.Model):
+    class Housing(models.TextChoices):
+        Rent = "RENT"
+        Mortgage = "MORTGAGE"
+        Own = "OWN"
+        Other = "OTHER"
+    
+
     seq_id = models.BigAutoField(primary_key=True)
     code = models.CharField(max_length=64, unique=True)
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=16, choices=Housing.choices, default=Housing.Own)
     description = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
