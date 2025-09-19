@@ -7,12 +7,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const suggestedQuestionsCardsContainer = document.querySelector('.suggested_questions_cards_container');
     const suggestedQuestionsContainer = document.querySelector('.suggested_questions_container');
     const closeQuestionsButton = document.querySelector('.close_questions_button');
+    const inputContainer = document.querySelector('.input_container');
     
     // 현재 채팅 ID (멀티턴을 위해 필요)
     let currentChatId = null;
     
     // 페이지 로드 시 환영 메시지 표시 및 새 채팅 생성
     showWelcomeMessage();
+
+    // 페이지 로드 시 입력창 포커스
+    focusInput();
     
     // 초기 로드 시에는 show_questions_button 숨김
     if (suggestedQuestionsButtonContainer) {
@@ -20,6 +24,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     createNewChatInHistory();
+    
+    // 새 채팅 생성 후 입력창에 포커스
+    setTimeout(() => {
+        focusInput();
+    }, 200);
     
     // 채팅 히스토리에 새 채팅을 추가하는 함수
     function createNewChatInHistory() {
@@ -37,6 +46,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('New chat created with ID (delayed):', currentChatId);
                 }
             }, 100);
+        }
+    }
+
+    function focusInput() {
+        if (chatInput) {
+            chatInput.focus();
+            // 커서를 텍스트 끝으로 이동
+            const length = chatInput.value.length;
+            chatInput.setSelectionRange(length, length);
         }
     }
     
@@ -223,9 +241,53 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // 가장 높은 점수의 소스 (첫 번째 요소) 추출
-        const topSource = filteredSources[0];
-        console.log('선택된 topSource:', topSource);
+        // 상품명과 관련된 소스를 우선적으로 찾기
+        let topSource = null;
+        
+        if (productName && productName.trim()) {
+            const productKeywords = productName.toLowerCase().split(/[\s,]+/).filter(keyword => keyword.length > 1);
+            console.log('상품명 키워드:', productKeywords);
+            console.log('전체 소스 목록:', filteredSources.map(s => s.file_name || s.filename || s.source || s.relative_path));
+            
+            // 상품명 키워드와 파일명의 유사도 점수 계산
+            const scoredSources = filteredSources.map(source => {
+                const fileName = source.file_name || source.filename || source.source || source.relative_path || '';
+                const fileNameLower = fileName.toLowerCase();
+                
+                let score = 0;
+                
+                // 정확한 키워드 매칭 (가장 높은 점수)
+                productKeywords.forEach(keyword => {
+                    if (fileNameLower.includes(keyword)) {
+                        score += 10; // 정확한 매칭은 높은 점수
+                    }
+                });
+                
+                // 부분 매칭 (낮은 점수)
+                productKeywords.forEach(keyword => {
+                    if (fileNameLower.includes(keyword.substring(0, 2))) {
+                        score += 2; // 부분 매칭은 낮은 점수
+                    }
+                });
+                
+                return { source, score };
+            });
+            
+            // 점수 순으로 정렬
+            scoredSources.sort((a, b) => b.score - a.score);
+            
+            // 가장 높은 점수의 소스 선택 (점수가 0보다 큰 경우만)
+            if (scoredSources[0] && scoredSources[0].score > 0) {
+                topSource = scoredSources[0].source;
+                console.log('유사도 기반 소스 선택:', topSource, '점수:', scoredSources[0].score);
+            }
+        }
+        
+        // 매칭된 소스가 없으면 첫 번째 소스 사용
+        if (!topSource) {
+            topSource = filteredSources[0];
+            console.log('첫 번째 소스 선택 (매칭 없음):', topSource);
+        }
         
         // PDF 파일명 추출 (예: "KB국민은행 대출상품 가이드.pdf")
         let pdfFileName = 'PDF 문서';
@@ -297,6 +359,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // 리스트의 맨 위에 추가
             currentPdfsList.insertBefore(newPdfItem, currentPdfsList.firstChild);
+            
+            // PDF 개수 업데이트
+            updatePdfCount();
         }
         
         // pdf_reference_list에 새로운 참조 아이템 추가
@@ -508,6 +573,11 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 addAIResponse(aiResult.response);
             }
+            
+            // AI 응답 처리 완료 후 입력창에 포커스
+            setTimeout(() => {
+                focusInput();
+            }, 100);
         }, 500);
     }
     
@@ -536,6 +606,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         return title.trim();
+    }
+    
+    // PDF 개수 업데이트 함수
+    function updatePdfCount() {
+        const currentPdfsList = document.querySelector('.current_pdfs_list');
+        const pdfCountElement = document.querySelector('.pdf_count');
+        
+        if (currentPdfsList && pdfCountElement) {
+            const pdfItems = currentPdfsList.querySelectorAll('.current_pdf_item');
+            const count = pdfItems.length;
+            pdfCountElement.textContent = `${count}개`;
+            console.log('PDF 개수 업데이트:', count);
+        }
     }
     
     // 채팅 제목 업데이트 함수
@@ -640,6 +723,25 @@ document.addEventListener('DOMContentLoaded', function() {
         if (suggestedQuestionsButtonContainer) {
             suggestedQuestionsButtonContainer.style.display = 'none';  // 새 채팅에서는 버튼 숨김
         }
+        
+        // PDF 참조 목록 초기화
+        const currentPdfsList = document.querySelector('.current_pdfs_list');
+        const pdfReferenceList = document.querySelector('.pdf_reference_list');
+        
+        if (currentPdfsList) {
+            currentPdfsList.innerHTML = '';
+        }
+        if (pdfReferenceList) {
+            pdfReferenceList.innerHTML = '';
+        }
+        
+        // PDF 개수 초기화
+        updatePdfCount();
+        
+        // 새 채팅 시작 후 입력창에 포커스
+        setTimeout(() => {
+            focusInput();
+        }, 100);
         if (suggestedQuestionsCardsContainer) {
             suggestedQuestionsCardsContainer.style.display = 'none';
         }
