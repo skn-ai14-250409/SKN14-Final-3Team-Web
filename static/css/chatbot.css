@@ -2420,7 +2420,7 @@ body {
 }
 .chat_pdf_column .current_pdfs_section .current_pdf_item .pdf_info .pdf_name {
   font-size: 0.625rem;
-  font-weight: 400;
+  font-weight: 500;
   color: #333;
   margin-bottom: 0.0625rem;
   overflow: hidden;
@@ -2556,15 +2556,23 @@ body {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: start;
+}
+.chat_pdf_column .pdf_reference_list .reference_item .reference_content .reference_source .title_line_container {
+  height: 100%;
+  -ms-flex-item-align: stretch;
+      align-self: stretch;
 }
 .chat_pdf_column .pdf_reference_list .reference_item .reference_content .reference_source .title_line {
   border-left: 2px solid #392e1b;
   padding-left: 0.1875rem;
   margin-right: 0.1875rem;
   height: 0.625rem;
+  -ms-flex-item-align: stretch;
+      align-self: stretch;
+  margin-top: 4px;
 }
 .chat_pdf_column .pdf_reference_list .reference_item .reference_content .reference_source .pdf_file_name {
   font-size: 0.625rem;
@@ -2575,6 +2583,7 @@ body {
 .chat_pdf_column .pdf_reference_list .reference_item .reference_content .reference_source .pdf_page_number {
   font-size: 0.5rem;
   color: #666;
+  width: 1.875rem;
 }
 .chat_pdf_column .pdf_reference_list .reference_item .reference_content .reference_content_body {
   display: -webkit-box;
@@ -3638,7 +3647,7 @@ body {
   -webkit-transition: all 0.2s ease;
   transition: all 0.2s ease;
 }
-.main_chatbot_column .chat_input_area .input_container:focus, .main_chatbot_column .chat_input_area .input_container:focus-within {
+.main_chatbot_column .chat_input_area .input_container:focus-within {
   border-color: #ffbc00 !important;
   -webkit-box-shadow: 0 0 0 3px rgba(255, 188, 0, 0.1) !important;
           box-shadow: 0 0 0 3px rgba(255, 188, 0, 0.1) !important;

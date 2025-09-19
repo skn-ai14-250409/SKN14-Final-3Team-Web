@@ -162,6 +162,9 @@ class ChatPDFColumn {
         // PDF 목록에서 제거
         this.currentPDFs = this.currentPDFs.filter(pdf => pdf.id !== pdfId);
         
+        // PDF 개수 업데이트
+        this.updatePdfCount();
+        
         // 활성 PDF가 닫힌 경우 다른 PDF를 활성화
         if (this.activePDFId === pdfId) {
             if (this.currentPDFs.length > 0) {
@@ -169,6 +172,18 @@ class ChatPDFColumn {
             } else {
                 this.activePDFId = null;
             }
+        }
+    }
+    
+    updatePdfCount() {
+        const currentPdfsList = document.querySelector('.current_pdfs_list');
+        const pdfCountElement = document.querySelector('.pdf_count');
+        
+        if (currentPdfsList && pdfCountElement) {
+            const pdfItems = currentPdfsList.querySelectorAll('.current_pdf_item');
+            const count = pdfItems.length;
+            pdfCountElement.textContent = `${count}개`;
+            console.log('PDF 개수 업데이트:', count);
         }
     }
 
