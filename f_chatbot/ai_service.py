@@ -161,6 +161,10 @@ class AIService:
                 sources_data = normalized_sources
                 logger.info(f"정규화된 sources_data: {sources_data}")
                 
+                # initial_topic_summary 로깅
+                initial_topic_summary = data.get('initial_topic_summary', '')
+                logger.info(f"initial_topic_summary: '{initial_topic_summary}'")
+                
                 return {
                     'success': True,
                     'response': response_text,

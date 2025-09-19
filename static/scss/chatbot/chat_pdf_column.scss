@@ -157,7 +157,7 @@
                 
                 .pdf_name {
                     font-size: ptr(10px);
-                    font-weight: 400;
+                    font-weight: 500;
                     color: $kb-text-dark;
                     margin-bottom: ptr(1px);
                     overflow: hidden;
@@ -265,14 +265,19 @@
                 
                 .reference_source {
                     display: flex;
-                    align-items: center;
-                    // justify-content: ;
-             
+                    align-items: start;
+                    
+                    .title_line_container{
+                        height: 100%;
+                        align-self: stretch;
+                    }
                     .title_line{    
                         border-left: 2px solid $kb-dark;
                         padding-left: ptr(3px);
                         margin-right: ptr(3px);
                         height: ptr(10px);
+                        align-self: stretch;
+                        margin-top: 4px;
                     }
                     
                     .pdf_file_name {
