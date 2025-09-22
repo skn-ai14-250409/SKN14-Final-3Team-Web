@@ -1,7 +1,7 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "skn143team/kb-fin-aissist",
+    "Name": "skn143team/kb-fin-aissist:latest",
     "Update": "true"
   },
   "Ports": [
