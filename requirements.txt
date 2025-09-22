@@ -1,40 +1,12 @@
-# Django Core Framework
-# Django: 웹 프레임워크
-# gunicorn: WSGI HTTP 서버
-# mysqlclient: MySQL 데이터베이스 커넥터
-# asgiref: ASGI(비동기 서버 게이트웨이 인터페이스) 참조 구현
-# sqlparse: SQL 파서
-# pymysql: 순수 파이썬 MySQL 클라이언트 라이브러리
+# requirements.txt (웹앱 전용)
 Django==5.2.5
 gunicorn==23.0.0
 mysqlclient==2.2.7
 asgiref==3.9.1
 sqlparse==0.5.3
 pymysql==1.1.1
-
-# AWS Integration
-# boto3: AWS SDK for Python
-# python-dotenv: .env 파일에서 환경 변수를 읽기 위한 라이브러리
 boto3==1.34.142
 python-dotenv==1.1.1
-
-# AI & Chatbot
-# langchain: LLM을 활용한 애플리케이션 개발 프레임워크
-# langchain-openai: LangChain과 OpenAI 연동
-# openai: OpenAI API 파이썬 클라이언트
-# konlpy: 한국어 정보 처리를 위한 파이썬 패키지
-# nltk: 자연어 처리를 위한 라이브러리
-# pandas: 데이터 분석 및 조작을 위한 라이브러리
-# numpy: 수치 연산을 위한 라이브러리
-# scikit-learn: 머신러닝 라이브러리
-# torch: 딥러닝 프레임워크
-# transformers: 자연어 처리를 위한 최신 모델(BERT, GPT 등)을 제공하는 라이브러리
-# sentence-transformers: 문장 임베딩을 위한 라이브러리
-# faiss-cpu: 효율적인 유사도 검색 및 클러스터링 라이브러리 (CPU 버전)
-# PyPDF2: PDF 파일을 다루기 위한 라이브러리
-# pdfminer.six: PDF에서 텍스트 및 정보를 추출하기 위한 라이브러리
-# pdfplumber: PDF에서 테이블 및 텍스트를 쉽게 추출하기 위한 라이브러리
-# tiktoken: OpenAI 모델을 위한 토크나이저
 langchain==0.3.27
 langchain-openai==0.3.31
 openai==1.101.0
@@ -43,43 +15,23 @@ nltk==3.9.1
 pandas==2.3.2
 numpy==2.3.2
 scikit-learn==1.7.0
-torch==2.7.1
-transformers==4.53.2
-sentence-transformers==5.0.0
 faiss-cpu==1.11.0
 PyPDF2==3.0.1
 pdfminer.six==20250506
 pdfplumber==0.11.7
 tiktoken==0.11.0
-
-# Web Scraping & APIs
-# requests: HTTP 요청을 보내기 위한 라이브러리
-# beautifulsoup4: HTML 및 XML 파일에서 데이터를 추출하기 위한 라이브러리
 requests==2.32.5
 beautifulsoup4==4.13.4
-
-# Development & Utilities
-# Faker: 테스트를 위한 가짜 데이터를 생성하는 라이브러리
-# django-extensions: Django의 관리 명령을 확장하는 도구 모음
-# ipython: 대화형 컴퓨팅을 위한 셸
-# jupyter: 대화형 컴퓨팅 및 노트북 환경
 Faker==37.5.3
 django-extensions==4.1
 ipython==9.4.0
 jupyter==1.1.1
-
-# Image and File Handling
-# Pillow: 이미지 처리를 위한 라이브러리
-# openpyxl: 엑셀 파일을 읽고 쓰기 위한 라이브러리
 Pillow==11.3.0
 openpyxl==3.1.5
-
-# Data Visualization
-# matplotlib: 데이터 시각화 라이브러리
-# seaborn: Matplotlib 기반의 통계 데이터 시각화 라이브러리
-# plotly: 인터랙티브 그래프를 만들기 위한 라이브러리
-# altair: 선언적 통계 시각화 라이브러리
 matplotlib==3.10.3
 seaborn==0.13.2
 plotly==6.2.0
 altair==5.5.0
+requests==2.32.5
+uvicorn==0.36.0
+whitenoise

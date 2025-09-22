@@ -6,12 +6,10 @@ on:
       - main
     types:
       - closed
-
 jobs:
   # jobname
   build-deploy:
     # 수행 조건
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
@@ -39,6 +37,6 @@ jobs:
           application_name: ${{ secrets.AWS_EB_APPLICATION_NAME }}
           environment_name: ${{ secrets.AWS_EB_ENVIRONMENT_NAME }}
           region: ap-northeast-2
-          version_label: "app-${{ github.sha }}"
+          version_label: "app-${{ github.sha }}-${{ github.run_number }}"
           deployment_package: Dockerrun.aws.json
           use_existing_version_if_available: true
