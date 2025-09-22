@@ -21,6 +21,14 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
+# 개인 여신심사
+PERSONAL_LOAN_LGBM_MODEL_PATH = os.path.join(BASE_DIR, "ml_models", "personal_loan_lgbm.pkl")
+PERSONAL_LOAN_SCALER_PATH = os.path.join(BASE_DIR, "ml_models", "personal_loan_scaler.pkl")
+
+# 기업 여신심사
+CORPORATE_LOAN_LGBM_MODEL_PATH = os.path.join(BASE_DIR, "ml_models", "corporate_loan_lgbm.pkl")
+CORPORATE_LOAN_SCALER_PATH = os.path.join(BASE_DIR, "ml_models", "corporate_loan_scaler.pkl")
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
