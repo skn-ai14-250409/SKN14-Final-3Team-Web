@@ -10,7 +10,7 @@
     
     .credit_assessment_content {
         display: grid;
-        grid-template-columns: ptr(200px) 1fr;
+        grid-template-columns: 0fr ptr(240px) 1fr ptr(240px);
         width: 100%;
         flex: 1;
         min-height: 0;

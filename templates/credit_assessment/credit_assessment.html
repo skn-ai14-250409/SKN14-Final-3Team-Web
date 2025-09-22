@@ -14,7 +14,29 @@
         <!-- Team Channel Column (팀 채팅) -->
         {% include 'partials/team_channel_column.html' %}
         <div class = "second_column">
-
+            <div class = "customer_information_container">
+                <div class = "customer_information_header">
+                    <span>개인 고객 정보</span>
+                </div>
+                <div class = "customer_information_content">
+                    <div class = "input_group">
+                        <label for = "customer_name">고객명</label>
+                        <input type = "text" id = "customer_name" name = "customer_name" placeholder="홍길동">
+                    </div>
+                    <div class = "input_group">
+                        <label for = "customer_id">고객 ID</label>
+                        <input type = "text" id = "customer_id" name = "customer_id" placeholder="1234567890">
+                    </div>
+                    <div class = "input_group">
+                        <label for = "customer_phone">고객 연락처</label>
+                        <input type = "text" id = "customer_phone" name = "customer_phone" placeholder="010-1234-5678">
+                    </div>
+                    <div class = "input_group">
+                        <label for = "customer_email">고객 이메일</label>
+                        <input type = "text" id = "customer_email" name = "customer_email" placeholder="finaissist1234_@kb.com">
+                    </div>
+                </div>
+            </div>
         </div>
         <div class = "third_column">
 
@@ -28,7 +50,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/components/team_channel_column.js' %}"></script>
+<script src="{% static 'js/partials/team_channel_column.js' %}"></script>
 {% endblock %}
 
 

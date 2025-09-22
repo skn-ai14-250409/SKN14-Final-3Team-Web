@@ -43,7 +43,7 @@ class Command(BaseCommand):
         users = []
         for i in range(10):
             user, _ = User.objects.get_or_create(
-                employee_id=f"S23{i:04d}",
+                employee_id=f"KB25{i:04d}",
                 defaults={
                     "email": f"user{i}@example.com",
                     "password": "test1234",

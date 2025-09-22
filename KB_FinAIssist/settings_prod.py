@@ -12,6 +12,7 @@ ALLOWED_HOSTS = [h for h in _raw_hosts.split(",") if h] or [
 ]
 # DEBUG=False에서 ALLOWED_HOSTS 누락 시 모든 요청이 400. :contentReference[oaicite:7]{index=7}
 
+
 # 3) CSRF 신뢰 오리진(스킴 포함 필수: https:// ...)
 #    예: CSRF_TRUSTED_ORIGINS=https://finaissistweb-env.eba-xxxx.ap-northeast-2.elasticbeanstalk.com,https://finaissist.com,https://www.finaissist.com
 _raw_csrf = os.getenv("CSRF_TRUSTED_ORIGINS", "").replace(" ", "")
@@ -33,3 +34,4 @@ STORAGES = {
     }
 }
 # "웹앱이 자체적으로 정적파일 서빙"을 가능하게 해주는 패키지. :contentReference[oaicite:10]{index=10}
+
