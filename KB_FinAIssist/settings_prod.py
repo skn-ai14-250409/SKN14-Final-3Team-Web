@@ -12,29 +12,6 @@ ALLOWED_HOSTS = [h for h in _raw_hosts.split(",") if h] or [
 ]
 # DEBUG=False에서 ALLOWED_HOSTS 누락 시 모든 요청이 400. :contentReference[oaicite:7]{index=7}
 
-<<<<<<< HEAD
-# 배포 DB 설정
-# settings.py 에서 가져옴
-
-# import pymysql
-
-# pymysql.install_as_MySQLdb()
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': config.PROB_DB_NAME,
-#         'USER': config.PROB_DB_USER,
-#         'PASSWORD': config.PROB_DB_PASSWORD,
-#         'HOST': config.PROB_DB_HOST,
-#         'PORT': config.PROB_DB_PORT,
-#         'OPTIONS': {
-#             'charset': 'utf8mb4',
-#         },
-#     }
-# }
-# print("MySQL 데이터베이스 설정을 사용합니다.")
-=======
 # 3) CSRF 신뢰 오리진(스킴 포함 필수: https:// ...)
 #    예: CSRF_TRUSTED_ORIGINS=https://finaissistweb-env.eba-xxxx.ap-northeast-2.elasticbeanstalk.com,https://finaissist.com,https://www.finaissist.com
 _raw_csrf = os.getenv("CSRF_TRUSTED_ORIGINS", "").replace(" ", "")
@@ -56,4 +33,3 @@ STORAGES = {
     }
 }
 # "웹앱이 자체적으로 정적파일 서빙"을 가능하게 해주는 패키지. :contentReference[oaicite:10]{index=10}
->>>>>>> c5aff85f9cf0109de49405e31d3caedcdf000548
