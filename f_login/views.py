@@ -84,65 +84,74 @@ def login_view(request):
 
 def dashboard_view(request):
     """대시보드 페이지"""
-    # 세션에서 사용자 정보 가져오기
-    user_name = request.session.get('user_name', '사용자')
-    user_email = request.session.get('user_email', '')
-    employee_id = request.session.get('employee_id', '')
-    
-    # 캘린더 데이터 생성
-    now = datetime.now()
-    year = int(request.GET.get('year', now.year))
-    month = int(request.GET.get('month', now.month))
-    
-    # 현재 월이 9월이면 9월을 기본값으로 사용
-    if now.month == 9:
-        month = 9
-    
-    # 달력 데이터 생성 (월요일을 주의 시작으로 설정)
-    calendar.setfirstweekday(calendar.MONDAY)  # 월요일을 주의 시작으로 설정
-    cal = calendar.monthcalendar(year, month)
-    
-    # 디버깅: 2025년 9월 1일 요일 확인
-    if year == 2025 and month == 9:
-        first_day = datetime(2025, 9, 1)
-        weekday = first_day.weekday()  # 0=월요일, 1=화요일, ..., 6=일요일
-        print(f"Debug: 2025년 9월 1일은 {['월', '화', '수', '목', '금', '토', '일'][weekday]}요일")
-        print(f"Debug: calendar.monthcalendar 결과 (월요일 시작): {cal}")
+    try:
+        # 세션에서 사용자 정보 가져오기
+        user_name = request.session.get('user_name', '사용자')
+        user_email = request.session.get('user_email', '')
+        employee_id = request.session.get('employee_id', '')
         
-        # 첫 번째 주 확인
-        if cal and cal[0]:
-            print(f"Debug: 첫 번째 주: {cal[0]}")
-            print(f"Debug: 1일의 위치: {cal[0].index(1) if 1 in cal[0] else '없음'}")
-            print(f"Debug: 1일이 월요일 위치(0)에 있는가: {cal[0][0] == 1 if cal[0] else False}")
-    
-    # 이벤트 데이터 (현재 월에 맞게)
-    events = [
-        {'date': f'{year}-{month:02d}-15', 'title': '고객 미팅', 'color': '#ffc107'},
-        {'date': f'{year}-{month:02d}-20', 'title': '팀 회의', 'color': '#007bff'},
-        {'date': f'{year}-{month:02d}-25', 'title': '보고서 제출', 'color': '#28a745'},
-    ]
-    
-    # 현재 월이 9월이면 9월 이벤트로 수정
-    if now.month == 9:
+        # 캘린더 데이터 생성
+        now = datetime.now()
+        year = int(request.GET.get('year', now.year))
+        month = int(request.GET.get('month', now.month))
+        
+        # 현재 월이 9월이면 9월을 기본값으로 사용
+        if now.month == 9:
+            month = 9
+        
+        # 달력 데이터 생성 (월요일을 주의 시작으로 설정)
+        calendar.setfirstweekday(calendar.MONDAY)  # 월요일을 주의 시작으로 설정
+        cal = calendar.monthcalendar(year, month)
+        
+        # 디버깅: 2025년 9월 1일 요일 확인
+        if year == 2025 and month == 9:
+            first_day = datetime(2025, 9, 1)
+            weekday = first_day.weekday()  # 0=월요일, 1=화요일, ..., 6=일요일
+            print(f"Debug: 2025년 9월 1일은 {['월', '화', '수', '목', '금', '토', '일'][weekday]}요일")
+            print(f"Debug: calendar.monthcalendar 결과 (월요일 시작): {cal}")
+            
+            # 첫 번째 주 확인
+            if cal and cal[0]:
+                print(f"Debug: 첫 번째 주: {cal[0]}")
+                print(f"Debug: 1일의 위치: {cal[0].index(1) if 1 in cal[0] else '없음'}")
+                print(f"Debug: 1일이 월요일 위치(0)에 있는가: {cal[0][0] == 1 if cal[0] else False}")
+        
+        # 이벤트 데이터 (현재 월에 맞게)
         events = [
-            {'date': f'{year}-09-15', 'title': '고객 미팅', 'color': '#ffc107'},
-            {'date': f'{year}-09-20', 'title': '팀 회의', 'color': '#007bff'},
-            {'date': f'{year}-09-25', 'title': '보고서 제출', 'color': '#28a745'},
+            {'date': f'{year}-{month:02d}-15', 'title': '고객 미팅', 'color': '#ffc107'},
+            {'date': f'{year}-{month:02d}-20', 'title': '팀 회의', 'color': '#007bff'},
+            {'date': f'{year}-{month:02d}-25', 'title': '보고서 제출', 'color': '#28a745'},
         ]
-    
-    context = {
-        'user_name': user_name,
-        'user_email': user_email,
-        'employee_id': employee_id,
-        # 캘린더 데이터
-        'year': year,
-        'month': month,
-        'calendar': cal,
-        'events': events,
-        'month_name': calendar.month_name[month],
-    }
-    
-    return render(request, 'dashboard/dashboard.html', context)
+        
+        # 현재 월이 9월이면 9월 이벤트로 수정
+        if now.month == 9:
+            events = [
+                {'date': f'{year}-09-15', 'title': '고객 미팅', 'color': '#ffc107'},
+                {'date': f'{year}-09-20', 'title': '팀 회의', 'color': '#007bff'},
+                {'date': f'{year}-09-25', 'title': '보고서 제출', 'color': '#28a745'},
+            ]
+        
+        context = {
+            'user_name': user_name,
+            'user_email': user_email,
+            'employee_id': employee_id,
+            # 캘린더 데이터
+            'year': year,
+            'month': month,
+            'calendar': cal,
+            'events': events,
+            'month_name': calendar.month_name[month],
+        }
+        
+        return render(request, 'dashboard/dashboard.html', context)
+        
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Dashboard view error: {str(e)}")
+        # 에러 발생 시 간단한 에러 페이지 반환
+        from django.http import HttpResponse
+        return HttpResponse(f"Dashboard 오류가 발생했습니다: {str(e)}", status=500)
 
 
 def logout_view(request):
