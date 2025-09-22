@@ -21,6 +21,14 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
+# 개인 여신심사
+PERSONAL_LOAN_LGBM_MODEL_PATH = os.path.join(BASE_DIR, "ml_models", "personal_loan_lgbm.pkl")
+PERSONAL_LOAN_SCALER_PATH = os.path.join(BASE_DIR, "ml_models", "personal_loan_scaler.pkl")
+
+# 기업 여신심사
+CORPORATE_LOAN_LGBM_MODEL_PATH = os.path.join(BASE_DIR, "ml_models", "corporate_loan_lgbm.pkl")
+CORPORATE_LOAN_SCALER_PATH = os.path.join(BASE_DIR, "ml_models", "corporate_loan_scaler.pkl")
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -30,8 +38,12 @@ SECRET_KEY = "django-insecure-p2)a92tangx7n%9=wzr$cbi9_5u5nr#*s-v+l-%fjofp+c$+as
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+# ALLOWED_HOSTS = ['.elasticbeanstalk.com']
+ALLOWED_HOSTS = [
+  "FinAissistWeb2-env.eba-ppiwmga8.ap-northeast-2.elasticbeanstalk.com",
+  ".elasticbeanstalk.com",
+  "localhost", "127.0.0.1"
+]
 
 # Application definition
 
@@ -56,6 +68,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # 배포용 정적파일 서빙
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -147,18 +160,22 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+STORAGES = {
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"}
+}
 
+STATIC_ROOT = BASE_DIR / "staticfiles"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # FastAPI 서버 설정
-FASTAPI_URL = "http://127.0.0.1:8001"
+FASTAPI_URL = os.environ.get("FASTAPI_URL", "http://127.0.0.1:8001")
 
 # FastAPI 상세 설정
 FASTAPI_CONFIG = {
-    'BASE_URL': 'http://127.0.0.1:8001',
+    'BASE_URL': FASTAPI_URL,
     'ENDPOINTS': {
         'LANGGRAPH_RAG': '/api/v1/langgraph/langgraph_rag',  # 실제 사용하는 V2 툴콜링 엔드포인트
         'HEALTH': '/health'

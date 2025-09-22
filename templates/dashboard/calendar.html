@@ -26,7 +26,8 @@
                 {% if day == 0 %}
                     <div class="calendar-day empty"></div>
                 {% else %}
-                    {% with date_str=year|stringformat:'s'|add:'-'|add:month|stringformat:'02d'|add:'-'|add:day|stringformat:'02d' %}
+                    {% with month_str=month|stringformat:'02d' %}
+                    {% with date_str=year|stringformat:'s'|add:'-'|add:month_str|add:'-'|add:day|stringformat:'02d' %}
                     {% now "Y-m-d" as today %}
                     <div class="calendar-day {% if date_str == today %}today{% endif %}" data-date="{{ date_str }}">
                         <span class="day-number"">{{ day }}</span>
