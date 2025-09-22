@@ -49,7 +49,6 @@ def chat_api(request):
         result = ai_service.send_message_with_langgraph_rag(message, chat_id, chat_history)
         
         # AI 응답 결과 로깅
-        logger.info(f"AI Service Result: {result}")
         logger.info(f"initial_topic_summary: {result.get('initial_topic_summary', 'NOT_FOUND')}")
         
         # AI 응답을 히스토리에 추가
@@ -91,3 +90,51 @@ def health_check(request):
         'status': 'healthy' if is_connected else 'unhealthy',
         'connected': is_connected
     })
+
+@require_http_methods(["GET"])
+def session_info(request, session_id):
+    """세션 정보 조회"""
+    try:
+        ai_service = AIService()
+        result = ai_service.get_session_info(session_id)
+        return JsonResponse(result)
+    except Exception as e:
+        logger.error(f"세션 정보 조회 오류: {e}")
+        return JsonResponse({
+            'status': 'error',
+            'message': '세션 정보 조회 중 오류가 발생했습니다.'
+        })
+
+@require_http_methods(["DELETE"])
+def delete_session(request, session_id):
+    """세션 삭제"""
+    try:
+        ai_service = AIService()
+        result = ai_service.delete_session(session_id)
+        
+        # Django 세션에서도 해당 채팅 히스토리 삭제
+        session_key = f'chat_history_{session_id}'
+        if session_key in request.session:
+            del request.session[session_key]
+        
+        return JsonResponse(result)
+    except Exception as e:
+        logger.error(f"세션 삭제 오류: {e}")
+        return JsonResponse({
+            'status': 'error',
+            'message': '세션 삭제 중 오류가 발생했습니다.'
+        })
+
+@require_http_methods(["GET"])
+def session_stats(request):
+    """세션 통계 조회"""
+    try:
+        ai_service = AIService()
+        result = ai_service.get_session_stats()
+        return JsonResponse(result)
+    except Exception as e:
+        logger.error(f"세션 통계 조회 오류: {e}")
+        return JsonResponse({
+            'status': 'error',
+            'message': '세션 통계 조회 중 오류가 발생했습니다.'
+        })
