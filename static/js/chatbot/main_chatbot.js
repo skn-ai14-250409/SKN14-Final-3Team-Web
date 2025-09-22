@@ -191,8 +191,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // PDF 참조 정보를 업데이트하는 함수
-    function updatePDFReference(sources, productName) {
-        console.log('updatePDFReference 호출됨:', { sources, productName });
+    function updatePDFReference(sources, productName, category = '') {
+        console.log('updatePDFReference 호출됨:', { sources, productName, category });
         
         if (!sources || sources.length === 0) {
             console.log('PDF 소스 정보가 없습니다.');
@@ -222,8 +222,39 @@ document.addEventListener('DOMContentLoaded', function() {
             const currentQuestion = getCurrentQuestion();
             if (currentQuestion) {
                 const questionKeywords = extractKeywordsFromQuestion(currentQuestion);
+                console.log('추출된 질문 키워드:', questionKeywords);
                 
-                filteredSources = sources.filter(source => {
+                // 카테고리 기반 우선 필터링
+                if (category) {
+                    const categoryKeywords = getCategoryKeywords(category);
+                    console.log('카테고리 키워드:', categoryKeywords);
+                    
+                    // 카테고리와 관련된 PDF 우선 선택
+                    const categoryFiltered = sources.filter(source => {
+                        const fileName = source.file_name || '';
+                        const filePath = source.file_path || '';
+                        const documentCategory = source.document_category || '';
+                        const mainCategory = source.main_category || '';
+                        const subCategory = source.sub_category || '';
+                        
+                        return categoryKeywords.some(keyword => 
+                            fileName.toLowerCase().includes(keyword.toLowerCase()) ||
+                            filePath.toLowerCase().includes(keyword.toLowerCase()) ||
+                            documentCategory.toLowerCase().includes(keyword.toLowerCase()) ||
+                            mainCategory.toLowerCase().includes(keyword.toLowerCase()) ||
+                            subCategory.toLowerCase().includes(keyword.toLowerCase())
+                        );
+                    });
+                    
+                    if (categoryFiltered.length > 0) {
+                        filteredSources = categoryFiltered;
+                        console.log('카테고리 기반 필터링 결과:', categoryFiltered.length, '개');
+                    }
+                }
+                
+                // 질문 키워드 기반 추가 필터링
+                if (questionKeywords.length > 0) {
+                    const keywordFiltered = filteredSources.filter(source => {
                     const fileName = source.file_name || '';
                     const keywords = source.keywords || [];
                     
@@ -233,19 +264,31 @@ document.addEventListener('DOMContentLoaded', function() {
                         keywords.some(k => k.toLowerCase().includes(keyword.toLowerCase()))
                     );
                 });
+                    
+                    // 키워드 필터링 결과가 있으면 사용
+                    if (keywordFiltered.length > 0) {
+                        filteredSources = keywordFiltered;
+                        console.log('키워드 기반 필터링 결과:', keywordFiltered.length, '개');
+                    }
+                }
                 
                 // 필터링된 결과가 없으면 원본 사용
                 if (filteredSources.length === 0) {
                     filteredSources = sources;
+                    console.log('필터링 결과 없음, 원본 사용');
                 }
             }
         }
         
-        // 상품명과 관련된 소스를 우선적으로 찾기
+        // AI 응답과 가장 관련성이 높은 소스를 찾기
         let topSource = null;
         
+        // 1. 상품명이 있는 경우 상품명 기반 매칭
         if (productName && productName.trim()) {
-            const productKeywords = productName.toLowerCase().split(/[\s,]+/).filter(keyword => keyword.length > 1);
+            // 상품명 정리 (특수문자 제거, 화살표 제거)
+            const cleanProductName = productName.replace(/[-→]/g, '').trim();
+            const productKeywords = cleanProductName.toLowerCase().split(/[\s,]+/).filter(keyword => keyword.length > 1);
+            console.log('정리된 상품명:', cleanProductName);
             console.log('상품명 키워드:', productKeywords);
             console.log('전체 소스 목록:', filteredSources.map(s => s.file_name || s.filename || s.source || s.relative_path));
             
@@ -259,14 +302,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 // 정확한 키워드 매칭 (가장 높은 점수)
                 productKeywords.forEach(keyword => {
                     if (fileNameLower.includes(keyword)) {
-                        score += 10; // 정확한 매칭은 높은 점수
+                        score += 15; // 정확한 매칭은 높은 점수
                     }
                 });
                 
                 // 부분 매칭 (낮은 점수)
                 productKeywords.forEach(keyword => {
-                    if (fileNameLower.includes(keyword.substring(0, 2))) {
-                        score += 2; // 부분 매칭은 낮은 점수
+                    if (keyword.length > 2 && fileNameLower.includes(keyword.substring(0, 3))) {
+                        score += 5; // 부분 매칭은 중간 점수
+                    }
+                });
+                
+                // 카테고리 기반 점수 (상품 관련 키워드)
+                const productCategoryKeywords = ['대출', '예금', '카드', '펀드', '보험', '상품'];
+                productCategoryKeywords.forEach(keyword => {
+                    if (fileNameLower.includes(keyword)) {
+                        score += 3; // 상품 관련 키워드 보너스
                     }
                 });
                 
@@ -275,19 +326,108 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // 점수 순으로 정렬
             scoredSources.sort((a, b) => b.score - a.score);
+            console.log('점수별 소스 순위:', scoredSources.map(s => ({ 
+                fileName: s.source.file_name, 
+                score: s.score 
+            })));
             
             // 가장 높은 점수의 소스 선택 (점수가 0보다 큰 경우만)
             if (scoredSources[0] && scoredSources[0].score > 0) {
                 topSource = scoredSources[0].source;
-                console.log('유사도 기반 소스 선택:', topSource, '점수:', scoredSources[0].score);
+                console.log('상품명 기반 소스 선택:', topSource, '점수:', scoredSources[0].score);
             }
         }
         
-        // 매칭된 소스가 없으면 첫 번째 소스 사용
+        // 2. 상품명 매칭이 실패한 경우 AI 응답 내용 기반 매칭
         if (!topSource) {
-            topSource = filteredSources[0];
-            console.log('첫 번째 소스 선택 (매칭 없음):', topSource);
+            const currentResponse = getCurrentAIResponse();
+            if (currentResponse) {
+                console.log('AI 응답 기반 매칭 시도:', currentResponse.substring(0, 100) + '...');
+                
+                // AI 응답에서 상품명이나 키워드 추출
+                const responseKeywords = extractKeywordsFromResponse(currentResponse);
+                console.log('응답에서 추출된 키워드:', responseKeywords);
+                
+                if (responseKeywords.length > 0) {
+                    const scoredSources = filteredSources.map(source => {
+                        const fileName = source.file_name || source.filename || source.source || source.relative_path || '';
+                        const fileNameLower = fileName.toLowerCase();
+                        
+                        let score = 0;
+                        
+                        // 응답 키워드와 파일명 매칭
+                        responseKeywords.forEach(keyword => {
+                            if (fileNameLower.includes(keyword.toLowerCase())) {
+                                score += 15; // 응답 키워드 매칭은 높은 점수
+                            }
+                        });
+                        
+                        return { source, score };
+                    });
+                    
+                    // 점수 순으로 정렬
+                    scoredSources.sort((a, b) => b.score - a.score);
+                    
+                    // 가장 높은 점수의 소스 선택
+                    if (scoredSources[0] && scoredSources[0].score > 0) {
+                        topSource = scoredSources[0].source;
+                        console.log('응답 기반 소스 선택:', topSource, '점수:', scoredSources[0].score);
+                    }
+                }
+            }
         }
+        
+        // 3. 모든 매칭이 실패한 경우 관련성 기반 선택
+        if (!topSource) {
+            console.log('매칭 실패 - 관련성 기반 선택 시도');
+            
+            // 상품 관련 키워드로 재시도
+            const productRelatedKeywords = ['대출', '예금', '카드', '펀드', '보험', '상품', '개인', '기업'];
+            const scoredSources = filteredSources.map(source => {
+                const fileName = source.file_name || source.filename || source.source || source.relative_path || '';
+                const fileNameLower = fileName.toLowerCase();
+                
+                let score = 0;
+                
+                // 상품 관련 키워드 매칭
+                productRelatedKeywords.forEach(keyword => {
+                    if (fileNameLower.includes(keyword)) {
+                        score += 5;
+                    }
+                });
+                
+                // KB 관련 키워드 (KB 상품일 가능성)
+                if (fileNameLower.includes('kb')) {
+                    score += 2;
+                }
+                
+                return { source, score };
+            });
+            
+            // 점수 순으로 정렬
+            scoredSources.sort((a, b) => b.score - a.score);
+            console.log('관련성 기반 점수:', scoredSources.map(s => ({ 
+                fileName: s.source.file_name, 
+                score: s.score 
+            })));
+            
+            // 가장 높은 점수의 소스 선택
+            if (scoredSources[0] && scoredSources[0].score > 0) {
+                topSource = scoredSources[0].source;
+                console.log('관련성 기반 소스 선택:', topSource, '점수:', scoredSources[0].score);
+            } else {
+                // 최후의 수단: 첫 번째 소스 사용
+                topSource = filteredSources[0];
+                console.log('첫 번째 소스 선택 (최후 수단):', topSource);
+            }
+        }
+        
+        console.log('최종 선택된 PDF:', {
+            fileName: topSource.file_name || topSource.filename || topSource.source || topSource.relative_path,
+            category: topSource.document_category || topSource.main_category,
+            subCategory: topSource.sub_category,
+            filePath: topSource.file_path
+        });
         
         // PDF 파일명 추출 (예: "KB국민은행 대출상품 가이드.pdf")
         let pdfFileName = 'PDF 문서';
@@ -426,7 +566,12 @@ document.addEventListener('DOMContentLoaded', function() {
             '조건': ['조건', 'condition', 'requirement'],
             '절차': ['절차', 'procedure', 'process'],
             '서류': ['서류', 'document', 'paper'],
-            '신청': ['신청', 'application', 'apply']
+            '신청': ['신청', 'application', 'apply'],
+            '여신내규': ['여신내규', '여신', '내규', '규정', '정책', '규칙', '기준'],
+            '규정': ['규정', 'regulation', 'rule', 'policy'],
+            '정책': ['정책', 'policy', 'guideline'],
+            '법률': ['법률', 'law', 'legal', '법'],
+            '업무규정': ['업무규정', '업무', '규정', 'procedure']
         };
         
         // 질문에서 키워드 찾기
@@ -437,7 +582,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // 질문에서 직접 추출할 수 있는 키워드들
-        const directKeywords = ['수수료', '금리', '대출', '예금', '신용', '담보', '상환', '한도', '조건', '절차', '서류', '신청'];
+        const directKeywords = ['수수료', '금리', '대출', '예금', '신용', '담보', '상환', '한도', '조건', '절차', '서류', '신청', '여신내규', '여신', '내규', '규정', '정책', '법률', '업무규정'];
         directKeywords.forEach(keyword => {
             if (lowerQuestion.includes(keyword) && !keywords.includes(keyword)) {
                 keywords.push(keyword);
@@ -445,6 +590,65 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         return keywords;
+    }
+    
+    // 카테고리별 키워드를 반환하는 함수
+    function getCategoryKeywords(category) {
+        const categoryKeywordMap = {
+            'company_products': ['상품', 'product', '대출', '예금', '카드', '펀드', '보험'],
+            'company_rules': ['규정', '정책', '규칙', '기준', '가이드', '매뉴얼', '업무규정'],
+            'industry_policies_and_regulations': ['법률', '규정', '정책', '법', '규칙', '기준', '여신', '내규', '업무규정', 'compliance', 'regulation'],
+            'general_faq': ['faq', '자주묻는', '질문', '답변', '가이드']
+        };
+        
+        return categoryKeywordMap[category] || [];
+    }
+    
+    // 현재 AI 응답을 가져오는 함수
+    function getCurrentAIResponse() {
+        const aiMessages = document.querySelectorAll('.ai_message');
+        if (aiMessages.length > 0) {
+            const lastAIMessage = aiMessages[aiMessages.length - 1];
+            return lastAIMessage.textContent || lastAIMessage.innerText || '';
+        }
+        return null;
+    }
+    
+    // AI 응답에서 키워드를 추출하는 함수
+    function extractKeywordsFromResponse(response) {
+        const keywords = [];
+        const lowerResponse = response.toLowerCase();
+        
+        // 상품명 패턴 매칭
+        const productPatterns = [
+            /kb\s*([가-힣]+(?:대출|예금|카드|펀드|보험))/gi,
+            /([가-힣]+(?:대출|예금|카드|펀드|보험))/gi,
+            /([가-힣]+(?:우대|특례|전용))/gi,
+            /([가-힣]+(?:성장|미래|유망))/gi
+        ];
+        
+        productPatterns.forEach(pattern => {
+            const matches = response.match(pattern);
+            if (matches) {
+                matches.forEach(match => {
+                    const cleanMatch = match.replace(/kb\s*/gi, '').trim();
+                    if (cleanMatch.length > 2) {
+                        keywords.push(cleanMatch);
+                    }
+                });
+            }
+        });
+        
+        // 특정 키워드 직접 추출
+        const directKeywords = ['미래성장기업', '유망분야', '성장기업', '우대대출', '동반성장', '상생대출', '수출기업', 'B2B동반성장'];
+        directKeywords.forEach(keyword => {
+            if (lowerResponse.includes(keyword.toLowerCase())) {
+                keywords.push(keyword);
+            }
+        });
+        
+        // 중복 제거
+        return [...new Set(keywords)];
     }
     
     // AI 서버 연결 상태를 확인하는 함수
@@ -531,7 +735,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 addAIResponse(aiResult.response);
                 
                 // AI 응답 전체 로깅
-                console.log('AI Result:', aiResult);
                 console.log('Current Chat ID:', currentChatId);
                 console.log('Initial Topic Summary:', aiResult.initial_topic_summary);
                 
@@ -545,20 +748,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     );
                     
                     if (currentChat && currentChat.title === '새 채팅') {
-                        let titleToUse = '';
-                        
                         if (aiResult.initial_topic_summary && aiResult.initial_topic_summary.trim()) {
-                            // FastAPI에서 제공된 요약 사용
-                            titleToUse = aiResult.initial_topic_summary.trim();
-                            console.log('Using FastAPI summary:', titleToUse);
-                        } else {
-                            // 메시지 기반으로 제목 생성
-                            titleToUse = generateTitleFromMessage(message);
-                            console.log('Generated title from message:', titleToUse);
-                        }
-                        
-                        if (titleToUse) {
+                            // LLM에서 제공된 요약 사용
+                            const titleToUse = aiResult.initial_topic_summary.trim();
+                            console.log('Using LLM summary:', titleToUse);
                             updateChatTitle(currentChatId, titleToUse);
+                        } else {
+                            console.log('No LLM summary provided, keeping default title');
                         }
                     } else {
                         console.log('Chat title already set, skipping update');
@@ -568,7 +764,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (aiResult.sources && aiResult.sources.length > 0) {
                     
                     // 가장 높은 점수의 PDF 정보 추출 및 HTML 업데이트
-                    updatePDFReference(aiResult.sources, aiResult.product_name);
+                    updatePDFReference(aiResult.sources, aiResult.product_name, aiResult.category);
                 }
             } else {
                 addAIResponse(aiResult.response);
@@ -581,32 +777,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     }
     
-    // 메시지에서 제목 생성 함수
-    function generateTitleFromMessage(message) {
-        // 메시지 정리
-        let title = message.trim();
-        
-        // 질문어 제거
-        const questionWords = ['이뭐야', '이뭔가요', '이뭔지', '에대해서', '에대해', '설명해줘', '알려줘', '궁금해', '궁금합니다', '문의', '질문'];
-        questionWords.forEach(word => {
-            title = title.replace(new RegExp(word, 'gi'), '');
-        });
-        
-        // 특수문자 제거
-        title = title.replace(/[?!.,~]/g, '');
-        
-        // 길이 제한 (20자)
-        if (title.length > 20) {
-            title = title.substring(0, 20) + '...';
-        }
-        
-        // 빈 문자열이면 기본 제목
-        if (!title.trim()) {
-            title = '질문';
-        }
-        
-        return title.trim();
-    }
     
     // PDF 개수 업데이트 함수
     function updatePdfCount() {
@@ -754,6 +924,47 @@ document.addEventListener('DOMContentLoaded', function() {
     // 기존 채팅을 로드하는 함수 (향후 구현)
     function loadChat(chatData) {
         console.log('채팅 로드 기능은 향후 구현 예정입니다:', chatData);
+    }
+    
+    // 세션 정보 조회 함수
+    async function getSessionInfo(sessionId) {
+        try {
+            const response = await fetch(`/chatbot/api/session/${sessionId}/`);
+            const data = await response.json();
+            console.log('세션 정보:', data);
+            return data;
+        } catch (error) {
+            console.error('세션 정보 조회 오류:', error);
+            return null;
+        }
+    }
+    
+    // 세션 삭제 함수
+    async function deleteSession(sessionId) {
+        try {
+            const response = await fetch(`/chatbot/api/session/${sessionId}/delete/`, {
+                method: 'DELETE'
+            });
+            const data = await response.json();
+            console.log('세션 삭제 결과:', data);
+            return data;
+        } catch (error) {
+            console.error('세션 삭제 오류:', error);
+            return null;
+        }
+    }
+    
+    // 세션 통계 조회 함수
+    async function getSessionStats() {
+        try {
+            const response = await fetch('/chatbot/api/sessions/stats/');
+            const data = await response.json();
+            console.log('세션 통계:', data);
+            return data;
+        } catch (error) {
+            console.error('세션 통계 조회 오류:', error);
+            return null;
+        }
     }
 });
 
