@@ -390,3 +390,8 @@ $RECYCLE.BIN/
 # node_modules (npm)
 node_modules/
 npm-debug.log*
+static/pdf/
+dashboard/
+dashboard_backup/
+dashboard_cor_backup/
+dashboard_cor/
