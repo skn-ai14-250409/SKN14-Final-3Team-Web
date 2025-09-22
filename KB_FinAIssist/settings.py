@@ -40,7 +40,7 @@ DEBUG = True
 
 # ALLOWED_HOSTS = ['.elasticbeanstalk.com']
 ALLOWED_HOSTS = [
-  "finaissistweb-env.eba-idpf34w6.ap-northeast-2.elasticbeanstalk.com",
+  "FinAissistWeb2-env.eba-ppiwmga8.ap-northeast-2.elasticbeanstalk.com",
   ".elasticbeanstalk.com",
   "localhost", "127.0.0.1"
 ]
@@ -74,7 +74,6 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -172,11 +171,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # FastAPI 서버 설정
-FASTAPI_URL = "http://127.0.0.1:8001"
+FASTAPI_URL = os.environ.get("FASTAPI_URL", "http://127.0.0.1:8001")
 
 # FastAPI 상세 설정
 FASTAPI_CONFIG = {
-    'BASE_URL': 'http://127.0.0.1:8001',
+    'BASE_URL': FASTAPI_URL,
     'ENDPOINTS': {
         'LANGGRAPH_RAG': '/api/v1/langgraph/langgraph_rag',  # 실제 사용하는 V2 툴콜링 엔드포인트
         'HEALTH': '/health'

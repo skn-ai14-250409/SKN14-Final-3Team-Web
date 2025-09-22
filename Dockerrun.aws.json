@@ -1,7 +1,7 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "dreamwars99/web_cicd_test:latest",
+    "Name": "skn143team/kb-fin-aissist",
     "Update": "true"
   },
   "Ports": [
