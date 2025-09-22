@@ -27,6 +27,9 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-p2)a92tangx7n%9=wzr$cbi9_5u5nr#*s-v+l-%fjofp+c$+as"
 
+# ML model settings
+LOAN_LGBM_MODEL_PATH = os.path.join(BASE_DIR, "ml_models", "loan_lgbm.pkl")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -146,12 +149,3 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static', 
     os.path.join(BASE_DIR, 'static'),
 ]
-
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# FastAPI 서버 설정
-FASTAPI_URL = "http://127.0.0.1:8001"
