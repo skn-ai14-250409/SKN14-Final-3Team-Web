@@ -30,7 +30,12 @@ SECRET_KEY = "django-insecure-p2)a92tangx7n%9=wzr$cbi9_5u5nr#*s-v+l-%fjofp+c$+as
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['.elasticbeanstalk.com']
+ALLOWED_HOSTS = [
+  "finaissistweb-env.eba-idpf34w6.ap-northeast-2.elasticbeanstalk.com",
+  ".elasticbeanstalk.com",
+  "localhost", "127.0.0.1"
+]
 
 
 # Application definition
@@ -56,6 +61,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # 배포용 정적파일 서빙
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -147,6 +153,11 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+STORAGES = {
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"}
+}
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -155,23 +166,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # FastAPI 서버 설정
 FASTAPI_URL = "http://127.0.0.1:8001"
-
-# FastAPI 상세 설정
-FASTAPI_CONFIG = {
-    'BASE_URL': 'http://127.0.0.1:8001',
-    'ENDPOINTS': {
-        'LANGGRAPH_RAG': '/api/v1/langgraph/langgraph_rag',  # 실제 사용하는 V2 툴콜링 엔드포인트
-        'HEALTH': '/health'
-    },
-    'TIMEOUTS': {
-        'DEFAULT': 60,
-        'LANGGRAPH': 60,
-        'HEALTH_CHECK': 5
-    },
-    'REQUEST_PARAMS': {
-        'PROMPT_KEY': 'prompt'
-    }
-}
 
 # 로깅 설정
 LOGGING = {
