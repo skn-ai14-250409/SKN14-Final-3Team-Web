@@ -12,7 +12,7 @@ class ChatHistoryColumn {
         console.log('Chat History Column - Initializing');
         this.setupEventListeners();
         this.setupKeyboardShortcuts();
-    }
+    }    
     
     setupEventListeners() {
         const newChatSection = document.querySelector('.new_chat_section');
@@ -39,7 +39,7 @@ class ChatHistoryColumn {
             newChatSection.addEventListener('click', (e) => {
                 console.log('New chat section clicked');
                 e.stopPropagation();
-                this.createNewChat();
+                this.createNewChat(); // Note: This will now be an async operation
             });
         }
         
@@ -110,29 +110,98 @@ class ChatHistoryColumn {
         });
     }
     
-    createNewChat() {
-        console.log('Creating new chat');
+    getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    formatTime(isoString) {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        const now = new Date();
+        const diffSeconds = Math.round((now - date) / 1000);
+        const diffMinutes = Math.round(diffSeconds / 60);
+        const diffHours = Math.round(diffMinutes / 60);
+        const diffDays = Math.round(diffHours / 24);
+
+        if (diffSeconds < 60) return "방금 전";
+        if (diffMinutes < 60) return `${diffMinutes}분 전`;
+        if (diffHours < 24) return `${diffHours}시간 전`;
+        if (diffDays <= 7) return `${diffDays}일 전`;
         
-        // 새 채팅 데이터 생성
-        const newChat = {
-            id: Date.now(),
-            title: "새 채팅",
-            time: "방금 전",
-            timestamp: Date.now()
-        };
-        
-        // 히스토리 맨 위에 추가
-        this.chatHistory.unshift(newChat);
-        
-        // UI 업데이트
-        this.renderHistoryList();
-        this.selectChat(0);
-        
-        // 메인 챗봇 영역에 새 채팅 알림
-        this.notifyMainChatbot('new_chat', newChat);
-        
-        // 새 채팅 ID 반환
-        return newChat.id;
+        return date.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    }
+
+    async loadHistory() {
+        console.log('Loading chat history from API');
+        try {
+            const response = await fetch('/kb_finaIssist/chatbot/api/chats/');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const historyData = await response.json();
+            
+            this.chatHistory = historyData.map(chat => ({
+                id: chat.id,
+                title: chat.title,
+                time: this.formatTime(chat.updated_at),
+                timestamp: new Date(chat.updated_at).getTime()
+            }));
+
+            this.renderHistoryList();
+        } catch (error) {
+            console.error('Failed to load chat history:', error);
+            this.renderHistoryList(); // 오류 발생 시에도 빈 목록을 렌더링
+        }
+    }
+    
+    async createNewChat() {
+        console.log('Creating new chat via API');
+        try {
+            const csrftoken = this.getCookie('csrftoken');
+            const response = await fetch('/kb_finaIssist/chatbot/api/chats/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({ title: '새 채팅' })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const newChatData = await response.json();
+            
+            const newChat = {
+                id: newChatData.id,
+                title: newChatData.title,
+                time: "방금 전",
+                timestamp: new Date(newChatData.created_at).getTime()
+            };
+
+            this.chatHistory.unshift(newChat);
+            this.renderHistoryList();
+            this.selectChat(0);
+            this.notifyMainChatbot('new_chat', newChat);
+            return newChat.id;
+
+        } catch (error) {
+            console.error('Failed to create new chat:', error);
+            alert('새 채팅을 생성하는 데 실패했습니다. 잠시 후 다시 시도해주세요.');
+            return null;
+        }
     }
     
     selectChat(index) {
@@ -344,32 +413,51 @@ class ChatHistoryColumn {
     }
     
     // 채팅 제목 업데이트 함수
-    updateChatTitle(chatId, title) {
+    async updateChatTitle(chatId, title) {
         console.log('updateChatTitle called:', { chatId, title });
-        console.log('Current chat history:', this.chatHistory);
         
         // 해당 채팅 ID를 가진 채팅 찾기 (타입 변환 고려)
-        const chatIndex = this.chatHistory.findIndex(chat => 
-            chat.id === chatId || 
-            chat.id === parseInt(chatId) || 
-            chat.id === String(chatId)
+        const chatIndex = this.chatHistory.findIndex(chat =>
+            String(chat.id) === String(chatId)
         );
-        console.log('Found chat index:', chatIndex);
-        
-        if (chatIndex !== -1) {
-            const currentTitle = this.chatHistory[chatIndex].title;
-            console.log('Current title:', currentTitle);
-            
-            // 제목 업데이트 (조건 완화)
-            if (title && title.trim()) {
-                this.chatHistory[chatIndex].title = title.trim();
-                this.renderHistoryList();
-                console.log('Chat title updated successfully from', currentTitle, 'to', title.trim());
-            } else {
-                console.log('Title not updated - no valid title provided:', title);
-            }
-        } else {
+
+        if (chatIndex === -1) {
             console.log('Chat not found for ID:', chatId);
+            return;
+        }
+
+        const newTitle = title.trim();
+        if (!newTitle) {
+            console.log('Title not updated - no valid title provided:', title);
+            return;
+        }
+
+        // 1. UI 즉시 업데이트 (사용자 경험 향상)
+        const originalTitle = this.chatHistory[chatIndex].title;
+        this.chatHistory[chatIndex].title = newTitle;
+        this.renderHistoryList();
+        console.log('Chat title updated in UI to:', newTitle);
+
+        // 2. 서버에 변경사항 전송
+        try {
+            const csrftoken = this.getCookie('csrftoken');
+            const response = await fetch(`/kb_finaIssist/chatbot/api/chats/${chatId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({ title: newTitle })
+            });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            console.log('Chat title successfully updated on server.');
+        } catch (error) {
+            console.error('Failed to update chat title on server:', error);
+            this.chatHistory[chatIndex].title = originalTitle; // 실패 시 UI 원상 복구
+            this.renderHistoryList();
+            alert('채팅 제목을 저장하는 데 실패했습니다.');
         }
     }
 }

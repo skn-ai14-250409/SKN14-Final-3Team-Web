@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     const chatInput = document.querySelector('.chat_input');
     const userMessagesContainer = document.getElementById('user_messages_container');
     const welcomeMessageContainer = document.getElementById('welcome_message_container');
@@ -23,7 +23,12 @@ document.addEventListener('DOMContentLoaded', function() {
         suggestedQuestionsButtonContainer.style.display = 'none';
     }
     
-    createNewChatInHistory();
+    // Wait for history to load before creating a new one
+    if (window.chatHistoryColumn) {
+        await window.chatHistoryColumn.loadHistory();
+    }
+    
+    await createNewChatInHistory();
     
     // 새 채팅 생성 후 입력창에 포커스
     setTimeout(() => {
@@ -31,19 +36,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 200);
     
     // 채팅 히스토리에 새 채팅을 추가하는 함수
-    function createNewChatInHistory() {
+    async function createNewChatInHistory() {
         // ChatHistoryColumn 인스턴스에 접근하여 새 채팅 생성
         if (window.chatHistoryColumn && typeof window.chatHistoryColumn.createNewChat === 'function') {
-            const newChatId = window.chatHistoryColumn.createNewChat();
-            currentChatId = newChatId; // 새 채팅 ID 설정
-            console.log('New chat created with ID:', currentChatId);
+            const newChatId = await window.chatHistoryColumn.createNewChat();
+            if (newChatId) {
+                currentChatId = newChatId; // 새 채팅 ID 설정
+                console.log('New chat created with ID:', currentChatId);
+            }
         } else {
             // ChatHistoryColumn이 아직 초기화되지 않은 경우 잠시 후 재시도
-            setTimeout(() => {
+            setTimeout(async () => {
                 if (window.chatHistoryColumn && typeof window.chatHistoryColumn.createNewChat === 'function') {
-                    const newChatId = window.chatHistoryColumn.createNewChat();
-                    currentChatId = newChatId; // 새 채팅 ID 설정
-                    console.log('New chat created with ID (delayed):', currentChatId);
+                    const newChatId = await window.chatHistoryColumn.createNewChat();
+                    if (newChatId) {
+                        currentChatId = newChatId; // 새 채팅 ID 설정
+                        console.log('New chat created with ID (delayed):', newChatId);
+                    }
                 }
             }, 100);
         }
@@ -740,11 +749,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // 채팅 제목 업데이트 (첫 번째 질문에서만)
                 if (currentChatId) {
-                    // 현재 채팅의 제목이 "새 채팅"인 경우에만 업데이트
-                    const currentChat = window.chatHistoryColumn?.chatHistory?.find(chat => 
-                        chat.id === currentChatId || 
-                        chat.id === parseInt(currentChatId) || 
-                        chat.id === String(currentChatId)
+                    // 현재 채팅의 제목이 "새 채팅"인 경우에만 업데이트 (ID 타입에 안전하게 비교)
+                    const currentChat = window.chatHistoryColumn?.chatHistory?.find(chat =>
+                        String(chat.id) === String(currentChatId)
                     );
                     
                     if (currentChat && currentChat.title === '새 채팅') {
@@ -752,12 +759,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             // LLM에서 제공된 요약 사용
                             const titleToUse = aiResult.initial_topic_summary.trim();
                             console.log('Using LLM summary:', titleToUse);
-                            updateChatTitle(currentChatId, titleToUse);
+                            await updateChatTitle(currentChatId, titleToUse);
                         } else {
                             console.log('No LLM summary provided, keeping default title');
                         }
                     } else {
-                        console.log('Chat title already set, skipping update');
+                        console.log('Chat title already set or not "새 채팅", skipping update/deletion logic.');
                     }
                 }
                 
@@ -792,9 +799,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 채팅 제목 업데이트 함수
-    function updateChatTitle(chatId, title) {
+    async function updateChatTitle(chatId, title) {
         if (window.chatHistoryColumn && typeof window.chatHistoryColumn.updateChatTitle === 'function') {
-            window.chatHistoryColumn.updateChatTitle(chatId, title);
+            await window.chatHistoryColumn.updateChatTitle(chatId, title);
         }
     }
     
@@ -871,6 +878,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (action === 'new_chat') {
             console.log('새 채팅 시작:', data);
             startNewChat();
+            currentChatId = data.id;
         } else if (action === 'load_chat') {
             console.log('채팅 로드:', data);
             loadChat(data);
@@ -967,4 +975,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-

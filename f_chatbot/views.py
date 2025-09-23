@@ -1,23 +1,122 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import json
 import logging
 from datetime import datetime
+from django.contrib import messages
+
+# --- 아래부터 추가 ---
+from django.http import HttpResponseForbidden, HttpResponseNotAllowed
+from django.utils.timezone import now
+from f_chatbot.models import UChatbotHistory
+# --- 추가 끝 ---
 
 from .ai_service import AIService
 
+from f_user.models import User
 logger = logging.getLogger(__name__)
 
+# --- 아래부터 추가 ---
+def _history_row(obj: UChatbotHistory):
+    # 프론트는 id 키를 기대하므로 seq_id를 id로 매핑
+    return {
+        "id": obj.seq_id,
+        "title": obj.title,
+        "created_at": obj.created_at,
+        "updated_at": obj.updated_at,
+    }
+
+@require_http_methods(["GET", "POST"])
+def api_chats(request):
+    """
+    GET: 현재 사용자의 모든 채팅 히스토리 목록을 조회합니다.
+    POST: 새 채팅을 생성합니다.
+    """
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({"detail": "Authentication credentials were not provided."}, status=401)
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({"detail": "User not found."}, status=401)
+
+    if request.method == "GET":
+        histories = UChatbotHistory.objects.filter(user=user, deleted_at__isnull=True).order_by("-updated_at")
+        return JsonResponse([_history_row(h) for h in histories], safe=False)
+
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            title = data.get("title", "새 채팅")
+        except json.JSONDecodeError:
+            title = "새 채팅"
+        
+        history = UChatbotHistory.objects.create(
+            user=user,
+            title=title
+        )
+        return JsonResponse(_history_row(history), status=201)
+
+    return HttpResponseNotAllowed(["GET", "POST"])
+
+@require_http_methods(["GET", "PATCH", "DELETE"])
+def api_chat_detail(request, pk: int):
+    """
+    GET: 특정 채팅 히스토리 상세 조회
+    PATCH: 특정 채팅 히스토리 수정 (예: 제목 변경)
+    DELETE: 특정 채팅 히스토리 삭제
+    """
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({"detail": "Authentication credentials were not provided."}, status=401)
+
+    try:
+        history = UChatbotHistory.objects.get(pk=pk)
+    except UChatbotHistory.DoesNotExist:
+        return JsonResponse({"detail": "Not found"}, status=404)
+
+    if history.user_id != user_id:
+        return HttpResponseForbidden()
+
+    if request.method == "GET":
+        return JsonResponse(_history_row(history))
+
+    if request.method == "PATCH":
+        data = json.loads(request.body)
+        new_title = data.get("title")
+        if new_title:
+            history.title = new_title
+            history.save()
+        return JsonResponse(_history_row(history))
+
+    if request.method == "DELETE":
+        history.deleted_at = now()
+        history.save()
+        return JsonResponse({}, status=204)
+
+    return HttpResponseNotAllowed(["GET", "PATCH", "DELETE"])
+# --- 추가 끝 ---
+
 # Create your views here.
-def chatbot(request) : 
+def chatbot(request):
+    if not request.session.get('user_id'):
+        messages.error(request, "로그인이 필요합니다.")
+        return redirect('login:login')
     return render(request, 'chatbot/chatbot.html')
 
 @csrf_exempt
 @require_http_methods(["POST"])
 def chat_api(request):
     """채팅 API 엔드포인트"""
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({
+            'success': False, 
+            'response': '로그인이 필요합니다.'
+        }, status=401)
+
     try:
         data = json.loads(request.body)
         message = data.get('message', '').strip()

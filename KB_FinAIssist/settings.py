@@ -163,6 +163,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# 로그인/로그아웃 URL 설정
+LOGIN_URL = '/kb_finaIssist/login/'
+LOGIN_REDIRECT_URL = '/kb_finaIssist/dashboard/'
+
+
 # FastAPI 서버 설정
 FASTAPI_URL = os.environ.get("FASTAPI_URL", "http://127.0.0.1:8001")
 
