@@ -115,8 +115,8 @@ body {
   color: #392e1b;
 }
 .btn.btn-primary:hover {
-  background-color: rgb(204, 150.4, 0);
-  border-color: rgb(204, 150.4, 0);
+  background-color: #cc9600;
+  border-color: #cc9600;
 }
 .btn.btn-outline-primary {
   color: #ffbc00;
@@ -893,13 +893,13 @@ body {
       -ms-flex-direction: column;
           flex-direction: column;
   min-height: 0;
-  background-color: rgb(50.0785714286, 40.4142857143, 23.7214285714);
+  background-color: #322818;
   border-radius: 0.375rem;
   overflow: hidden;
 }
 .team_channel_column .chat_container .chat_header {
   padding: 0.25rem 0.5rem;
-  background-color: rgb(43.1571428571, 34.8285714286, 20.4428571429);
+  background-color: #2b2314;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   -webkit-box-flex: 0;
       -ms-flex: 0 0 auto;
@@ -985,7 +985,7 @@ body {
   display: flex;
   -ms-flex-pack: distribute;
       justify-content: space-around;
-  background-color: rgb(43.1571428571, 34.8285714286, 20.4428571429);
+  background-color: #2b2314;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   -webkit-box-flex: 0;
       -ms-flex: 0 0 auto;
@@ -1020,7 +1020,7 @@ body {
 }
 .team_channel_column .chat_container .message_input_area {
   padding: 0.1875rem 0.1875rem;
-  background-color: rgb(43.1571428571, 34.8285714286, 20.4428571429);
+  background-color: #2b2314;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   -webkit-box-flex: 0;
       -ms-flex: 0 0 auto;
@@ -1065,6 +1065,34 @@ body {
     max-width: 280px;
   }
 }
+@-webkit-keyframes shake {
+  0%, 100% {
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    -webkit-transform: translateX(-2px);
+            transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    -webkit-transform: translateX(2px);
+            transform: translateX(2px);
+  }
+}
+@keyframes shake {
+  0%, 100% {
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    -webkit-transform: translateX(-2px);
+            transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    -webkit-transform: translateX(2px);
+            transform: translateX(2px);
+  }
+}
 .credit_assessment_container {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -1087,4 +1115,1167 @@ body {
       -ms-flex: 1;
           flex: 1;
   min-height: 0;
+}
+.credit_assessment_container .second_column {
+  grid-column: 2;
+  min-height: 0;
+  padding: 1.25rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.625rem;
+  border-right: 0.0625rem solid #e2e1e0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.credit_assessment_container .second_column::-webkit-scrollbar {
+  width: 0.375rem;
+}
+.credit_assessment_container .second_column::-webkit-scrollbar-track {
+  background: transparent;
+}
+.credit_assessment_container .second_column::-webkit-scrollbar-thumb {
+  background: rgba(102, 102, 102, 0.3);
+  border-radius: 0.1875rem;
+  -webkit-transition: background 0.2s ease;
+  transition: background 0.2s ease;
+}
+.credit_assessment_container .second_column::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 102, 102, 0.5);
+}
+.credit_assessment_container .second_column::-webkit-scrollbar-thumb:active {
+  background: rgba(102, 102, 102, 0.7);
+}
+.credit_assessment_container .second_column .first_row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  width: 100%;
+  background: #fff;
+  gap: 0.625rem;
+}
+.credit_assessment_container .second_column .first_row .credit_assessment_title {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #392e1b;
+}
+.credit_assessment_container .second_column .first_row .customer_info_header {
+  font-size: 0.75rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  gap: 0.375rem;
+  position: relative;
+}
+.credit_assessment_container .second_column .first_row .customer_info_header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.credit_assessment_container .second_column .first_row .customer_info_header .header_icon {
+  font-size: 0.875rem;
+  color: #392e1b;
+  margin-right: 0.25rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_header .header_title {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #392e1b;
+}
+.credit_assessment_container .second_column .first_row .customer_info_header .customer_type_toggle {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 0.25rem;
+  padding: 0.125rem;
+  border: 1px solid #e2e1e0;
+  gap: 0.125rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_header .customer_type_toggle .toggle_btn {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  background: transparent;
+  color: #392e1b;
+  font-size: 0.625rem;
+  font-weight: 500;
+  border-radius: 0.1875rem;
+  cursor: pointer;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  min-width: 2rem;
+  text-align: center;
+}
+.credit_assessment_container .second_column .first_row .customer_info_header .customer_type_toggle .toggle_btn.active {
+  background: #392e1b;
+  color: #eeeded;
+  font-weight: 600;
+}
+.credit_assessment_container .second_column .first_row .customer_info_header .customer_type_toggle .toggle_btn:hover:not(.active) {
+  background: #e2e1e0;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.5rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.1875rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group.required label::after {
+  content: " *";
+  color: #dc3545;
+  font-weight: 600;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group label {
+  font-size: 0.6875rem;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 0.125rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group input {
+  padding: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.3125rem;
+  font-size: 0.75rem;
+  background-color: white;
+  color: #333;
+  -webkit-transition: border-color 0.3s ease, -webkit-box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, -webkit-box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, -webkit-box-shadow 0.3s ease;
+  outline: none;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group input::-webkit-input-placeholder {
+  color: #6c757d;
+  font-size: 0.625rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group input::-moz-placeholder {
+  color: #6c757d;
+  font-size: 0.625rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group input:-ms-input-placeholder {
+  color: #6c757d;
+  font-size: 0.625rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group input::-ms-input-placeholder {
+  color: #6c757d;
+  font-size: 0.625rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group input::placeholder {
+  color: #6c757d;
+  font-size: 0.625rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group input:focus {
+  border-color: #ffbc00;
+  -webkit-box-shadow: 0 0 0 0.125rem rgba(255, 188, 0, 0.25);
+          box-shadow: 0 0 0 0.125rem rgba(255, 188, 0, 0.25);
+  background-color: white;
+  outline: none;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group input.error {
+  border-color: #dc3545;
+  -webkit-box-shadow: 0 0 0 0.1rem rgba(220, 53, 70, 0.538);
+          box-shadow: 0 0 0 0.1rem rgba(220, 53, 70, 0.538);
+  -webkit-animation: shake 0.4s ease-in-out;
+          animation: shake 0.4s ease-in-out;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group .error-message {
+  color: #dc3545;
+  font-size: 0.625rem;
+  font-weight: 400;
+  margin-left: 0.25rem;
+  display: inline;
+  white-space: nowrap;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group.rrn_input input, .credit_assessment_container .second_column .first_row .customer_info_content .input_grid .input_group.phone_input input {
+  letter-spacing: 0.0625rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .banker_notes {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background: #f8f8f8;
+  border-radius: 0.375rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .banker_notes .notes_header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .banker_notes .notes_header i {
+  color: #392e1b;
+  font-size: 0.75rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .banker_notes .notes_header h4 {
+  color: #392e1b;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  margin: 0;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .banker_notes .notes_content .note_item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  gap: 0.375rem;
+  margin-bottom: 0.375rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .banker_notes .notes_content .note_item:last-child {
+  margin-bottom: 0;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .banker_notes .notes_content .note_item .note_icon {
+  color: #392e1b;
+  font-size: 0.625rem;
+  margin-top: 0.125rem;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .banker_notes .notes_content .note_item .note_text {
+  font-size: 0.625rem;
+  color: #333;
+  line-height: 1.4;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .banker_notes .notes_content .note_item .note_text strong {
+  color: #392e1b;
+  font-weight: 600;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .customer_check_actions {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin-top: 0.75rem;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .customer_check_actions .btn_check_customer {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  background-color: rgba(255, 188, 0, 0.4);
+  color: #392e1b;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  width: 100%;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .customer_check_actions .btn_check_customer:hover {
+  background-color: #ffbc00;
+  -webkit-transform: scale(1.01);
+          transform: scale(1.01);
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .customer_check_actions .btn_check_customer:active {
+  -webkit-transform: scale(0.95);
+          transform: scale(0.95);
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .customer_check_actions .btn_check_customer:disabled {
+  background-color: #f8f8f8;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+.credit_assessment_container .second_column .first_row .customer_info_content .customer_check_actions .btn_check_customer i {
+  font-size: 0.75rem;
+}
+.credit_assessment_container .second_column .customer_info_display {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  width: 100%;
+  background: #fff;
+  border-radius: 0.75rem;
+  -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e1e0;
+  margin-top: 0.625rem;
+  overflow: hidden;
+}
+.credit_assessment_container .second_column .customer_info_display .customer_display_header {
+  background-color: #392e1b;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.5rem;
+}
+.credit_assessment_container .second_column .customer_info_display .customer_display_header .header_icon {
+  font-size: 1rem;
+  color: #392e1b;
+}
+.credit_assessment_container .second_column .customer_info_display .customer_display_content {
+  padding: 0.75rem;
+}
+.credit_assessment_container .second_column .customer_info_display .customer_display_content .customer_not_found {
+  text-align: center;
+  color: #dc3545;
+  font-size: 0.75rem;
+  padding: 1.25rem;
+}
+.credit_assessment_container .second_column .customer_info_display .customer_display_content .customer_not_found i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.credit_assessment_container .second_column .customer_info_display .customer_display_content .customer_info_grid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0;
+  border: 1px solid #e2e1e0;
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+.credit_assessment_container .second_column .customer_info_display .customer_display_content .customer_info_grid .info_item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  border-bottom: 1px solid #e2e1e0;
+}
+.credit_assessment_container .second_column .customer_info_display .customer_display_content .customer_info_grid .info_item:nth-child(odd) {
+  background: #f8f8f8;
+}
+.credit_assessment_container .second_column .customer_info_display .customer_display_content .customer_info_grid .info_item:nth-child(even) {
+  background: white;
+}
+.credit_assessment_container .second_column .customer_info_display .customer_display_content .customer_info_grid .info_item:last-child {
+  border-bottom: none;
+}
+.credit_assessment_container .second_column .customer_info_display .customer_display_content .customer_info_grid .info_item .info_label {
+  font-size: 0.625rem;
+  color: #6c757d;
+  font-weight: 500;
+  padding: 0.375rem 0.5rem;
+  background: rgba(57, 46, 27, 0.05);
+  border-right: 1px solid rgba(226, 225, 224, 0.5);
+  min-width: 3.75rem;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.credit_assessment_container .second_column .customer_info_display .customer_display_content .customer_info_grid .info_item .info_value {
+  font-size: 0.6875rem;
+  color: #333;
+  font-weight: 600;
+  padding: 0.375rem 0.5rem;
+  min-height: 1.25rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  line-height: 1.4;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+.credit_assessment_container .second_column .second_row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  width: 100%;
+  background: #fff;
+  border-radius: 0.75rem;
+  -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e1e0;
+  overflow: hidden;
+}
+.credit_assessment_container .second_column .second_row .loan_info_header {
+  background-color: #392e1b;
+  color: #eeeded;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.5rem;
+}
+.credit_assessment_container .second_column .second_row .loan_info_header .header_icon {
+  font-size: 1rem;
+  color: #392e1b;
+}
+.credit_assessment_container .second_column .second_row .loan_info_notice {
+  background-color: rgba(255, 188, 0, 0.1);
+  color: #392e1b;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.375rem;
+  border-left: 0.1875rem solid #ffbc00;
+}
+.credit_assessment_container .second_column .second_row .loan_info_notice i {
+  font-size: 0.875rem;
+  color: #ffbc00;
+}
+.credit_assessment_container .second_column .second_row .loan_info_notice_secondary {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #392e1b;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.6875rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.375rem;
+  border-left: 0.1875rem solid #3b82f6;
+}
+.credit_assessment_container .second_column .second_row .loan_info_notice_secondary i {
+  font-size: 0.75rem;
+  color: #3b82f6;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content {
+  padding: 0.75rem;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content .input_grid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.375rem;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.1875rem;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group label {
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: #333;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group input, .credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group select {
+  padding: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.3125rem;
+  font-size: 0.75rem;
+  background-color: white;
+  -webkit-transition: border-color 0.3s ease, -webkit-box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, -webkit-box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, -webkit-box-shadow 0.3s ease;
+  outline: none;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group input::-webkit-input-placeholder, .credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group select::-webkit-input-placeholder {
+  color: #6c757d;
+  font-size: 0.625rem;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group input::-moz-placeholder, .credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group select::-moz-placeholder {
+  color: #6c757d;
+  font-size: 0.625rem;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group input:-ms-input-placeholder, .credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group select:-ms-input-placeholder {
+  color: #6c757d;
+  font-size: 0.625rem;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group input::-ms-input-placeholder, .credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group select::-ms-input-placeholder {
+  color: #6c757d;
+  font-size: 0.625rem;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group input::placeholder, .credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group select::placeholder {
+  color: #6c757d;
+  font-size: 0.625rem;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group input:focus, .credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group select:focus {
+  border-color: #ffbc00;
+  -webkit-box-shadow: 0 0 0 0.125rem rgba(255, 188, 0, 0.25);
+          box-shadow: 0 0 0 0.125rem rgba(255, 188, 0, 0.25);
+  background-color: white;
+  outline: none;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group select {
+  cursor: pointer;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group select option {
+  padding: 0.25rem;
+  font-size: 0.6875rem;
+}
+.credit_assessment_container .second_column .second_row .loan_info_content .input_grid .input_group.required label::after {
+  content: " *";
+  color: #dc3545;
+}
+.credit_assessment_container .second_column .third_row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 100%;
+}
+.credit_assessment_container .second_column .third_row .assessment_actions {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 0.5rem;
+}
+.credit_assessment_container .second_column .third_row .assessment_actions button {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.credit_assessment_container .second_column .third_row .assessment_actions button i {
+  font-size: 0.875rem;
+}
+.credit_assessment_container .second_column .third_row .assessment_actions .btn_assess {
+  background-color: #ffbc00;
+  color: #392e1b;
+}
+.credit_assessment_container .second_column .third_row .assessment_actions .btn_assess:hover {
+  background-color: #cc9600;
+}
+.credit_assessment_container .second_column .third_row .assessment_actions .btn_reset {
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #e2e1e0;
+}
+.credit_assessment_container .second_column .third_row .assessment_actions .btn_reset:hover {
+  background-color: #f8f8f8;
+}
+.credit_assessment_container .third_column {
+  grid-column: 3;
+  min-height: 0;
+  padding: 1.25rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.625rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.credit_assessment_container .third_column::-webkit-scrollbar {
+  width: 0.375rem;
+}
+.credit_assessment_container .third_column::-webkit-scrollbar-track {
+  background: transparent;
+}
+.credit_assessment_container .third_column::-webkit-scrollbar-thumb {
+  background: rgba(102, 102, 102, 0.3);
+  border-radius: 0.1875rem;
+  -webkit-transition: background 0.2s ease;
+  transition: background 0.2s ease;
+}
+.credit_assessment_container .third_column::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 102, 102, 0.5);
+}
+.credit_assessment_container .third_column::-webkit-scrollbar-thumb:active {
+  background: rgba(102, 102, 102, 0.7);
+}
+.credit_assessment_container .third_column .assessment_results {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  width: 100%;
+  background: #fff;
+  border-radius: 0.75rem;
+  -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e1e0;
+  overflow: hidden;
+}
+.credit_assessment_container .third_column .assessment_results .results_header {
+  background-color: #392e1b;
+  color: #eeeded;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.5rem;
+}
+.credit_assessment_container .third_column .assessment_results .results_header .header_icon {
+  font-size: 1rem;
+  color: #ffbc00;
+}
+.credit_assessment_container .third_column .assessment_results .results_content {
+  padding: 1rem;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_summary .summary_card {
+  background: white;
+  border: 1px solid #e2e1e0;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_summary .summary_card .summary_label {
+  font-size: 0.6875rem;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_summary .summary_card .summary_value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #333;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_summary .summary_card .summary_value.credit_score {
+  color: #10b981;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_summary .summary_card .summary_value.credit_rating {
+  color: #3b82f6;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_summary .summary_card .summary_value.approval_status.approved {
+  color: #10b981;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_summary .summary_card .summary_value.approval_status.rejected {
+  color: #ef4444;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_details .detail_section {
+  margin-bottom: 1rem;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_details .detail_section .section_title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #e2e1e0;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_details .detail_section .detail_grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_details .detail_section .detail_grid .detail_item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 0.375rem 0.5rem;
+  background: #f8f8f8;
+  border-radius: 0.25rem;
+  font-size: 0.6875rem;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_details .detail_section .detail_grid .detail_item .detail_label {
+  color: #6c757d;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_details .detail_section .detail_grid .detail_item .detail_value {
+  color: #333;
+  font-weight: 600;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_details .detail_section .risk_matrix {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.375rem;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_details .detail_section .risk_matrix .risk_item {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  text-align: center;
+  font-size: 0.625rem;
+  font-weight: 600;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_details .detail_section .risk_matrix .risk_item.low {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_details .detail_section .risk_matrix .risk_item.medium {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.credit_assessment_container .third_column .assessment_results .results_content .assessment_details .detail_section .risk_matrix .risk_item.high {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.credit_assessment_container .third_column .assessment_results .results_content .recommendation {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-top: 1rem;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .recommendation .recommendation_title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #10b981;
+  margin-bottom: 0.5rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.375rem;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .recommendation .recommendation_title i {
+  font-size: 0.875rem;
+}
+.credit_assessment_container .third_column .assessment_results .results_content .recommendation .recommendation_text {
+  font-size: 0.6875rem;
+  color: #333;
+  line-height: 1.5;
+}
+.credit_assessment_container .fourth_column {
+  grid-column: 4;
+  min-height: 0;
+  padding: 0.625rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.625rem;
+  width: 100%;
+  border-left: 1px solid #e2e1e0;
+}
+.credit_assessment_container .fourth_column .saved_reports_column {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.625rem;
+  width: 100%;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.3125rem;
+  width: 100%;
+  border-bottom: 1px solid #e2e1e0;
+  padding-bottom: 0.625rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_upload_section, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_search_section {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 100%;
+  cursor: pointer;
+  padding: 0.375rem 0.625rem 0.375rem 0.375rem;
+  border-radius: 0.375rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_upload_section .report_icon, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_upload_section .search_icon, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_search_section .report_icon, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_search_section .search_icon {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #392e1b;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_upload_section .report_icon i, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_upload_section .search_icon i, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_search_section .report_icon i, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_search_section .search_icon i {
+  font-size: 0.625rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_upload_section .report_upload_title, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_upload_section .report_search_title, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_search_section .report_upload_title, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_search_section .report_search_title {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #333;
+  padding-left: 0.3125rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_upload_section .report_upload_shortcut, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_upload_section .report_search_shortcut, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_search_section .report_upload_shortcut, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_search_section .report_search_shortcut {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+  font-size: 0.625rem;
+  font-weight: 400;
+  color: #666;
+  margin-left: auto;
+  opacity: 0;
+  -webkit-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_upload_section:hover, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_search_section:hover {
+  background-color: #f8f8f8;
+  border-radius: 0.375rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_upload_section:hover .report_upload_shortcut, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_upload_section:hover .report_search_shortcut, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_search_section:hover .report_upload_shortcut, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_header .report_search_section:hover .report_search_shortcut {
+  opacity: 1;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .unified_reports_header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .unified_reports_header .unified_reports_title {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #333;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .unified_reports_header .report_count {
+  font-size: 0.625rem;
+  color: #666;
+  background-color: #f8f8f8;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.625rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .unified_reports_list {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.375rem;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  margin: 0.3125rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .unified_reports_list::-webkit-scrollbar {
+  width: 0.25rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .unified_reports_list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 0.125rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .unified_reports_list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 0.125rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .unified_reports_list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item:hover {
+  background-color: #f8f8f8;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item.recent {
+  border-left: 0.1875rem solid #ffbc00;
+  background: rgba(255, 188, 0, 0.05);
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item.recent:hover {
+  background: rgba(255, 188, 0, 0.1);
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item.saved {
+  border-left: 0.1875rem solid #666;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item .report_thumbnail {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: #ffbc00;
+  border-radius: 0.1875rem;
+  color: #392e1b;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item .report_thumbnail i {
+  font-size: 0.625rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item .report_info {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  min-width: 0;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item .report_info .report_name {
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.1875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item .report_info .report_meta {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 0.25rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item .report_info .report_meta .report_type {
+  font-size: 0.5rem;
+  color: #666;
+  background: rgba(255, 188, 0, 0.2);
+  color: #392e1b;
+  padding: 0.0625rem 0.25rem;
+  border-radius: 0.1875rem;
+  font-weight: 500;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item .report_info .report_meta .report_date {
+  font-size: 0.5rem;
+  color: #666;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item .report_info .report_preview {
+  font-size: 0.5625rem;
+  color: #666;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item .report_actions {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  border-radius: 0.1875rem;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  opacity: 0;
+  margin-top: 0.125rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item .report_actions .action_icon {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  color: #666;
+  -webkit-transition: color 0.2s ease;
+  transition: color 0.2s ease;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item .report_actions .action_icon:hover {
+  color: #392e1b;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item .report_actions .action_icon i {
+  font-size: 0.625rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .unified_reports_section .report_item:hover .report_actions {
+  opacity: 1;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer {
+  border-top: 1px solid #e2e1e0;
+  padding-top: 0.5rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_viewer_section, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_management_section {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.375rem 0.625rem 0.375rem 0.375rem;
+  border-radius: 0.375rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_viewer_section:hover, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_management_section:hover {
+  background-color: #f8f8f8;
+  border-radius: 0.375rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_viewer_section .viewer_icon, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_viewer_section .management_icon, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_management_section .viewer_icon, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_management_section .management_icon {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #392e1b;
+  cursor: pointer;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_viewer_section .viewer_icon i, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_viewer_section .management_icon i, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_management_section .viewer_icon i, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_management_section .management_icon i {
+  font-size: 0.625rem;
+}
+.credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_viewer_title, .credit_assessment_container .fourth_column .saved_reports_column .reports_column_footer .report_management_title {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #333;
 }/*# sourceMappingURL=credit_assessment.css.map */
