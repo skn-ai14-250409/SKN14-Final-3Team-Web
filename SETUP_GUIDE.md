@@ -50,10 +50,10 @@ python manage.py migrate
 # 이미 만들어진 DB가 있는 경우
 # setup.sql에서 아래 코드 먼저 실행
 # DB 초기화(setup.sql 코드)
-DROP DATABASE KB_FinAIssist_db_test;
+DROP DATABASE finaissistdb;
 
 # DB안에 table 하나도 없는 것 확인(setup.sql 코드)
-use KB_FinAIssist_db_test;
+use finaissistdb;
 show tables;
 
 # f_user 보다 먼저 들어간 게 있으면 삭제(setup.sql 코드)
@@ -66,6 +66,7 @@ DELETE FROM django_migrations WHERE app='f_document';
 python manage.py makemigrations
 python manage.py migrate f_user
 python manage.py migrate
+
 ```
 
 ## 📝 환경 변수 설정 (선택사항)
