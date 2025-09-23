@@ -16,22 +16,29 @@
         <div class="second_column">
             <!-- 첫 번째 row - 고객 정보 입력 -->
             <div class="first_row">
+                <div class = "credit_assessment_title">
+                    <span>여신 심사사</span>
+                </div>
                 <div class="customer_info_header">
                     <i class="bi bi-person-fill header_icon"></i>
-                    <span>개인 고객 정보</span>
+                    <span class="header_title">고객 정보 입력</span>
+                    <div class="customer_type_toggle">
+                        <button type="button" class="toggle_btn active" data-type="individual">개인</button>
+                        <button type="button" class="toggle_btn" data-type="corporate">기업</button>
+                    </div>
                 </div>
                 <div class="customer_info_content">
                     <div class="input_grid">
                         <div class="input_group required">
-                            <label for="customer_name">고객명</label>
+                            <label for="customer_name">고객명 <span class="error-message" id="customer_name_error"></span></label>
                             <input type="text" id="customer_name" name="customer_name" placeholder="홍길동" required>
                         </div>
                         <div class="input_group required rrn_input">
-                            <label for="customer_rrn">주민번호</label>
+                            <label for="customer_rrn">주민번호 <span class="error-message" id="customer_rrn_error"></span></label>
                             <input type="text" id="customer_rrn" name="customer_rrn" placeholder="123456-1234567" required>
                         </div>
                         <div class="input_group required phone_input">
-                            <label for="customer_phone">연락처</label>
+                            <label for="customer_phone">연락처 <span class="error-message" id="customer_phone_error"></span></label>
                             <input type="tel" id="customer_phone" name="customer_phone" placeholder="010-1234-5678" required>
                         </div>
                         <div class="input_group">
@@ -56,7 +63,7 @@
                             <div class="note_item">
                                 <i class="bi bi-dot note_icon"></i>
                                 <div class="note_text">
-                                    <strong>연락처 검증:</strong> 고객이 실제 사용하는 연락처인지 확인하고, 통화 가능한 시간대를 파악하세요.
+                                    <strong>연락처 검증:</strong> 고객이 실제 사용하는 연락처인지 확인하세요.
                                 </div>
                             </div>
                             <div class="note_item">
@@ -162,7 +169,179 @@
                 </div>
             </div>
         </div>
-        <div class = "third_column"></div>
+        <div class="third_column">
+            <!-- 심사 결과 표시 영역 -->
+            <div class="assessment_results" id="assessment_results" style="display: none;">
+                <div class="results_header">
+                    <i class="bi bi-clipboard-check header_icon"></i>
+                    <span>심사 결과</span>
+                </div>
+                <div class="results_content" id="results_content">
+                    <!-- 심사 결과가 여기에 동적으로 표시됩니다 -->
+                </div>
+            </div>
+        </div>
+        <div class="fourth_column">
+            <!-- 저장된 보고서 목록 -->
+            <div class="saved_reports_column">
+                <!-- 보고서 컬럼 헤더 -->
+                <div class="reports_column_header">
+                    <div class="report_upload_section">
+                        <div class="report_icon">
+                            <i class="bi bi-file-earmark-text-fill"></i>
+                        </div>
+                        <div class="report_upload_title">보고서 생성</div>
+                        <div class="report_upload_shortcut">Ctrl + R</div>
+                    </div>
+                    
+                    <div class="report_search_section">
+                        <div class="search_icon">
+                            <i class="bi bi-search"></i>
+                        </div>
+                        <div class="report_search_title">보고서 검색</div>
+                        <div class="report_search_shortcut">Ctrl + F</div>
+                    </div>
+                </div>
+
+                <!-- 통합 보고서 섹션 -->
+                <div class="unified_reports_section">
+                    <div class="unified_reports_header">
+                        <div class="unified_reports_title">보고서 목록</div>
+                        <div class="report_count">6개</div>
+                    </div>
+                    
+                    <div class="unified_reports_list">
+                        <!-- 최근 보고서 (상단) -->
+                        <div class="report_item recent">
+                            <div class="report_thumbnail">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                            <div class="report_info">
+                                <div class="report_name">이수민_보고서.txt</div>
+                                <div class="report_meta">
+                                    <span class="report_type">개인</span>
+                                    <span class="report_date">08/24 15:24</span>
+                                </div>
+                                <div class="report_preview">개인 고객 신용도 평가 완료. 신용점수 785점, A등급으로 대출 승인 권장...</div>
+                            </div>
+                            <div class="report_actions">
+                                <div class="action_icon">
+                                    <i class="bi bi-download"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="report_item recent">
+                            <div class="report_thumbnail">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                            <div class="report_info">
+                                <div class="report_name">김영식_보고서.txt</div>
+                                <div class="report_meta">
+                                    <span class="report_type">개인</span>
+                                    <span class="report_date">08/24 14:15</span>
+                                </div>
+                                <div class="report_preview">기업 대출 심사 결과. 매출 안정성 양호, 상환능력 검토 필요...</div>
+                            </div>
+                            <div class="report_actions">
+                                <div class="action_icon">
+                                    <i class="bi bi-download"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 저장된 보고서 (하단) -->
+                        <div class="report_item saved">
+                            <div class="report_thumbnail">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                            <div class="report_info">
+                                <div class="report_name">조성택_보고서.txt</div>
+                                <div class="report_meta">
+                                    <span class="report_type">개인</span>
+                                    <span class="report_date">08/24 13:08</span>
+                                </div>
+                            </div>
+                            <div class="report_actions">
+                                <div class="action_icon">
+                                    <i class="bi bi-download"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="report_item saved">
+                            <div class="report_thumbnail">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                            <div class="report_info">
+                                <div class="report_name">이승택_보고서.txt</div>
+                                <div class="report_meta">
+                                    <span class="report_type">개인</span>
+                                    <span class="report_date">08/24 12:45</span>
+                                </div>
+                            </div>
+                            <div class="report_actions">
+                                <div class="action_icon">
+                                    <i class="bi bi-download"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="report_item saved">
+                            <div class="report_thumbnail">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                            <div class="report_info">
+                                <div class="report_name">박민수_보고서.txt</div>
+                                <div class="report_meta">
+                                    <span class="report_type">기업</span>
+                                    <span class="report_date">08/24 11:30</span>
+                                </div>
+                            </div>
+                            <div class="report_actions">
+                                <div class="action_icon">
+                                    <i class="bi bi-download"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="report_item saved">
+                            <div class="report_thumbnail">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                            <div class="report_info">
+                                <div class="report_name">최지영_보고서.txt</div>
+                                <div class="report_meta">
+                                    <span class="report_type">개인</span>
+                                    <span class="report_date">08/24 10:15</span>
+                                </div>
+                            </div>
+                            <div class="report_actions">
+                                <div class="action_icon">
+                                    <i class="bi bi-download"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 보고서 컬럼 푸터 -->
+                <div class="reports_column_footer">
+                    <div class="report_viewer_section">
+                        <div class="viewer_icon">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+                        <div class="report_viewer_title">보고서 저장</div>
+                    </div>
+                    <div class="report_management_section">
+                        <div class="management_icon">
+                            <i class="bi bi-folder2-open"></i>
+                        </div>
+                        <div class="report_management_title">보고서 관리</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

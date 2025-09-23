@@ -10,6 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const firstRow = document.querySelector('.first_row');
     const secondRow = document.getElementById('second_row');
     const thirdRow = document.getElementById('third_row');
+    const assessmentResults = document.getElementById('assessment_results');
+    const resultsContent = document.getElementById('results_content');
+    
+    // 토글 버튼들
+    const toggleButtons = document.querySelectorAll('.toggle_btn');
+    let currentCustomerType = 'individual'; // 기본값: 개인
     
     // 폼 요소들
     const form = document.querySelector('.credit_assessment_content');
@@ -19,10 +25,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const loanPurposeSelect = document.getElementById('loan_purpose');
     const loanProductSelect = document.getElementById('loan_product');
     
+    // 토글 버튼 이벤트
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // 모든 토글 버튼에서 active 클래스 제거
+            toggleButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // 클릭된 버튼에 active 클래스 추가
+            this.classList.add('active');
+            
+            // 현재 고객 타입 업데이트
+            currentCustomerType = this.dataset.type;
+            
+            // 고객 타입에 따른 UI 업데이트
+            updateUIForCustomerType(currentCustomerType);
+        });
+    });
+    
     // 여신 심사 요청 버튼 클릭 이벤트
     btnAssess.addEventListener('click', function() {
         if (validateForm()) {
-            alert('여신 심사 요청이 완료되었습니다!');
+            performAssessment();
         }
     });
     
@@ -44,37 +67,75 @@ document.addEventListener('DOMContentLoaded', function() {
     // 폼 유효성 검사
     function validateForm() {
         let isValid = true;
-        const requiredFields = form.querySelectorAll('[required]');
         
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                field.style.borderColor = '#ef4444';
-                isValid = false;
-            } else {
-                field.style.borderColor = '#e5e7eb';
-            }
-        });
+        // 에러 메시지 초기화
+        clearAllErrors();
         
-        if (!isValid) {
-            alert('필수 입력 항목을 모두 입력해주세요.');
+        // 필수 입력 필드 검증
+        const customerName = document.getElementById('customer_name');
+        const customerRrn = document.getElementById('customer_rrn');
+        const customerPhone = document.getElementById('customer_phone');
+        
+        if (!customerName.value.trim()) {
+            showError(customerName, '고객명을 입력해주세요.');
+            isValid = false;
+        }
+        
+        if (!customerRrn.value.trim()) {
+            showError(customerRrn, '주민번호를 입력해주세요.');
+            isValid = false;
+        }
+        
+        if (!customerPhone.value.trim()) {
+            showError(customerPhone, '연락처를 입력해주세요.');
+            isValid = false;
         }
         
         return isValid;
     }
     
+    function showError(input, message) {
+        // input에 error 클래스 추가
+        input.classList.add('error');
+        
+        // 에러 메시지 표시
+        const errorElement = document.getElementById(input.id + '_error');
+        if (errorElement) {
+            errorElement.textContent = message;
+        }
+        
+        // 0.4초 후 error 클래스 제거 (애니메이션 완료 후)
+        setTimeout(() => {
+            input.classList.remove('error');
+        }, 400);
+    }
+    
+    function clearAllErrors() {
+        // 모든 input에서 error 클래스 제거
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.classList.remove('error');
+        });
+        
+        // 모든 에러 메시지 초기화
+        const errorMessages = document.querySelectorAll('.error-message');
+        errorMessages.forEach(error => {
+            error.textContent = '';
+        });
+    }
+    
     
     // 고객 정보 확인
     function checkCustomerInfo() {
+        // 필수 입력값 검증
+        if (!validateForm()) {
+            return;
+        }
+        
         const customerName = document.getElementById('customer_name').value.trim();
         const customerRrn = document.getElementById('customer_rrn').value.trim();
         const customerPhone = document.getElementById('customer_phone').value.trim();
         const customerEmail = document.getElementById('customer_email').value.trim();
-        
-        // 필수 입력값 검증
-        if (!customerName || !customerRrn || !customerPhone) {
-            alert('고객명, 주민번호, 연락처는 필수 입력 항목입니다.');
-            return;
-        }
         
         // 로딩 상태 표시
         btnCheckCustomer.disabled = true;
@@ -278,12 +339,162 @@ document.addEventListener('DOMContentLoaded', function() {
         return cookieValue;
     }
     
+    // 고객 타입에 따른 UI 업데이트
+    function updateUIForCustomerType(customerType) {
+        const headerIcon = document.querySelector('.customer_info_header .header_icon');
+        const headerText = document.querySelector('.customer_info_header span');
+        
+        if (customerType === 'individual') {
+            headerIcon.className = 'bi bi-person-fill header_icon';
+            headerText.textContent = '고객 정보 입력';
+        } else {
+            headerIcon.className = 'bi bi-building header_icon';
+            headerText.textContent = '기업 정보 입력';
+        }
+    }
+    
+    // 심사 수행
+    function performAssessment() {
+        // 로딩 상태 표시
+        btnAssess.disabled = true;
+        btnAssess.innerHTML = '<i class="bi bi-hourglass-split"></i><span>심사 중...</span>';
+        
+        // 임시 데이터로 시뮬레이션 (2초 후 결과 표시)
+        setTimeout(() => {
+            const assessmentData = generateMockAssessmentData();
+            displayAssessmentResults(assessmentData);
+            
+            // 심사 결과 영역 표시
+            assessmentResults.style.display = 'flex';
+            
+            // 버튼 상태 복원
+            btnAssess.disabled = false;
+            btnAssess.innerHTML = '<i class="bi bi-clipboard-check"></i><span>여신 심사 요청</span>';
+        }, 2000);
+    }
+    
+    // 임시 심사 데이터 생성
+    function generateMockAssessmentData() {
+        const isApproved = Math.random() > 0.3; // 70% 승인률
+        const creditScore = Math.floor(Math.random() * 200) + 700; // 700-900점
+        const creditRating = creditScore >= 850 ? 'A' : creditScore >= 800 ? 'B' : creditScore >= 750 ? 'C' : 'D';
+        
+        return {
+            customerType: currentCustomerType,
+            creditScore: creditScore,
+            creditRating: creditRating,
+            approvalStatus: isApproved ? 'approved' : 'rejected',
+            approvalStatusText: isApproved ? '승인' : '거절',
+            recommendedLimit: isApproved ? Math.floor(Math.random() * 5000) + 1000 : 0,
+            riskFactors: {
+                creditworthiness: Math.floor(Math.random() * 40) + 60,
+                incomeStability: Math.floor(Math.random() * 30) + 70,
+                repaymentAbility: Math.floor(Math.random() * 35) + 65,
+                collateralValue: Math.floor(Math.random() * 25) + 75,
+                marketEnvironment: Math.floor(Math.random() * 20) + 80
+            },
+            financialIndicators: {
+                debtRatio: Math.floor(Math.random() * 30) + 20,
+                incomeStability: Math.floor(Math.random() * 20) + 80,
+                repaymentAbility: Math.floor(Math.random() * 25) + 75,
+                creditHistory: Math.floor(Math.random() * 15) + 85
+            },
+            riskMatrix: [
+                { type: '신용위험', level: 'low', class: 'low' },
+                { type: '시장위험', level: 'medium', class: 'medium' },
+                { type: '유동성위험', level: 'high', class: 'high' },
+                { type: '운영위험', level: 'low', class: 'low' },
+                { type: '법률위험', level: 'medium', class: 'medium' },
+                { type: '평판위험', level: 'low', class: 'low' }
+            ],
+            overallRisk: creditRating,
+            recommendation: isApproved ? '승인 권장' : '추가 서류 검토 필요'
+        };
+    }
+    
+    // 심사 결과 표시
+    function displayAssessmentResults(data) {
+        const resultsHtml = `
+            <div class="assessment_summary">
+                <div class="summary_card">
+                    <div class="summary_label">신용점수</div>
+                    <div class="summary_value credit_score">${data.creditScore}</div>
+                </div>
+                <div class="summary_card">
+                    <div class="summary_label">신용등급</div>
+                    <div class="summary_value credit_rating">${data.creditRating}</div>
+                </div>
+                <div class="summary_card">
+                    <div class="summary_label">승인여부</div>
+                    <div class="summary_value approval_status ${data.approvalStatus}">${data.approvalStatusText}</div>
+                </div>
+                <div class="summary_card">
+                    <div class="summary_label">추천한도</div>
+                    <div class="summary_value">${data.recommendedLimit.toLocaleString()}만원</div>
+                </div>
+            </div>
+            
+            <div class="assessment_details">
+                <div class="detail_section">
+                    <div class="section_title">재무 안정성 지표</div>
+                    <div class="detail_grid">
+                        <div class="detail_item">
+                            <span class="detail_label">부채비율</span>
+                            <span class="detail_value">${data.financialIndicators.debtRatio}%</span>
+                        </div>
+                        <div class="detail_item">
+                            <span class="detail_label">소득 안정성</span>
+                            <span class="detail_value">${data.financialIndicators.incomeStability}%</span>
+                        </div>
+                        <div class="detail_item">
+                            <span class="detail_label">상환능력</span>
+                            <span class="detail_value">${data.financialIndicators.repaymentAbility}%</span>
+                        </div>
+                        <div class="detail_item">
+                            <span class="detail_label">신용이력</span>
+                            <span class="detail_value">${data.financialIndicators.creditHistory}%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="detail_section">
+                    <div class="section_title">리스크 매트릭스</div>
+                    <div class="risk_matrix">
+                        ${data.riskMatrix.map(risk => `
+                            <div class="risk_item ${risk.class}">
+                                <div>${risk.level === 'low' ? '낮음' : risk.level === 'medium' ? '중간' : '높음'}</div>
+                                <div>${risk.type}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="margin-top: 8px; text-align: center; font-size: 11px; color: #666;">
+                        종합 위험도: ${data.overallRisk} | ${data.recommendation}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendation">
+                <div class="recommendation_title">
+                    <i class="bi bi-lightbulb"></i>
+                    AI 추천사항
+                </div>
+                <div class="recommendation_text">
+                    ${data.approvalStatus === 'approved' 
+                        ? `고객의 신용도가 양호하여 대출 승인을 권장합니다. 신용점수 ${data.creditScore}점, 신용등급 ${data.creditRating}등급으로 안정적인 상환 능력을 보여줍니다.`
+                        : `고객의 신용도 검토가 필요합니다. 추가 서류 제출 및 면담을 통해 상환 능력을 재평가하시기 바랍니다.`
+                    }
+                </div>
+            </div>
+        `;
+        
+        resultsContent.innerHTML = resultsHtml;
+    }
+    
     // 폼 초기화
     function resetForm() {
         // 모든 입력 필드 초기화
         inputs.forEach(input => {
             input.value = '';
-            input.style.borderColor = '#e5e7eb';
         });
         
         // 입력 폼 다시 보이기
@@ -298,27 +509,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // 심사 요청 버튼 섹션 숨기기
         thirdRow.style.display = 'none';
         
-        // 단계 초기화
-        const steps = document.querySelectorAll('.step');
-        steps.forEach(step => {
-            step.classList.remove('active', 'completed');
-        });
+        // 심사 결과 영역 숨기기
+        assessmentResults.style.display = 'none';
+        
+        // 토글 버튼 초기화 (개인으로)
+        toggleButtons.forEach(btn => btn.classList.remove('active'));
+        document.querySelector('[data-type="individual"]').classList.add('active');
+        currentCustomerType = 'individual';
+        updateUIForCustomerType('individual');
     }
     
-    // 입력 필드 포커스 이벤트
-    inputs.forEach(input => {
-        input.addEventListener('focus', function() {
-            this.style.borderColor = '#3b82f6';
-        });
-        
-        input.addEventListener('blur', function() {
-            if (this.value.trim()) {
-                this.style.borderColor = '#10b981';
-            } else {
-                this.style.borderColor = '#e5e7eb';
-            }
-        });
-    });
     
     // 숫자 입력 필드 포맷팅 (대출 신청 금액만)
     const loanAmountInput = document.getElementById('loan_amount');
