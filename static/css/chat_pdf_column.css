@@ -730,9 +730,39 @@ body {
   -webkit-box-align: start;
       -ms-flex-align: start;
           align-items: flex-start;
+  position: relative;
 }
 .chat_pdf_column .pdf_reference_list .reference_item:hover {
   background-color: #f8f8f8;
+  -webkit-transform: translateY(-1px);
+          transform: translateY(-1px);
+  -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.chat_pdf_column .pdf_reference_list .reference_item:active {
+  -webkit-transform: translateY(0);
+          transform: translateY(0);
+  -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+.chat_pdf_column .pdf_reference_list .reference_item::after {
+  content: "";
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+          transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 0.25rem solid #666;
+  border-top: 0.1875rem solid transparent;
+  border-bottom: 0.1875rem solid transparent;
+  opacity: 0.6;
+  -webkit-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+}
+.chat_pdf_column .pdf_reference_list .reference_item:hover::after {
+  opacity: 1;
 }
 .chat_pdf_column .pdf_reference_list .reference_item .reference_content {
   -webkit-box-flex: 1;
