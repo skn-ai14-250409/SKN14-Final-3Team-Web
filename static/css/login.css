@@ -116,8 +116,8 @@ body {
   color: #392e1b;
 }
 .btn.btn-primary:hover {
-  background-color: rgb(204, 150.4, 0);
-  border-color: rgb(204, 150.4, 0);
+  background-color: #cc9600;
+  border-color: #cc9600;
 }
 .btn.btn-outline-primary {
   color: #ffbc00;
@@ -522,7 +522,8 @@ body {
   border-radius: 0.625rem;
   padding: 0.625rem;
   text-align: center;
-  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
   border: 0.0625rem solid rgba(255, 255, 255, 0.2);
   -webkit-transition: -webkit-transform 0.3s ease, -webkit-box-shadow 0.3s ease;
   transition: -webkit-transform 0.3s ease, -webkit-box-shadow 0.3s ease;

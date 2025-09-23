@@ -1,3 +1,4 @@
+
 # requirements.txt (웹앱 전용)
 Django==5.2.5 
 gunicorn==23.0.0 
