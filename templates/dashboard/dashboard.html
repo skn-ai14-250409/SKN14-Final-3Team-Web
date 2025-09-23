@@ -32,12 +32,12 @@
                         <i class="bi bi-person-fill"></i>
                     </div>
                     <div class="user_info">
-                        <h2 class="user_name">김의령</h2>
-                        <p class="user_position">사원</p>
+                        <h2 class="user_name">{{ user.name }}</h2>
+                        <p class="user_position">{{ user.position.name|default:'직급 없음' }}</p>
                     </div>
                 </div>
                 <div class="user_dept_container">
-                    <p class="user_dept">영업부 / 사번: KB2024001</p>
+                    <p class="user_dept">{{ user.department.name|default:'부서 없음' }} / 사번: {{ user.employee_id }}</p>
                 </div>
             </div>
             
