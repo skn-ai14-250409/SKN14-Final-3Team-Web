@@ -133,8 +133,12 @@ document.addEventListener('DOMContentLoaded', function() {
             .replace(/\r/g, '<br>')           // Mac 줄바꿈
             .replace(/\\n/g, '<br>');         // 이스케이프된 줄바꿈
         
+        // 고유한 메시지 ID 생성
+        const messageId = `ai_message_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
         const messageElement = document.createElement('div');
         messageElement.className = 'bot_message';
+        messageElement.id = messageId;
         messageElement.innerHTML = `
             <div class="message_avatar">
                 <img src="/static/images/KB_SymbolMark.png" alt="KB 챗봇" class="avatar_image">
@@ -151,6 +155,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // 스크롤을 맨 아래로
         const chatMessagesArea = document.querySelector('.chat_messages_area');
         chatMessagesArea.scrollTop = chatMessagesArea.scrollHeight;
+        
+        // 메시지 ID 반환 (PDF 참조와 연결하기 위해)
+        return messageId;
     }
     
     // AI 로딩 메시지를 추가하는 함수
@@ -191,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // PDF 참조 정보를 업데이트하는 함수
-    function updatePDFReference(sources, productName, category = '') {
+    function updatePDFReference(sources, productName, category = '', messageId = null) {
         console.log('updatePDFReference 호출됨:', { sources, productName, category });
         
         if (!sources || sources.length === 0) {
@@ -515,6 +522,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // 새로운 참조 아이템 생성
             const newReferenceItem = document.createElement('div');
             newReferenceItem.className = 'reference_item active';
+            
+            // 메시지 ID가 있으면 data 속성으로 추가
+            if (messageId) {
+                newReferenceItem.setAttribute('data-message-id', messageId);
+            }
+            
             newReferenceItem.innerHTML = `
                 <div class="reference_content">
                     <div class="reference_content_header">
@@ -531,11 +544,64 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
             
+            // 클릭 이벤트 추가 - 해당 메시지로 스크롤
+            if (messageId) {
+                newReferenceItem.addEventListener('click', function() {
+                    scrollToMessage(messageId);
+                });
+                
+                // 마우스 오버 시 커서 변경
+                newReferenceItem.style.cursor = 'pointer';
+            }
+            
             // 리스트의 맨 위에 추가
             pdfReferenceList.insertBefore(newReferenceItem, pdfReferenceList.firstChild);
         }
         
     }
+    
+    // 특정 메시지로 스크롤하는 함수
+    function scrollToMessage(messageId) {
+        const targetMessage = document.getElementById(messageId);
+        const chatMessagesArea = document.querySelector('.chat_messages_area');
+        
+        if (targetMessage && chatMessagesArea) {
+            // 메시지가 화면에 보이도록 스크롤
+            const messageRect = targetMessage.getBoundingClientRect();
+            const chatAreaRect = chatMessagesArea.getBoundingClientRect();
+            
+            // 메시지가 채팅 영역의 중앙에 오도록 계산
+            const scrollTop = chatMessagesArea.scrollTop + 
+                            (messageRect.top - chatAreaRect.top) - 
+                            (chatAreaRect.height / 2) + 
+                            (messageRect.height / 2);
+            
+            // 부드러운 스크롤 애니메이션
+            chatMessagesArea.scrollTo({
+                top: scrollTop,
+                behavior: 'smooth'
+            });
+            
+            // 메시지 버블에 하이라이트 효과 추가
+            const messageBubble = targetMessage.querySelector('.message_bubble');
+            if (messageBubble) {
+                messageBubble.style.backgroundColor = '#e3f2fd';
+                messageBubble.style.transition = 'background-color 0.2s ease';
+                
+                // 2초 후 하이라이트 제거
+                setTimeout(() => {
+                    messageBubble.style.backgroundColor = '';
+                }, 2000);
+            }
+            
+            console.log('스크롤 완료:', messageId);
+        } else {
+            console.log('메시지를 찾을 수 없습니다:', messageId);
+        }
+    }
+    
+    // 전역에서 접근 가능하도록 등록
+    window.scrollToMessage = scrollToMessage;
     
     // 현재 질문 내용을 가져오는 함수
     function getCurrentQuestion() {
@@ -699,8 +765,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 사용자 메시지를 추가하고 AI 응답을 처리하는 함수
     async function addUserMessage(message) {
+        // 고유한 메시지 ID 생성
+        const userMessageId = `user_message_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
         const messageElement = document.createElement('div');
         messageElement.className = 'user_message';
+        messageElement.id = userMessageId;
         messageElement.innerHTML = `
             <div class="message_content">
                 <div class="message_bubble">${message}</div>
@@ -732,7 +802,7 @@ document.addEventListener('DOMContentLoaded', function() {
             removeAILoadingMessage();
             
             if (aiResult.success) {
-                addAIResponse(aiResult.response);
+                const aiMessageId = addAIResponse(aiResult.response);
                 
                 // AI 응답 전체 로깅
                 console.log('Current Chat ID:', currentChatId);
@@ -762,9 +832,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 if (aiResult.sources && aiResult.sources.length > 0) {
-                    
                     // 가장 높은 점수의 PDF 정보 추출 및 HTML 업데이트
-                    updatePDFReference(aiResult.sources, aiResult.product_name, aiResult.category);
+                    // AI 메시지 ID를 전달하여 PDF 참조와 연결
+                    updatePDFReference(aiResult.sources, aiResult.product_name, aiResult.category, aiMessageId);
                 }
             } else {
                 addAIResponse(aiResult.response);
