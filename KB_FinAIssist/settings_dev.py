@@ -1,7 +1,7 @@
 # 로컬 개발환경
 from .settings import *
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 

@@ -36,14 +36,7 @@ CORPORATE_LOAN_SCALER_PATH = os.path.join(BASE_DIR, "ml_models", "corporate_loan
 SECRET_KEY = "django-insecure-p2)a92tangx7n%9=wzr$cbi9_5u5nr#*s-v+l-%fjofp+c$+as"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-# ALLOWED_HOSTS = ['.elasticbeanstalk.com']
-ALLOWED_HOSTS = [
-  "FinAissistWeb2-env.eba-ppiwmga8.ap-northeast-2.elasticbeanstalk.com",
-  ".elasticbeanstalk.com",
-  "localhost", "127.0.0.1"
-]
+DEBUG = False
 
 # Application definition
 
@@ -54,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "ebhealthcheck.apps.EBHealthCheckConfig", # EB헬스체크용
 
     'f_user',
     'f_todo',
@@ -76,7 +70,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
 ROOT_URLCONF = "KB_FinAIssist.urls"
 
 TEMPLATES = [
