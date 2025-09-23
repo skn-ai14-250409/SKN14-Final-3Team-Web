@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "ebhealthcheck.apps.EBHealthCheckConfig", # EB헬스체크용
 
     'f_user',
     'f_todo',
@@ -76,7 +77,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
 ROOT_URLCONF = "KB_FinAIssist.urls"
 
 TEMPLATES = [
