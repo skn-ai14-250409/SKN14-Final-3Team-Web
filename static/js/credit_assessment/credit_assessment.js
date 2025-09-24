@@ -5,13 +5,106 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnAssess = document.getElementById('btn_assess');
     const btnReset = document.getElementById('btn_reset');
     const btnCheckCustomer = document.getElementById('btn_check_customer');
-    const customerInfoDisplay = document.getElementById('customer_info_display');
     const customerDisplayContent = document.getElementById('customer_display_content');
     const firstRow = document.querySelector('.first_row');
     const secondRow = document.getElementById('second_row');
     const thirdRow = document.getElementById('third_row');
     const assessmentResults = document.getElementById('assessment_results');
     const resultsContent = document.getElementById('results_content');
+    
+    // 기본 차트 초기화
+    initializeDefaultChart();
+    
+    // 기본 차트 초기화 함수
+    function initializeDefaultChart() {
+        // Plotly 로드 대기
+        function waitForPlotly() {
+            if (window.Plotly) {
+                createDefaultChart();
+            } else {
+                setTimeout(waitForPlotly, 100);
+            }
+        }
+        
+        function createDefaultChart() {
+            // 고급 신용점수 차트 (850점)
+            const defaultCreditChart = {
+                data: [{
+                    values: [85, 15],
+                    type: 'pie',
+                    hole: 0.65,
+                    marker: {
+                        colors: [
+                            'rgba(16, 185, 129, 0.9)',  // 메인 색상
+                            'rgba(243, 244, 246, 0.3)'  // 배경 색상
+                        ],
+                        line: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            width: 3
+                        }
+                    },
+                    textinfo: 'none',
+                    hoverinfo: 'none',
+                    showlegend: false,
+                    rotation: 90,
+                    direction: 'clockwise'
+                }],
+                layout: {
+                    width: 140,
+                    height: 140,
+                    margin: { l: 0, r: 0, t: 0, b: 0 },
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    annotations: [
+                        {
+                            text: '850',
+                            x: 0.5,
+                            y: 0.55,
+                            font: { 
+                                size: 20, 
+                                color: '#1f2937', 
+                                family: 'Arial, sans-serif',
+                                weight: 'bold'
+                            },
+                            showarrow: false
+                        },
+                        {
+                            text: '점',
+                            x: 0.5,
+                            y: 0.4,
+                            font: { 
+                                size: 12, 
+                                color: '#6b7280', 
+                                family: 'Arial, sans-serif'
+                            },
+                            showarrow: false
+                        }
+                    ]
+                },
+                config: {
+                    displayModeBar: false,
+                    staticPlot: false
+                }
+            };
+            
+            const chartContainer = document.getElementById('credit_score_chart_container');
+            if (chartContainer) {
+                try {
+                    Plotly.newPlot('credit_score_chart_container', defaultCreditChart.data, defaultCreditChart.layout, {
+                        responsive: true,
+                        displayModeBar: false
+                    });
+                    console.log('기본 차트 생성 완료');
+                } catch (error) {
+                    console.error('차트 생성 오류:', error);
+                }
+            } else {
+                console.error('차트 컨테이너를 찾을 수 없습니다');
+            }
+        }
+        
+        waitForPlotly();
+    }
     
     // 토글 버튼들
     const toggleButtons = document.querySelectorAll('.toggle_btn');
@@ -84,10 +177,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!customerRrn.value.trim()) {
             showError(customerRrn, '주민번호를 입력해주세요.');
             isValid = false;
+        } else if (customerRrn.value.trim().length < 13) {
+            showError(customerRrn, '13자리로 입력해주세요.');
+            isValid = false;
         }
         
         if (!customerPhone.value.trim()) {
             showError(customerPhone, '연락처를 입력해주세요.');
+            isValid = false;
+        } else if (customerPhone.value.trim().length < 11) {
+            showError(customerPhone, '11자리로 입력해주세요.');
             isValid = false;
         }
         
@@ -143,39 +242,81 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 임시 데이터로 시뮬레이션 (1초 후 결과 표시)
         setTimeout(() => {
+            console.log('고객 정보 조회 시작');
+            
             // 임시 고객 데이터 생성
             const mockCustomer = {
                 id: 'KB2024001',
                 full_name: customerName || '홍길동',
-                first_name: customerName.split(' ')[0] || '길동',
-                last_name: customerName.split(' ')[1] || '홍',
+                first_name: customerName ? customerName.split(' ')[0] : '길동',
+                last_name: customerName ? customerName.split(' ')[1] : '홍',
                 rrn: customerRrn || '123456-1234567',
                 phone: customerPhone || '010-1234-5678',
                 email: customerEmail || 'hong@example.com',
                 age: 35,
                 gender: '남성',
                 education_level: '대학교',
-                company_name: 'KB국민은행',
+                company_name: '엔코아 PlayData',
                 job_title: '대리',
                 years_of_service: 8,
                 housing_status: '자가',
                 account_number: '123-456-789012'
             };
             
-            // 기존 입력 폼 숨기기
-            firstRow.style.display = 'none';
+            // 헤더 변경
+            const customerInfoHeader = document.querySelector('.customer_info_header');
+            const customerDisplayHeader = document.querySelector('.customer_display_header');
+            
+            console.log('헤더 요소들:', { customerInfoHeader, customerDisplayHeader });
+            console.log('현재 고객 타입:', currentCustomerType);
+            
+            if (customerInfoHeader && customerDisplayHeader) {
+                const headerTitle = customerDisplayHeader.querySelector('.header_title');
+                
+                if (headerTitle) {
+                    // 고객 타입에 따라 헤더 제목 변경
+                    if (currentCustomerType === 'individual') {
+                        headerTitle.textContent = '개인 고객 정보';
+                    } else {
+                        headerTitle.textContent = '기업 고객 정보';
+                    }
+                    
+                    console.log('헤더 제목 변경:', headerTitle.textContent);
+                }
+                
+                // 헤더 전환
+                customerInfoHeader.style.display = 'none';
+                customerDisplayHeader.style.display = 'flex';
+                
+                console.log('헤더 전환 완료');
+            } else {
+                console.error('헤더 요소를 찾을 수 없습니다:', { customerInfoHeader, customerDisplayHeader });
+            }
             
             // 고객 정보 표시
             displayCustomerInfo(mockCustomer);
+            console.log('고객 정보 표시 완료');
             
-            // 고객 정보 표시 영역 보이기
-            customerInfoDisplay.style.display = 'flex';
+            // 숨길 요소들
+            const inputGrid = document.querySelector('.input_grid');
+            const bankerNotes = document.querySelector('.banker_notes');
+            const customerCheckActions = document.querySelector('.customer_check_actions');
+            const customerTypeToggle = document.querySelector('.customer_type_toggle');
+
+            if (inputGrid) inputGrid.style.display = 'none';
+            if (bankerNotes) bankerNotes.style.display = 'none';
+            if (customerCheckActions) customerCheckActions.style.display = 'none';
+            if (customerTypeToggle) customerTypeToggle.style.display = 'none';
+
+            // 보여질 요소들
+            const secondRow = document.querySelector('.second_row');
+            const thirdRow = document.querySelector('.third_row');
             
-            // 대출 정보 섹션 표시
-            secondRow.style.display = 'flex';
+            if (customerDisplayContent) customerDisplayContent.style.display = 'block';
+            if (secondRow) secondRow.style.display = 'block';
+            if (thirdRow) thirdRow.style.display = 'block';
             
-            // 심사 요청 버튼 섹션 표시
-            thirdRow.style.display = 'flex';
+            console.log('UI 전환 완료');
             
             // 버튼 상태 복원
             btnCheckCustomer.disabled = false;
@@ -188,20 +329,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const customerInfoHtml = `
             <div class="customer_info_grid">
                 <div class="info_item">
+                    <div class="info_label">회원 ID</div>
+                    <div class="info_value">${customer.id}</div>
+                </div>
+                <div class="info_item">
                     <div class="info_label">고객명</div>
                     <div class="info_value">${customer.full_name}</div>
-                </div>
-                <div class="info_item">
-                    <div class="info_label">주민번호</div>
-                    <div class="info_value">${customer.rrn}</div>
-                </div>
-                <div class="info_item">
-                    <div class="info_label">연락처</div>
-                    <div class="info_value">${customer.phone}</div>
-                </div>
-                <div class="info_item">
-                    <div class="info_label">이메일</div>
-                    <div class="info_value">${customer.email || '-'}</div>
                 </div>
                 <div class="info_item">
                     <div class="info_label">나이</div>
@@ -212,20 +345,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="info_value">${customer.gender}</div>
                 </div>
                 <div class="info_item">
-                    <div class="info_label">교육 수준</div>
+                    <div class="info_label">연락처</div>
+                    <div class="info_value">${customer.phone}</div>
+                </div>
+                <div class="info_item">
+                    <div class="info_label">이메일</div>
+                    <div class="info_value">${customer.email}</div>
+                </div>
+                <div class="info_item">
+                    <div class="info_label">최종 학력</div>
                     <div class="info_value">${customer.education_level}</div>
-                </div>
-                <div class="info_item">
-                    <div class="info_label">근속년수</div>
-                    <div class="info_value">${customer.years_of_service}년</div>
-                </div>
-                <div class="info_item">
-                    <div class="info_label">주택 상태</div>
-                    <div class="info_value">${customer.housing_status}</div>
-                </div>
-                <div class="info_item">
-                    <div class="info_label">회원 ID</div>
-                    <div class="info_value">${customer.id}</div>
                 </div>
                 <div class="info_item">
                     <div class="info_label">회사명</div>
@@ -236,14 +365,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="info_value">${customer.job_title}</div>
                 </div>
                 <div class="info_item">
-                    <div class="info_label">계좌번호</div>
-                    <div class="info_value">${customer.account_number}</div>
+                    <div class="info_label">근속년수</div>
+                    <div class="info_value">${customer.years_of_service}년</div>
+                </div>
+                <div class="info_item">
+                    <div class="info_label">주택 상태</div>
+                    <div class="info_value">${customer.housing_status}</div>
                 </div>
             </div>
         `;
         
         customerDisplayContent.innerHTML = customerInfoHtml;
-        customerInfoDisplay.style.display = 'block';
     }
     
     // 고객 정보 없음 표시
@@ -256,7 +388,6 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         customerDisplayContent.innerHTML = notFoundHtml;
-        customerInfoDisplay.style.display = 'block';
     }
     
     // 대출 상품 업데이트
@@ -359,18 +490,237 @@ document.addEventListener('DOMContentLoaded', function() {
         btnAssess.disabled = true;
         btnAssess.innerHTML = '<i class="bi bi-hourglass-split"></i><span>심사 중...</span>';
         
-        // 임시 데이터로 시뮬레이션 (2초 후 결과 표시)
-        setTimeout(() => {
-            const assessmentData = generateMockAssessmentData();
-            displayAssessmentResults(assessmentData);
-            
+        // 실제 ML API 호출
+        callMLAssessmentAPI();
+    }
+    
+    // ML API 호출
+    function callMLAssessmentAPI() {
+        const customerData = getCustomerData();
+        const loanData = getLoanData();
+        
+        const requestData = {
+            customer_data: customerData,
+            loan_data: loanData,
+            customer_type: currentCustomerType
+        };
+        
+        fetch('/credit_assessment/api/assess-credit/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayMLAssessmentResults(data.assessment_result);
             // 심사 결과 영역 표시
+                assessmentResults.style.display = 'flex';
+            } else {
+                console.error('ML API 오류:', data.message);
+                // 오류 시 기본 데이터로 폴백
+                const fallbackData = generateMockAssessmentData();
+                displayAssessmentResults(fallbackData);
+                assessmentResults.style.display = 'flex';
+            }
+        })
+        .catch(error => {
+            console.error('API 호출 오류:', error);
+            // 오류 시 기본 데이터로 폴백
+            const fallbackData = generateMockAssessmentData();
+            displayAssessmentResults(fallbackData);
             assessmentResults.style.display = 'flex';
-            
+        })
+        .finally(() => {
             // 버튼 상태 복원
             btnAssess.disabled = false;
             btnAssess.innerHTML = '<i class="bi bi-clipboard-check"></i><span>여신 심사 요청</span>';
-        }, 2000);
+        });
+    }
+    
+    // 고객 데이터 수집
+    function getCustomerData() {
+        return {
+            full_name: document.getElementById('customer_name').value.trim(),
+            age: 35, // 실제로는 계산
+            years_of_service: 8,
+            education_level: 3,
+            housing_status: 1,
+            company_size: 50
+        };
+    }
+    
+    // 대출 데이터 수집
+    function getLoanData() {
+        const amount = document.getElementById('loan_amount').value.replace(/[^0-9]/g, '');
+        return {
+            amount: parseInt(amount) || 10000000,
+            period: parseInt(document.getElementById('loan_period').value) || 12
+        };
+    }
+    
+    // ML 결과 표시
+    function displayMLAssessmentResults(data) {
+        // 기본 정보 업데이트
+        updateBasicInfo(data);
+        
+        // Plotly 차트 렌더링
+        renderCreditScoreChart(data.credit_score_chart);
+        renderProgressChart(data.progress_chart);
+        
+        // 재무 지표 업데이트
+        updateFinancialIndicators(data.financial_indicators);
+        
+        // 리스크 매트릭스 업데이트
+        updateRiskMatrix(data.risk_matrix);
+        
+        // AI 추천사항 업데이트
+        updateRecommendation(data.recommendation);
+    }
+    
+    // 기본 정보 업데이트
+    function updateBasicInfo(data) {
+        const creditScoreElement = resultsContent.querySelector('.credit_score');
+        const creditRatingElement = resultsContent.querySelector('.credit_rating');
+        const approvalStatusElement = resultsContent.querySelector('.approval_status');
+        const recommendedLimitElement = resultsContent.querySelector('.summary_value:last-child');
+        
+        if (creditScoreElement) creditScoreElement.textContent = data.credit_score;
+        if (creditRatingElement) creditRatingElement.textContent = data.credit_rating;
+        if (approvalStatusElement) {
+            approvalStatusElement.textContent = data.approval_status === 'approved' ? '승인' : '거절';
+            approvalStatusElement.className = `summary_value approval_status ${data.approval_status}`;
+        }
+        if (recommendedLimitElement) {
+            recommendedLimitElement.textContent = `${Math.floor(data.recommended_limit / 10000).toLocaleString()}만원`;
+        }
+    }
+    
+    // Plotly 신용점수 차트 렌더링
+    function renderCreditScoreChart(chartData) {
+        const chartContainer = document.getElementById('credit_score_chart_container');
+        if (chartContainer && window.Plotly) {
+            const chartConfig = JSON.parse(chartData);
+            Plotly.newPlot('credit_score_chart_container', chartConfig.data, chartConfig.layout, {
+                responsive: true,
+                displayModeBar: false
+            });
+        }
+    }
+    
+    // Plotly 프로그레스 차트 렌더링
+    function renderProgressChart(chartData) {
+        const chartContainer = document.getElementById('progress_chart_container');
+        if (chartContainer && window.Plotly) {
+            const chartConfig = JSON.parse(chartData);
+            Plotly.newPlot('progress_chart_container', chartConfig.data, chartConfig.layout, {
+                responsive: true,
+                displayModeBar: false
+            });
+        }
+    }
+
+    // 위험도 분석 레이더 차트 렌더링 (기본값)
+    initializeRiskRadar();
+
+    function initializeRiskRadar() {
+        const container = document.getElementById('risk_analysis_chart_container');
+        if (!container || !window.Plotly) return;
+
+        const categories = ['신용도', '소득안정성', '상환능력', '담보가치', '시장환경'];
+        const values = [82, 76, 88, 72, 68];
+
+        const data = [{
+            type: 'scatterpolar',
+            r: values.concat(values[0]),
+            theta: categories.concat(categories[0]),
+            fill: 'toself',
+            fillcolor: 'rgba(16,185,129,0.25)',
+            line: { color: 'rgba(16,185,129,0.8)', width: 2 },
+            hoverinfo: 'none'
+        }];
+
+        const layout = {
+            polar: {
+                bgcolor: 'rgba(0,0,0,0)',
+                radialaxis: {
+                    visible: true,
+                    range: [0, 100],
+                    gridcolor: 'rgba(0,0,0,0.08)',
+                    tickfont: { size: 9, color: '#9CA3AF' }
+                },
+                angularaxis: {
+                    gridcolor: 'rgba(0,0,0,0.08)',
+                    tickfont: { size: 10, color: '#6B7280' },
+                    layer: 'above traces'
+                }
+            },
+            margin: { l: 40, r: 40, t: 40, b: 40 },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            width: 280,
+            height: 220
+        };
+
+        Plotly.newPlot(container, data, layout, { 
+            displayModeBar: false, 
+            responsive: true,
+            staticPlot: true,
+            editable: false,
+            selectable: false
+        });
+    }
+    
+    // 재무 지표 업데이트
+    function updateFinancialIndicators(indicators) {
+        const detailItems = resultsContent.querySelectorAll('.detail_item');
+        const indicatorKeys = Object.keys(indicators);
+        
+        indicatorKeys.forEach((key, index) => {
+            if (detailItems[index]) {
+                const valueElement = detailItems[index].querySelector('.detail_value');
+                const progressFill = detailItems[index].querySelector('.progress_fill');
+                
+                if (valueElement) valueElement.textContent = `${indicators[key]}%`;
+                if (progressFill) {
+                    progressFill.style.width = `${indicators[key]}%`;
+                    // 색상 클래스 업데이트
+                    const progressBar = progressFill.parentElement;
+                    progressBar.className = 'progress_bar';
+                    if (indicators[key] >= 80) {
+                        progressBar.classList.add('low_risk');
+                    } else if (indicators[key] >= 50) {
+                        progressBar.classList.add('medium_risk');
+                    } else {
+                        progressBar.classList.add('high_risk');
+                    }
+                }
+            }
+        });
+    }
+    
+    // 리스크 매트릭스 업데이트
+    function updateRiskMatrix(riskMatrix) {
+        const riskItems = resultsContent.querySelectorAll('.risk_item');
+        riskMatrix.forEach((risk, index) => {
+            if (riskItems[index]) {
+                riskItems[index].className = `risk_item ${risk.level}`;
+                const riskLevel = risk.level === 'low' ? '낮음' : risk.level === 'medium' ? '중간' : '높음';
+                riskItems[index].children[0].textContent = riskLevel;
+                riskItems[index].children[1].textContent = risk.type;
+            }
+        });
+    }
+    
+    // AI 추천사항 업데이트
+    function updateRecommendation(recommendation) {
+        const recommendationText = resultsContent.querySelector('.recommendation_text');
+        if (recommendationText) {
+            recommendationText.textContent = recommendation;
+        }
     }
     
     // 임시 심사 데이터 생성
@@ -414,80 +764,53 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 심사 결과 표시
     function displayAssessmentResults(data) {
-        const resultsHtml = `
-            <div class="assessment_summary">
-                <div class="summary_card">
-                    <div class="summary_label">신용점수</div>
-                    <div class="summary_value credit_score">${data.creditScore}</div>
-                </div>
-                <div class="summary_card">
-                    <div class="summary_label">신용등급</div>
-                    <div class="summary_value credit_rating">${data.creditRating}</div>
-                </div>
-                <div class="summary_card">
-                    <div class="summary_label">승인여부</div>
-                    <div class="summary_value approval_status ${data.approvalStatus}">${data.approvalStatusText}</div>
-                </div>
-                <div class="summary_card">
-                    <div class="summary_label">추천한도</div>
-                    <div class="summary_value">${data.recommendedLimit.toLocaleString()}만원</div>
-                </div>
-            </div>
-            
-            <div class="assessment_details">
-                <div class="detail_section">
-                    <div class="section_title">재무 안정성 지표</div>
-                    <div class="detail_grid">
-                        <div class="detail_item">
-                            <span class="detail_label">부채비율</span>
-                            <span class="detail_value">${data.financialIndicators.debtRatio}%</span>
-                        </div>
-                        <div class="detail_item">
-                            <span class="detail_label">소득 안정성</span>
-                            <span class="detail_value">${data.financialIndicators.incomeStability}%</span>
-                        </div>
-                        <div class="detail_item">
-                            <span class="detail_label">상환능력</span>
-                            <span class="detail_value">${data.financialIndicators.repaymentAbility}%</span>
-                        </div>
-                        <div class="detail_item">
-                            <span class="detail_label">신용이력</span>
-                            <span class="detail_value">${data.financialIndicators.creditHistory}%</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="detail_section">
-                    <div class="section_title">리스크 매트릭스</div>
-                    <div class="risk_matrix">
-                        ${data.riskMatrix.map(risk => `
-                            <div class="risk_item ${risk.class}">
-                                <div>${risk.level === 'low' ? '낮음' : risk.level === 'medium' ? '중간' : '높음'}</div>
-                                <div>${risk.type}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div style="margin-top: 8px; text-align: center; font-size: 11px; color: #666;">
-                        종합 위험도: ${data.overallRisk} | ${data.recommendation}
-                    </div>
-                </div>
-            </div>
-            
-            <div class="recommendation">
-                <div class="recommendation_title">
-                    <i class="bi bi-lightbulb"></i>
-                    AI 추천사항
-                </div>
-                <div class="recommendation_text">
-                    ${data.approvalStatus === 'approved' 
-                        ? `고객의 신용도가 양호하여 대출 승인을 권장합니다. 신용점수 ${data.creditScore}점, 신용등급 ${data.creditRating}등급으로 안정적인 상환 능력을 보여줍니다.`
-                        : `고객의 신용도 검토가 필요합니다. 추가 서류 제출 및 면담을 통해 상환 능력을 재평가하시기 바랍니다.`
-                    }
-                </div>
-            </div>
-        `;
+        // HTML의 심사 결과 데이터 업데이트
+        const creditScoreElement = resultsContent.querySelector('.credit_score');
+        const creditRatingElement = resultsContent.querySelector('.credit_rating');
+        const approvalStatusElement = resultsContent.querySelector('.approval_status');
+        const recommendedLimitElement = resultsContent.querySelector('.summary_value:last-child');
         
-        resultsContent.innerHTML = resultsHtml;
+        if (creditScoreElement) creditScoreElement.textContent = data.creditScore;
+        if (creditRatingElement) creditRatingElement.textContent = data.creditRating;
+        if (approvalStatusElement) {
+            approvalStatusElement.textContent = data.approvalStatusText;
+            approvalStatusElement.className = `summary_value approval_status ${data.approvalStatus}`;
+        }
+        if (recommendedLimitElement) recommendedLimitElement.textContent = `${data.recommendedLimit.toLocaleString()}만원`;
+        
+        // 재무 안정성 지표 업데이트
+        const detailItems = resultsContent.querySelectorAll('.detail_item');
+        if (detailItems.length >= 4) {
+            detailItems[0].querySelector('.detail_value').textContent = `${data.financialIndicators.debtRatio}%`;
+            detailItems[1].querySelector('.detail_value').textContent = `${data.financialIndicators.incomeStability}%`;
+            detailItems[2].querySelector('.detail_value').textContent = `${data.financialIndicators.repaymentAbility}%`;
+            detailItems[3].querySelector('.detail_value').textContent = `${data.financialIndicators.creditHistory}%`;
+        }
+        
+        // 리스크 매트릭스 업데이트
+        const riskItems = resultsContent.querySelectorAll('.risk_item');
+        data.riskMatrix.forEach((risk, index) => {
+            if (riskItems[index]) {
+                riskItems[index].className = `risk_item ${risk.class}`;
+                const riskLevel = risk.level === 'low' ? '낮음' : risk.level === 'medium' ? '중간' : '높음';
+                riskItems[index].children[0].textContent = riskLevel;
+                riskItems[index].children[1].textContent = risk.type;
+            }
+        });
+        
+        // 종합 위험도 및 추천사항 업데이트
+        const riskSummary = resultsContent.querySelector('.risk_matrix').nextElementSibling;
+        if (riskSummary) {
+            riskSummary.textContent = `종합 위험도: ${data.overallRisk} | ${data.recommendation}`;
+        }
+        
+        // AI 추천사항 업데이트
+        const recommendationText = resultsContent.querySelector('.recommendation_text');
+        if (recommendationText) {
+            recommendationText.textContent = data.approvalStatus === 'approved' 
+                ? `고객의 신용도가 양호하여 대출 승인을 권장합니다. 신용점수 ${data.creditScore}점, 신용등급 ${data.creditRating}등급으로 안정적인 상환 능력을 보여줍니다.`
+                : `고객의 신용도 검토가 필요합니다. 추가 서류 제출 및 면담을 통해 상환 능력을 재평가하시기 바랍니다.`;
+        }
     }
     
     // 폼 초기화
@@ -500,14 +823,31 @@ document.addEventListener('DOMContentLoaded', function() {
         // 입력 폼 다시 보이기
         firstRow.style.display = 'flex';
         
-        // 고객 정보 표시 영역 숨기기
-        customerInfoDisplay.style.display = 'none';
+        // 헤더 원래대로 되돌리기
+        const customerInfoHeader = document.querySelector('.customer_info_header');
+        const customerDisplayHeader = document.querySelector('.customer_display_header');
         
-        // 대출 정보 섹션 숨기기
-        secondRow.style.display = 'none';
+        if (customerInfoHeader) customerInfoHeader.style.display = 'flex';
+        if (customerDisplayHeader) customerDisplayHeader.style.display = 'none';
         
-        // 심사 요청 버튼 섹션 숨기기
-        thirdRow.style.display = 'none';
+        // 숨겨진 요소들 다시 보이기
+        const inputGrid = document.querySelector('.input_grid');
+        const bankerNotes = document.querySelector('.banker_notes');
+        const customerCheckActions = document.querySelector('.customer_check_actions');
+        const customerTypeToggle = document.querySelector('.customer_type_toggle');
+
+        if (inputGrid) inputGrid.style.display = 'flex';
+        if (bankerNotes) bankerNotes.style.display = 'block';
+        if (customerCheckActions) customerCheckActions.style.display = 'block';
+        if (customerTypeToggle) customerTypeToggle.style.display = 'block';
+        
+        // 보여진 요소들 다시 숨기기
+        const secondRow = document.querySelector('.second_row');
+        const thirdRow = document.querySelector('.third_row');
+        
+        if (customerDisplayContent) customerDisplayContent.style.display = 'none';
+        if (secondRow) secondRow.style.display = 'none';
+        if (thirdRow) thirdRow.style.display = 'none';
         
         // 심사 결과 영역 숨기기
         assessmentResults.style.display = 'none';
@@ -524,21 +864,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const loanAmountInput = document.getElementById('loan_amount');
     if (loanAmountInput) {
         loanAmountInput.addEventListener('input', function() {
-            if (this.value) {
-                // 천 단위 콤마 추가 (표시용)
-                const value = this.value.replace(/,/g, '');
-                if (!isNaN(value)) {
-                    this.value = parseInt(value).toLocaleString();
-                }
+            // 숫자와 콤마만 허용
+            let value = this.value.replace(/[^0-9,]/g, '');
+            
+            // 콤마 제거 후 숫자만 추출
+            const numericValue = value.replace(/,/g, '');
+            
+            // 숫자인 경우에만 포맷팅 적용
+            if (numericValue && !isNaN(numericValue)) {
+                // 천 단위 콤마 추가하고 원 단위 붙이기
+                this.value = parseInt(numericValue).toLocaleString() + '원';
+            } else if (value === '') {
+                this.value = '';
+            }
+        });
+        
+        // 숫자가 아닌 문자 입력 방지
+        loanAmountInput.addEventListener('keypress', function(e) {
+            // 숫자, 백스페이스, 삭제, 탭, 엔터만 허용
+            if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+                e.preventDefault();
             }
         });
     }
     
-    // 전화번호 자동 포맷팅
+    // 전화번호 자동 포맷팅 및 길이 제한
     const phoneInput = document.getElementById('customer_phone');
     if (phoneInput) {
         phoneInput.addEventListener('input', function() {
             let value = this.value.replace(/\D/g, '');
+            
+            // 11자리 제한
+            if (value.length > 11) {
+                value = value.substring(0, 11);
+            }
+            
             if (value.length >= 10) {
                 value = value.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
             } else if (value.length >= 6) {
@@ -550,11 +910,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 주민번호 자동 포맷팅
+    // 주민번호 자동 포맷팅 및 길이 제한
     const rrnInput = document.getElementById('customer_rrn');
     if (rrnInput) {
         rrnInput.addEventListener('input', function() {
             let value = this.value.replace(/\D/g, '');
+            
+            // 13자리 제한
+            if (value.length > 13) {
+                value = value.substring(0, 13);
+            }
+            
             if (value.length >= 7) {
                 value = value.replace(/(\d{6})(\d{7})/, '$1-$2');
             }

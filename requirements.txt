@@ -16,3 +16,8 @@ django-extensions==4.1
 django-ebhealthcheck
 uvicorn
 whitenoise
+
+# 데이터 시각화
+plotly==5.17.0
+dash==2.14.2
+dash-bootstrap-components==1.5.0

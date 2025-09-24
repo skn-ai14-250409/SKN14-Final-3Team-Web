@@ -1,13 +1,13 @@
--- Active: 1753665103106@@127.0.0.1@3306@mysql
-DROP DATABASE KB_FinAIssist_db_test;
+-- Active: 1758538193616@@finaissistdb.cluyie2u4ldc.ap-northeast-2.rds.amazonaws.com@3306@mysql
+DROP DATABASE finaissistdb;
 
-CREATE DATABASE KB_FinAIssist_db_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'KB_FinAIssist'@'localhost' IDENTIFIED BY 'KB_FinAIssist_1234';
-GRANT ALL PRIVILEGES ON KB_FinAIssist_db_test.* TO 'KB_FinAIssist'@'localhost';
+CREATE DATABASE finaissistdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'ebroot'@'finaissistdb.cluyie2u4ldc.ap-northeast-2.rds.amazonaws.com' IDENTIFIED BY 'finaissistdb.cluyie2u4ldc.ap-northeast-2.rds.amazonaws.com';
+GRANT ALL PRIVILEGES ON finaissistdb.* TO 'ebroot'@'finaissistdb.cluyie2u4ldc.ap-northeast-2.rds.amazonaws.com';
 FLUSH PRIVILEGES;
 
 
-use KB_FinAIssist_db_test;
+use finaissistdb;
 show tables;
 
 -- f_chatbot 기록 삭제

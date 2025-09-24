@@ -350,9 +350,15 @@ body {
             justify-content: center;
   }
 }
+.header .logout-btn {
+  font-size: 0.625rem;
+  color: #666;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
 .header .version {
   font-size: 0.75rem;
-  color: #776c61;
+  color: #666;
   background-color: rgba(255, 255, 255, 0.1);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -566,7 +572,6 @@ body {
   display: flex;
   gap: 0.625rem;
   padding: 0.5rem;
-  border-radius: 0.375rem;
   cursor: pointer;
   -webkit-transition: all 0.2s ease;
   transition: all 0.2s ease;
@@ -579,10 +584,6 @@ body {
 }
 .chat_history_column .chat_history_list .history_item.active {
   background-color: #f8f8f8;
-}
-.chat_history_column .chat_history_list .history_item.active .history_title {
-  color: #392e1b;
-  font-weight: 600;
 }
 .chat_history_column .chat_history_list .history_item .function_icon {
   display: -webkit-box;

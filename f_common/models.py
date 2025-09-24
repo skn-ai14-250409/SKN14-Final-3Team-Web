@@ -43,7 +43,7 @@ class CEducationLevel(models.Model):
     
     seq_id = models.BigAutoField(primary_key=True)
     code = models.CharField(max_length=64, unique=True)
-    name = models.CharField(max_length=16, choices=Education.choices, default=Education.High_School)
+    name = models.CharField(max_length=64)
     description = models.CharField(max_length=255, null=True, blank=True)
     sort_order = models.PositiveSmallIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -63,7 +63,7 @@ class CHousingStatus(models.Model):
 
     seq_id = models.BigAutoField(primary_key=True)
     code = models.CharField(max_length=64, unique=True)
-    name = models.CharField(max_length=16, choices=Housing.choices, default=Housing.Own)
+    name = models.CharField(max_length=64)
     description = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

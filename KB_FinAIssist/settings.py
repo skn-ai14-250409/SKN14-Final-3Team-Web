@@ -36,7 +36,7 @@ CORPORATE_LOAN_SCALER_PATH = os.path.join(BASE_DIR, "ml_models", "corporate_loan
 SECRET_KEY = "django-insecure-p2)a92tangx7n%9=wzr$cbi9_5u5nr#*s-v+l-%fjofp+c$+as"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Application definition
 

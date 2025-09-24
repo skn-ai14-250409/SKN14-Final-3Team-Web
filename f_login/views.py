@@ -85,11 +85,20 @@ def login_view(request):
 def dashboard_view(request):
     """대시보드 페이지"""
     try:
-        # 세션에서 사용자 정보 가져오기
-        user_name = request.session.get('user_name', '사용자')
-        user_email = request.session.get('user_email', '')
-        employee_id = request.session.get('employee_id', '')
-        
+        # 세션에서 사용자 ID 가져오기
+        user_id = request.session.get('user_id')
+        if not user_id:
+            messages.error(request, "로그인이 필요합니다.")
+            return redirect('login')
+
+        try:
+            # ID로 사용자 정보 조회
+            user = User.objects.get(seq_id=user_id)
+        except User.DoesNotExist:
+            messages.error(request, "사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.")
+            request.session.flush()
+            return redirect('login')
+
         # 캘린더 데이터 생성
         now = datetime.now()
         year = int(request.GET.get('year', now.year))
@@ -132,9 +141,7 @@ def dashboard_view(request):
             ]
         
         context = {
-            'user_name': user_name,
-            'user_email': user_email,
-            'employee_id': employee_id,
+            'user': user,
             # 캘린더 데이터
             'year': year,
             'month': month,

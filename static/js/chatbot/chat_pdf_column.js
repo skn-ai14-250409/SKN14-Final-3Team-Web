@@ -61,6 +61,12 @@ class ChatPDFColumn {
         referenceItems.forEach(item => {
             item.addEventListener('click', () => {
                 this.selectReference(item);
+                
+                // 메시지 ID가 있으면 해당 메시지로 스크롤
+                const messageId = item.getAttribute('data-message-id');
+                if (messageId && window.scrollToMessage) {
+                    window.scrollToMessage(messageId);
+                }
             });
         });
 

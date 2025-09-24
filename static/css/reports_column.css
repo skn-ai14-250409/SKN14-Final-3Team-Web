@@ -446,64 +446,10 @@ body {
   }
 }
 
-.todo-widget .todo-header {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  margin-bottom: 0.625rem;
-  padding-bottom: 0.625rem;
-  border-bottom: 0.0625rem solid #e2e1e0;
-}
-.todo-widget .todo-header .todo-title {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  gap: 0.625rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #392e1b;
-}
-.todo-widget .todo-header .todo-title i {
-  font-size: 0.875rem;
-}
-.todo-widget .todo-header .add-task-btn {
-  width: 1.25rem;
-  height: 1.25rem;
-  background-color: #e2e1e0;
-  color: #392e1b;
-  border: none;
-  border-radius: 50%;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  cursor: pointer;
-  -webkit-transition: all 0.2s ease;
-  transition: all 0.2s ease;
-}
-.todo-widget .todo-header .add-task-btn:hover {
-  background-color: #ffbc00;
-  -webkit-transform: scale(1.1);
-          transform: scale(1.1);
-}
-.todo-widget .todo-header .add-task-btn i {
-  font-size: 0.75rem;
-}
-.todo-widget .todo-list {
+.fourth_column {
+  grid-column: 4;
+  min-height: 0;
+  padding: 0.625rem;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -512,38 +458,48 @@ body {
       -ms-flex-direction: column;
           flex-direction: column;
   gap: 0.625rem;
+  width: 100%;
+  border-left: 1px solid #e2e1e0;
 }
-.todo-widget .todo-list .todo-item {
+.fourth_column .saved_reports_column {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.625rem;
+  width: 100%;
+  height: 100%;
+  max-height: 100vh;
+}
+.fourth_column .saved_reports_column .reports_column_header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.3125rem;
+  width: 100%;
+  border-bottom: 1px solid #e2e1e0;
+  padding-bottom: 0.625rem;
+}
+.fourth_column .saved_reports_column .reports_column_header .report_upload_section, .fourth_column .saved_reports_column .reports_column_header .report_search_section {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  gap: 0.625rem;
-}
-.todo-widget .todo-list .todo-item.completed .todo-text {
-  text-decoration: line-through;
-  color: #392e1b;
-  opacity: 0.6;
-}
-.todo-widget .todo-list .todo-item .todo-checkbox {
-  -ms-flex-negative: 0;
-      flex-shrink: 0;
-}
-.todo-widget .todo-list .todo-item .todo-checkbox .todo-check {
-  display: none;
-}
-.todo-widget .todo-list .todo-item .todo-checkbox .todo-check-label {
-  width: 0.875rem;
-  height: 0.875rem;
-  border: 2px solid #e2e1e0;
-  border-radius: 0.1875rem;
-  display: block;
+  width: 100%;
   cursor: pointer;
-  position: relative;
-  -webkit-transition: all 0.2s ease;
-  transition: all 0.2s ease;
+  padding: 0.375rem 0.625rem 0.375rem 0.375rem;
+  border-radius: 0.375rem;
+}
+.fourth_column .saved_reports_column .reports_column_header .report_upload_section .report_icon, .fourth_column .saved_reports_column .reports_column_header .report_upload_section .search_icon, .fourth_column .saved_reports_column .reports_column_header .report_search_section .report_icon, .fourth_column .saved_reports_column .reports_column_header .report_search_section .search_icon {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -553,33 +509,42 @@ body {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #392e1b;
 }
-.todo-widget .todo-list .todo-item .todo-checkbox .todo-check-label:hover {
-  border-color: #ffbc00;
+.fourth_column .saved_reports_column .reports_column_header .report_upload_section .report_icon i, .fourth_column .saved_reports_column .reports_column_header .report_upload_section .search_icon i, .fourth_column .saved_reports_column .reports_column_header .report_search_section .report_icon i, .fourth_column .saved_reports_column .reports_column_header .report_search_section .search_icon i {
+  font-size: 0.625rem;
 }
-.todo-widget .todo-list .todo-item .todo-checkbox .todo-check-label::after {
-  content: "";
-  position: absolute;
-  left: 0.25rem;
-  top: 0.0625rem;
-  width: 0.25rem;
-  height: 0.5rem;
-  border: solid #392e1b;
-  border-width: 0 0.125rem 0.125rem 0;
-  -webkit-transform: rotate(45deg);
-          transform: rotate(45deg);
+.fourth_column .saved_reports_column .reports_column_header .report_upload_section .report_upload_title, .fourth_column .saved_reports_column .reports_column_header .report_upload_section .report_search_title, .fourth_column .saved_reports_column .reports_column_header .report_search_section .report_upload_title, .fourth_column .saved_reports_column .reports_column_header .report_search_section .report_search_title {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #333;
+  padding-left: 0.3125rem;
+}
+.fourth_column .saved_reports_column .reports_column_header .report_upload_section .report_upload_shortcut, .fourth_column .saved_reports_column .reports_column_header .report_upload_section .report_search_shortcut, .fourth_column .saved_reports_column .reports_column_header .report_search_section .report_upload_shortcut, .fourth_column .saved_reports_column .reports_column_header .report_search_section .report_search_shortcut {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+  font-size: 0.625rem;
+  font-weight: 400;
+  color: #666;
+  margin-left: auto;
   opacity: 0;
   -webkit-transition: opacity 0.2s ease;
   transition: opacity 0.2s ease;
 }
-.todo-widget .todo-list .todo-item .todo-checkbox .todo-check:checked + .todo-check-label {
-  background-color: #ffbc00;
-  border-color: #ffbc00;
+.fourth_column .saved_reports_column .reports_column_header .report_upload_section:hover, .fourth_column .saved_reports_column .reports_column_header .report_search_section:hover {
+  background-color: #f8f8f8;
+  border-radius: 0.375rem;
 }
-.todo-widget .todo-list .todo-item .todo-checkbox .todo-check:checked + .todo-check-label::after {
+.fourth_column .saved_reports_column .reports_column_header .report_upload_section:hover .report_upload_shortcut, .fourth_column .saved_reports_column .reports_column_header .report_upload_section:hover .report_search_shortcut, .fourth_column .saved_reports_column .reports_column_header .report_search_section:hover .report_upload_shortcut, .fourth_column .saved_reports_column .reports_column_header .report_search_section:hover .report_search_shortcut {
   opacity: 1;
 }
-.todo-widget .todo-list .todo-item .todo-content {
+.fourth_column .saved_reports_column .unified_reports_section {
   -webkit-box-flex: 1;
       -ms-flex: 1;
           flex: 1;
@@ -590,80 +555,8 @@ body {
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
-  gap: 0.125rem;
 }
-.todo-widget .todo-list .todo-item .todo-content .todo-text {
-  font-size: 0.75rem;
-  color: #392e1b;
-  line-height: 1.4;
-}
-.todo-widget .todo-list .todo-item .todo-actions {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  gap: 0.1875rem;
-  opacity: 1;
-  -webkit-transition: opacity 0.2s ease;
-  transition: opacity 0.2s ease;
-}
-.todo-widget .todo-list .todo-item .todo-actions button {
-  width: 1rem;
-  height: 1rem;
-  border: none;
-  background-color: transparent;
-  border-radius: 0.125rem;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  cursor: pointer;
-  -webkit-transition: all 0.2s ease;
-  transition: all 0.2s ease;
-}
-.todo-widget .todo-list .todo-item .todo-actions button i {
-  font-size: 0.5625rem;
-}
-.todo-widget .todo-list .todo-item .todo-actions button.todo-delete-btn {
-  color: lightgray;
-}
-.todo-widget .todo-list .todo-item .todo-actions button.todo-delete-btn:hover {
-  color: #dc3545;
-}
-.todo-widget .todo-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: none;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  z-index: 1000;
-}
-.todo-widget .todo-modal.show {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-}
-.todo-widget .todo-modal .modal-content {
-  border-radius: 0.5rem;
-  width: 90%;
-  max-width: 25rem;
-  -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  background-color: #fff;
-}
-.todo-widget .todo-modal .modal-content .modal-header {
+.fourth_column .saved_reports_column .unified_reports_section .unified_reports_header {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -673,21 +566,130 @@ body {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  padding: 0.9375rem;
-  border-bottom: 1px solid #e2e1e0;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-bottom: 0.625rem;
 }
-.todo-widget .todo-modal .modal-content .modal-header h4 {
-  font-size: 0.875rem;
-  font-weight: 600;
+.fourth_column .saved_reports_column .unified_reports_section .unified_reports_header .unified_reports_title {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #333;
+}
+.fourth_column .saved_reports_column .unified_reports_section .unified_reports_header .report_count {
+  font-size: 0.625rem;
+  color: #666;
+  background-color: #f8f8f8;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.625rem;
+}
+.fourth_column .saved_reports_column .unified_reports_section .unified_reports_list {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 0.625rem;
+  overflow-y: auto;
+  min-height: 0;
+  max-height: 400px;
+  padding: 0.5rem;
+}
+.fourth_column .saved_reports_column .unified_reports_section .unified_reports_list::-webkit-scrollbar {
+  width: 0.375rem;
+}
+.fourth_column .saved_reports_column .unified_reports_section .unified_reports_list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.fourth_column .saved_reports_column .unified_reports_section .unified_reports_list::-webkit-scrollbar-thumb {
+  background: rgba(102, 102, 102, 0.3);
+  border-radius: 0.1875rem;
+  -webkit-transition: background 0.2s ease;
+  transition: background 0.2s ease;
+}
+.fourth_column .saved_reports_column .unified_reports_section .unified_reports_list::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 102, 102, 0.5);
+}
+.fourth_column .saved_reports_column .unified_reports_section .report_item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.3125rem 0.625rem;
+  cursor: pointer;
+}
+.fourth_column .saved_reports_column .unified_reports_section .report_item:hover {
+  background-color: #f8f8f8;
+}
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_content {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  min-width: 0;
+}
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_content .report_header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: start;
+  margin-bottom: 0.375rem;
+}
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_content .report_header .report_thumbnail {
+  border-left: 2px solid #392e1b;
+  padding-left: 0.1875rem;
+  margin-right: 0.1875rem;
+  height: 0.625rem;
+  -ms-flex-item-align: stretch;
+      align-self: stretch;
+  margin-top: 0.25rem;
+}
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_content .report_header .report_name {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  font-size: 0.625rem;
   color: #392e1b;
-  margin: 0;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.todo-widget .todo-modal .modal-content .modal-header .modal-close {
-  width: 1.5rem;
-  height: 1.5rem;
-  border: none;
-  background-color: transparent;
-  border-radius: 50%;
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_content .report_meta {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.8125rem;
+}
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_content .report_meta .report_type {
+  font-size: 0.5625rem;
+  background: #e2e1e0;
+  padding: 0.0625rem 0.375rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_content .report_meta .report_date {
+  font-size: 0.5625rem;
+  color: #666;
+}
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_actions {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 0.3125rem;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_actions .action_icon {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -697,95 +699,79 @@ body {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
   cursor: pointer;
+  border-radius: 0.25rem;
   -webkit-transition: all 0.2s ease;
   transition: all 0.2s ease;
+  opacity: 0.6;
 }
-.todo-widget .todo-modal .modal-content .modal-header .modal-close:hover {
-  background-color: #f8f9fa;
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_actions .action_icon:hover {
+  opacity: 1;
+  -webkit-transform: scale(1.1);
+          transform: scale(1.1);
 }
-.todo-widget .todo-modal .modal-content .modal-header .modal-close i {
-  font-size: 0.875rem;
-  color: #6c757d;
-}
-.todo-widget .todo-modal .modal-content .modal-body {
-  padding: 0.9375rem;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  gap: 0.625rem;
-}
-.todo-widget .todo-modal .modal-content .modal-body .task-input {
-  padding: 0.625rem;
-  border: 1px solid #e2e1e0;
-  border-radius: 0.375rem;
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_actions .action_icon i {
   font-size: 0.75rem;
-  color: #392e1b;
 }
-.todo-widget .todo-modal .modal-content .modal-body .task-input:focus {
-  outline: none;
-  border-color: #ffbc00;
-  -webkit-box-shadow: 0 0 0 0.125rem rgba(255, 193, 7, 0.2);
-          box-shadow: 0 0 0 0.125rem rgba(255, 193, 7, 0.2);
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_actions .action_icon.download_icon {
+  color: #64748b;
 }
-.todo-widget .todo-modal .modal-content .modal-body .task-input::-webkit-input-placeholder {
-  color: #6c757d;
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_actions .action_icon.download_icon:hover {
+  color: #10b981;
 }
-.todo-widget .todo-modal .modal-content .modal-body .task-input::-moz-placeholder {
-  color: #6c757d;
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_actions .action_icon.delete_icon {
+  color: #64748b;
 }
-.todo-widget .todo-modal .modal-content .modal-body .task-input:-ms-input-placeholder {
-  color: #6c757d;
+.fourth_column .saved_reports_column .unified_reports_section .report_item .report_actions .action_icon.delete_icon:hover {
+  color: #ef4444;
 }
-.todo-widget .todo-modal .modal-content .modal-body .task-input::-ms-input-placeholder {
-  color: #6c757d;
-}
-.todo-widget .todo-modal .modal-content .modal-body .task-input::placeholder {
-  color: #6c757d;
-}
-.todo-widget .todo-modal .modal-content .modal-footer {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: end;
-      -ms-flex-pack: end;
-          justify-content: flex-end;
-  gap: 0.625rem;
-  padding: 0.9375rem;
+.fourth_column .saved_reports_column .reports_column_footer {
   border-top: 1px solid #e2e1e0;
+  padding: 0.5rem;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  height: auto;
 }
-.todo-widget .todo-modal .modal-content .modal-footer button {
-  padding: 0.5rem 1rem;
-  border: none;
+.fourth_column .saved_reports_column .reports_column_footer .report_viewer_section, .fourth_column .saved_reports_column .reports_column_footer .report_management_section {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.375rem 0.625rem 0.375rem 0.375rem;
   border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 500;
+}
+.fourth_column .saved_reports_column .reports_column_footer .report_viewer_section:hover, .fourth_column .saved_reports_column .reports_column_footer .report_management_section:hover {
+  background-color: #f8f8f8;
+  border-radius: 0.375rem;
+}
+.fourth_column .saved_reports_column .reports_column_footer .report_viewer_section .viewer_icon, .fourth_column .saved_reports_column .reports_column_footer .report_viewer_section .management_icon, .fourth_column .saved_reports_column .reports_column_footer .report_management_section .viewer_icon, .fourth_column .saved_reports_column .reports_column_footer .report_management_section .management_icon {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #392e1b;
   cursor: pointer;
   -webkit-transition: all 0.2s ease;
   transition: all 0.2s ease;
 }
-.todo-widget .todo-modal .modal-content .modal-footer button.btn-cancel {
-  background-color: #a99f95;
-  color: #ffffff;
+.fourth_column .saved_reports_column .reports_column_footer .report_viewer_section .viewer_icon i, .fourth_column .saved_reports_column .reports_column_footer .report_viewer_section .management_icon i, .fourth_column .saved_reports_column .reports_column_footer .report_management_section .viewer_icon i, .fourth_column .saved_reports_column .reports_column_footer .report_management_section .management_icon i {
+  font-size: 0.625rem;
 }
-.todo-widget .todo-modal .modal-content .modal-footer button.btn-cancel:hover {
-  background-color: #776c61;
-}
-.todo-widget .todo-modal .modal-content .modal-footer button.btn-add {
-  background-color: #ffbc00;
-  color: #392e1b;
-}
-.todo-widget .todo-modal .modal-content .modal-footer button.btn-add:hover {
-  background-color: #cc9600;
-}
-
-@media (max-width: 768px) {
-  .todo-widget .todo-modal .modal-content {
-    width: 95%;
-    margin: 1.25rem;
-  }
-}/*# sourceMappingURL=todo.css.map */
+.fourth_column .saved_reports_column .reports_column_footer .report_viewer_title, .fourth_column .saved_reports_column .reports_column_footer .report_management_title {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #333;
+}/*# sourceMappingURL=reports_column.css.map */

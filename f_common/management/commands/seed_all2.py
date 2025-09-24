@@ -3,9 +3,7 @@ from django.core.management.base import BaseCommand
 from faker import Faker
 from django.utils import timezone
 
-# Imports aligned to actual models
 from f_user.models import User, UDepartment, UPosition
-from f_loan.models import LoanAssessment, LoanProduct
 from f_customer.models import Customer, CustomerPerson, CustomerCorporate
 from f_common.models import (
     UncBankLocation,
@@ -15,177 +13,226 @@ from f_common.models import (
     CHousingStatus,
 )
 from f_document.models import Document, DocumentBinding
-from f_chatbot.models import (
-    UChatbotHistory,
-    UChatbotSession,
-    ChatbotRetrivalEvent,
-    ChatbotRetrievedChunk,
-)
+from f_chatbot.models import UChatbotHistory, UChatbotSession
 from f_calendar.models import UCalendarEvent, UEventAttendees
 from f_todo.models import UTodoList
 from f_loan.models import LoanAssessment, LoanProduct
 
 
 class Command(BaseCommand):
-    help = "Seed all dummy data for development"
+    help = "Seed all dummy data for development with increased volume and variety."
 
     def handle(self, *args, **kwargs):
         fake = Faker("ko_KR")
 
-        # 1) f_user
-        dept, _ = UDepartment.objects.get_or_create(
-            code="SALES", defaults={"name": "Sales", "description": "Sales Department"}
-        )
-        pos, _ = UPosition.objects.get_or_create(
-            code="MGR", defaults={"name": "Manager", "description": "Manager role"}
-        )
+        # 1) Lookup Tables
+        # Departments
+        departments_data = [
+            {"code": "SALES", "name": "영업부"},
+            {"code": "HR", "name": "인사부"},
+            {"code": "IT", "name": "IT개발부"},
+            {"code": "FINANCE", "name": "재무부"},
+            {"code": "MARKETING", "name": "마케팅부"},
+        ]
+        departments = []
+        for data in departments_data:
+            dept, _ = UDepartment.objects.get_or_create(code=data["code"], defaults={"name": data["name"]})
+            departments.append(dept)
 
+        # Positions
+        positions_data = [
+            {"code": "STAFF", "name": "사원"},
+            {"code": "SENIOR", "name": "대리"},
+            {"code": "MGR", "name": "과장"},
+            {"code": "DIRECTOR", "name": "부장"},
+        ]
+        positions = []
+        for data in positions_data:
+            pos, _ = UPosition.objects.get_or_create(code=data["code"], defaults={"name": data["name"]})
+            positions.append(pos)
+
+        # Bank Locations
+        locations_data = [
+            {"branch_code": "SEOUL001", "name": "서울중앙지점"},
+            {"branch_code": "BUSAN001", "name": "부산지점"},
+            {"branch_code": "INCHEON01", "name": "인천공항지점"},
+            {"branch_code": "DAEGU001", "name": "대구지점"},
+            {"branch_code": "JEJU001", "name": "제주지점"},
+        ]
+        banks = []
+        for data in locations_data:
+            bank, _ = UncBankLocation.objects.get_or_create(
+                branch_code=data["branch_code"],
+                defaults={"name": data["name"], "address": fake.address(), "phone": fake.phone_number()}
+            )
+            banks.append(bank)
+
+        # Employment Types
+        employment_types_data = [
+            {"code": "FT", "name": "정규직", "description": "Full-time position"},
+            {"code": "PT", "name": "계약직", "description": "Part-time position"},
+            {"code": "INTERN", "name": "인턴", "description": "Internship position"},
+        ]
+        employment_types = []
+        for data in employment_types_data:
+            emp_type, _ = UncEmploymentType.objects.get_or_create(
+                code=data["code"],
+                defaults={"name": data["name"], "description": data["description"]}
+            )
+            employment_types.append(emp_type)
+
+        # 2) f_user
         users = []
-        for i in range(10):
-            user, _ = User.objects.get_or_create(
+        for i in range(30):
+            user, created = User.objects.get_or_create(
                 employee_id=f"KB25{i:04d}",
                 defaults={
                     "email": f"user{i}@example.com",
-                    "password": "test1234",
+                    "password": "test1234",  # 비밀번호를 평문으로 직접 저장
                     "name": fake.name(),
-                    "position": pos,
-                    "department": dept,
+                    "position": random.choice(positions),
+                    "department": random.choice(departments),
                     "manager": None,
-                    "bank_location": None,
+                    "bank_location": random.choice(banks),
                     "hire_date": fake.date_between(start_date="-5y", end_date="today"),
                     "mobile": fake.phone_number(),
                     "birthdate": fake.date_of_birth(minimum_age=20, maximum_age=60),
                     "employment_status": User.EmploymentStatus.ON_DUTY,
-                    "employment_type": None,
+                    "employment_type": random.choice(employment_types),
                     "is_active": True,
                 },
             )
             users.append(user)
 
-        # 2) f_common
-        bank, _ = UncBankLocation.objects.get_or_create(
-            branch_code="SEOUL001",
-            defaults={
-                "name": "Seoul Central Branch",
-                "address": "Seoul, Korea",
-                "phone": "02-000-0000",
-            },
-        )
-        emp_type, _ = UncEmploymentType.objects.get_or_create(
-            code="FT",
-            defaults={"name": "Full-time", "description": "Full-time position"},
-        )
+        # More common lookup tables
+        education_levels = []
+        for code, name in CEducationLevel.Education.choices:
+            edu, _ = CEducationLevel.objects.get_or_create(code=code, defaults={"name": name})
+            education_levels.append(edu)
 
-        edu, _ = CEducationLevel.objects.get_or_create(
-            code="UNI",
-            defaults={"name": "University", "description": "4-year degree"},
-        )
-        house, _ = CHousingStatus.objects.get_or_create(
-            code="OWNED",
-            defaults={"name": "Owned", "description": "Home owned"},
-        )
-        industry, _ = CIndustryCode.objects.get_or_create(
-            code="IT01", defaults={"name": "IT Industry"}
-        )
+        housing_statuses = []
+        for code, name in CHousingStatus.Housing.choices:
+            house, _ = CHousingStatus.objects.get_or_create(code=code, defaults={"name": name})
+            housing_statuses.append(house)
+
+        # Industry Codes
+        industries_data = [
+            {"code": "IT01", "name": "정보기술"},
+            {"code": "FIN01", "name": "금융 및 보험업"},
+            {"code": "MANU01", "name": "제조업"},
+            {"code": "SVC01", "name": "서비스업"},
+            {"code": "EDU01", "name": "교육 서비스업"},
+        ]
+        industries = []
+        for data in industries_data:
+            industry, _ = CIndustryCode.objects.get_or_create(code=data["code"], defaults={"name": data["name"]})
+            industries.append(industry)
 
         # 3) f_customer
         customers = []
-        for i in range(10):
+        for i in range(30):
             customer, _ = Customer.objects.get_or_create(
-                display_name=f"Individual Customer {i+1}",
+                display_name=fake.unique.name(),
                 customer_type=Customer.CustomerType.INDIVIDUAL,
                 defaults={
-                    "bank_location": bank,
+                    "bank_location": random.choice(banks),
                     "status": "ACTIVE",
                     "risk_segment": "RETAIL",
                 },
             )
-            customers.append(customer)
             CustomerPerson.objects.get_or_create(
                 customer=customer,
                 defaults={
                     "first_name": fake.last_name(),
                     "last_name": fake.first_name(),
                     "gender": random.choice([0, 1]),
-                    "rrn": f"{i+1:010d}{random.randint(0,9)}",
-                    "mobile": f"010{random.randint(10000000,99999999)}",
-                    "email": f"person{i}@example.com",
+                    "rrn": fake.unique.ssn(),
+                    "mobile": fake.unique.phone_number(),
+                    "email": fake.unique.email(),
                     "account_number": f"110-{random.randint(1000,9999)}-{random.randint(100000,999999)}",
                     "account_amount": fake.pydecimal(left_digits=7, right_digits=2),
-                    "education_level": edu,
-                    "housing_status": house,
+                    "education_level": random.choice(education_levels),
+                    "housing_status": random.choice(housing_statuses),
                     "income_annual": fake.pydecimal(left_digits=6, right_digits=0),
                     "work_experience_years": random.randint(0, 20),
-                    "employment_type": emp_type,
-                    "industry_code": industry,
-                    "has_delinquency": random.choice([False, True]),
+                    "employment_type": random.choice(employment_types),
+                    "industry_code": random.choice(industries),
+                    "has_delinquency": random.choice([True, False]),
                     "credit_history_length": random.randint(0, 20),
                     "credit_rating": random.randint(1, 10),
                 },
             )
+            customers.append(customer)
 
         corp_customers = []
-        for i in range(5):
+        for i in range(15):
             corp_customer, _ = Customer.objects.get_or_create(
-                display_name=f"Corporate Customer {i+1}",
+                display_name=fake.unique.company(),
                 customer_type=Customer.CustomerType.CORPORATE,
                 defaults={
-                    "bank_location": bank,
+                    "bank_location": random.choice(banks),
                     "status": "ACTIVE",
                     "risk_segment": "SME",
                 },
             )
-            corp_customers.append(corp_customer)
             CustomerCorporate.objects.get_or_create(
                 customer=corp_customer,
                 defaults={
-                    "industry_code": industry,
-                    "legal_name": f"Test Corp {i+1}",
-                    "biz_reg_no_masked": f"{random.randint(1000000000, 9999999999)}",
+                    "industry_code": random.choice(industries),
+                    "legal_name": fake.unique.company(),
+                    "biz_reg_no_masked": f"{random.randint(100, 999)}-{random.randint(10, 99)}-{random.randint(10000, 99999)}",
                     "incorporation_date": fake.date_between(start_date="-30y", end_date="today"),
                     "employees_count": fake.random_int(min=10, max=500),
                     "mobile": "010-0000-0000",
-                    "current_assets": None,
+                    "current_assets": fake.pydecimal(left_digits=9, right_digits=2, positive=True),
+                    "cost_of_goods_sold": fake.pydecimal(left_digits=9, right_digits=2, positive=True),
+                    "ebitda": fake.pydecimal(left_digits=8, right_digits=2),
+                    "inventory": fake.pydecimal(left_digits=8, right_digits=2, positive=True),
+                    "net_income": fake.pydecimal(left_digits=8, right_digits=2),
+                    "net_sales": fake.pydecimal(left_digits=9, right_digits=2, positive=True),
+                    "total_assets": fake.pydecimal(left_digits=10, right_digits=2, positive=True),
+                    "ebit": fake.pydecimal(left_digits=8, right_digits=2),
+                    "gross_profit": fake.pydecimal(left_digits=9, right_digits=2),
+                    "total_liabilities": fake.pydecimal(left_digits=10, right_digits=2, positive=True),
+                    "total_operating_expenses": fake.pydecimal(left_digits=9, right_digits=2, positive=True),
                 },
             )
+            corp_customers.append(corp_customer)
 
         # 4) f_loan
-        LoanProduct.objects.get_or_create(
-            name="Standard Credit Loan",
-            defaults={
-                "product_type": "CREDIT_LOAN",
-                "min_rate_bp": 300,
-                "max_rate_bp": 900,
-                "min_limit_krw": 1_000_000,
-                "max_limit_krw": 50_000_000,
-                "max_term_months": 60,
-                "is_active": True,
-            },
-        )
+        loan_products = []
+        product_specs = [
+            {"name": "Standard Credit Loan", "product_type": "CREDIT_LOAN", "min_rate_bp": 300, "max_rate_bp": 900, "min_limit_krw": 1_000_000, "max_limit_krw": 50_000_000, "max_term_months": 60},
+            {"name": "Prime Mortgage Loan", "product_type": "MORTGAGE_LOAN", "min_rate_bp": 250, "max_rate_bp": 500, "min_limit_krw": 50_000_000, "max_limit_krw": 1_000_000_000, "max_term_months": 360},
+            {"name": "Business Starter Loan", "product_type": "BUSINESS_LOAN", "min_rate_bp": 400, "max_rate_bp": 1200, "min_limit_krw": 10_000_000, "max_limit_krw": 200_000_000, "max_term_months": 120},
+            {"name": "New Car Loan", "product_type": "CAR_LOAN", "min_rate_bp": 350, "max_rate_bp": 700, "min_limit_krw": 5_000_000, "max_limit_krw": 100_000_000, "max_term_months": 72},
+        ]
+        for spec in product_specs:
+            product, _ = LoanProduct.objects.get_or_create(
+                name=spec["name"],
+                defaults={**spec, "is_active": True}
+            )
+            loan_products.append(product)
 
         all_customers = customers + corp_customers
-        for i in range(10):
+        for _ in range(50):
             # LoanAssessment에 정의된 choices 중 하나의 값(코드)을 무작위로 선택
             purpose_value = random.choice([c[0] for c in LoanAssessment.LoanPurpose.choices])
-
-            LoanAssessment.objects.get_or_create(
-                customer=random.choice(all_customers),
-                defaults={
-                    "customer_type": random.choice(["INDIVIDUAL", "CORPORATE"]),
-                    "product_type": random.choice([
-                        "CREDIT_LOAN", "MORTGAGE_LOAN", "CAR_LOAN", "HOUSING_LOAN", "BUSINESS_LOAN",
-                    ]),
-                    "requested_amount": fake.pydecimal(left_digits=7, right_digits=2),
-                    "requested_term": random.randint(6, 60),
-                    "purpose": purpose_value,   # <-- 변경된 부분
-                    "created_by": random.choice(users),
-                    "approval": random.choice([0, 1, 2]),
-                },
+            customer = random.choice(all_customers)
+            product = random.choice(loan_products)
+            LoanAssessment.objects.create(
+                customer=customer,
+                customer_type=customer.customer_type,
+                product_type=product.product_type,
+                requested_amount=fake.pydecimal(left_digits=7, right_digits=2, positive=True),
+                requested_term=random.randint(6, product.max_term_months),
+                purpose=purpose_value,
+                created_by=random.choice(users),
+                approval=random.choice([0, 1, 2]),
             )
 
-
         # 5) f_document
-        for i in range(5):
+        for i in range(20):
             doc, _ = Document.objects.get_or_create(
                 file_name=f"report{i+1}.pdf",
                 defaults={
@@ -198,83 +245,63 @@ class Command(BaseCommand):
                 document=doc,
                 defaults={
                     "bind_type": random.choice(["CHAT", "REVIEW"]),
-                    "bind_id": random.randint(100, 200),
+                    "bind_id": random.randint(1, 50),
                 },
             )
 
         # 6) f_chatbot
-        history, _ = UChatbotHistory.objects.get_or_create(
-            user=users[0], defaults={"title": "Test Conversation"}
-        )
-        UChatbotSession.objects.get_or_create(
-            chatbot_history=history,
-            content_from="USER",
-            defaults={
-                "content": "Hello, I'd like to know my loan limit.",
-                "sent_at": timezone.now(),
-            },
-        )
-        ai_msg, _ = UChatbotSession.objects.get_or_create(
-            chatbot_history=history,
-            content_from="AI",
-            defaults={
-                "content": "It depends on your credit profile.",
-                "sent_at": timezone.now(),
-            },
-        )
-        event, _ = ChatbotRetrivalEvent.objects.get_or_create(
-            session_msg=ai_msg,
-            defaults={
-                "retriever": "BM25",
-                "query_text": "loan limit",
-                "k": 5,
-                "score_type": "cosine",
-                "latency_ms": random.randint(10, 100),
-            },
-        )
-        ChatbotRetrievedChunk.objects.get_or_create(
-            retriever=event,
-            rank=1,
-            defaults={
-                "doc_id": "doc-1",
-                "chunk_id": "chunk-1",
-                "score": 0.87,
-                "used_in_context": True,
-            },
-        )
+        for user in users[:5]:
+            for j in range(random.randint(1, 3)):
+                history, _ = UChatbotHistory.objects.get_or_create(
+                    user=user, title=f"Conversation {j+1} for {user.name}"
+                )
+                for k in range(random.randint(2, 5)):
+                    UChatbotSession.objects.create(
+                        chatbot_history=history,
+                        content_from="USER",
+                        content=fake.sentence(),
+                        sent_at=timezone.now() - timezone.timedelta(minutes=(5-k)*2)
+                    )
+                    UChatbotSession.objects.create(
+                        chatbot_history=history,
+                        content_from="AI",
+                        content=fake.sentence(),
+                        sent_at=timezone.now() - timezone.timedelta(minutes=(5-k)*2, seconds=-30)
+                    )
 
         # 7) f_calendar
-        start = timezone.now()
-        end = start + timezone.timedelta(hours=1)
-        cal_event, _ = UCalendarEvent.objects.get_or_create(
-            title="Team Meeting",
-            user=users[0],
-            defaults={
-                "organizer": users[0],
-                "content": "Weekly sync",
-                "start_at": start,
-                "end_at": end,
-                "status": "CONFIRMED",
-                "visibility": "PUBLIC",
-            },
-        )
-        UEventAttendees.objects.get_or_create(
-            event=cal_event,
-            attendee_user=users[0],
-            defaults={
-                "response_status": "ACCEPTED",
-                "is_optional": False,
-            },
-        )
+        for user in users[:10]:
+            for _ in range(random.randint(2, 5)):
+                start = timezone.now() + timezone.timedelta(days=random.randint(-7, 7), hours=random.randint(-12, 12))
+                end = start + timezone.timedelta(hours=random.choice([1, 2]))
+                cal_event, _ = UCalendarEvent.objects.get_or_create(
+                    title=fake.bs(),
+                    user=user,
+                    start_at=start,
+                    end_at=end,
+                    defaults={
+                        "organizer": user,
+                        "content": fake.sentence(),
+                        "status": "CONFIRMED",
+                        "visibility": "PUBLIC",
+                    },
+                )
+                attendees = random.sample(users, k=random.randint(1, 5))
+                for attendee in attendees:
+                    UEventAttendees.objects.get_or_create(
+                        event=cal_event,
+                        attendee_user=attendee,
+                        defaults={"response_status": random.choice(["ACCEPTED", "TENTATIVE", "DECLINED"])}
+                    )
 
         # 8) f_todo
-        UTodoList.objects.get_or_create(
-            user=users[0],
-            title="Todo 1",
-            defaults={
-                "content": fake.sentence(),
-                "is_done": False,
-            },
-        )
+        for user in users:
+            for _ in range(random.randint(1, 8)):
+                UTodoList.objects.create(
+                    user=user,
+                    title=fake.catch_phrase(),
+                    content=fake.sentence(),
+                    is_done=random.choice([True, False]),
+                )
 
         self.stdout.write(self.style.SUCCESS("All dummy data seeded!"))
