@@ -66,15 +66,22 @@
     @include flex-end;
     align-items: center;
     gap: $spacing-md;
-  
+    
     @include mobile {
       justify-content: center;
     }
   }
   
+  .logout-btn {
+    font-size: ptr(10px);
+    color: $kb-text-light;
+    padding: ptr(4px) ptr(8px);
+    border-radius: $border-radius-sm;
+  }
+
   .version {
     font-size: ptr(12px);
-    color: $text-light;
+    color: $kb-text-light;
     background-color: rgba(255, 255, 255, 0.1);
     padding: ptr(4px) ptr(8px);
     border-radius: $border-radius-sm;
