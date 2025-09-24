@@ -152,4 +152,4 @@ def logout_view(request):
     """로그아웃"""
     request.session.flush()
     messages.info(request, '로그아웃되었습니다.')
-    return redirect('login')
+    return redirect('login:login')
