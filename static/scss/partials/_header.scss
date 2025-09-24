@@ -65,7 +65,6 @@
   .header-right {
     @include flex-end;
     align-items: center;
-    gap: ptr(5px);
     
     @include mobile {
       justify-content: center;
