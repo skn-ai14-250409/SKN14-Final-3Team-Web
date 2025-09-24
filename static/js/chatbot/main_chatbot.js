@@ -23,39 +23,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         suggestedQuestionsButtonContainer.style.display = 'none';
     }
     
-    // Wait for history to load before creating a new one
     if (window.chatHistoryColumn) {
         await window.chatHistoryColumn.loadHistory();
-    }
-    
-    await createNewChatInHistory();
-    
-    // 새 채팅 생성 후 입력창에 포커스
-    setTimeout(() => {
-        focusInput();
-    }, 200);
-    
-    // 채팅 히스토리에 새 채팅을 추가하는 함수
-    async function createNewChatInHistory() {
-        // ChatHistoryColumn 인스턴스에 접근하여 새 채팅 생성
-        if (window.chatHistoryColumn && typeof window.chatHistoryColumn.createNewChat === 'function') {
-            const newChatId = await window.chatHistoryColumn.createNewChat();
-            if (newChatId) {
-                currentChatId = newChatId; // 새 채팅 ID 설정
-                console.log('New chat created with ID:', currentChatId);
-            }
-        } else {
-            // ChatHistoryColumn이 아직 초기화되지 않은 경우 잠시 후 재시도
-            setTimeout(async () => {
-                if (window.chatHistoryColumn && typeof window.chatHistoryColumn.createNewChat === 'function') {
-                    const newChatId = await window.chatHistoryColumn.createNewChat();
-                    if (newChatId) {
-                        currentChatId = newChatId; // 새 채팅 ID 설정
-                        console.log('New chat created with ID (delayed):', newChatId);
-                    }
-                }
-            }, 100);
-        }
+        window.chatHistoryColumn.createNewChat();
+    } else {
+        startNewChat(); // fallback if history column is not available
     }
 
     function focusInput() {
@@ -98,6 +70,26 @@ document.addEventListener('DOMContentLoaded', async function() {
         return `${ampm} ${displayHours}:${displayMinutes}`;
     }
     
+    // DB에서 가져온 시간(ISO 형식)을 포맷팅하는 함수
+    function formatDbTime(isoString) {
+        if (!isoString) return getCurrentTime();
+        try {
+            const date = new Date(isoString);
+            // 유효한 날짜인지 확인
+            if (isNaN(date.getTime())) {
+                return getCurrentTime();
+            }
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            const ampm = hours >= 12 ? '오후' : '오전';
+            const displayHours = hours % 12 || 12;
+            const displayMinutes = minutes.toString().padStart(2, '0');
+            return `${ampm} ${displayHours}:${displayMinutes}`;
+        } catch (e) {
+            console.error("Invalid time format:", isoString);
+            return getCurrentTime();
+        }
+    }
     // 자주 묻는 질문을 숨기는 함수 (대화창 밑에서 input 위로 이동)
     function hideSuggestedQuestions() {
         if (suggestedQuestionsContainer) {
@@ -155,6 +147,43 @@ document.addEventListener('DOMContentLoaded', async function() {
         `;
         
         // AI 메시지를 컨테이너에 추가
+        userMessagesContainer.appendChild(messageElement);
+        
+        // 스크롤을 맨 아래로
+        const chatMessagesArea = document.querySelector('.chat_messages_area');
+        chatMessagesArea.scrollTop = chatMessagesArea.scrollHeight;
+    }
+
+    // 이전 대화내역(사용자)을 렌더링하는 함수
+    function renderUserMessage(message, timestamp) {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'user_message';
+        messageElement.innerHTML = `
+            <div class="message_content">
+                <div class="message_bubble">${message}</div>
+                <div class="message_time">${formatDbTime(timestamp)}</div>
+            </div>
+            <div class="message_avatar">
+                <i class="bi bi-person-fill"></i>
+            </div>
+        `;
+        userMessagesContainer.appendChild(messageElement);
+    }
+
+    // 이전 대화내역(챗봇)을 렌더링하는 함수
+    function renderBotMessage(message, timestamp) {
+        let formattedMessage = message.replace(/\n/g, '<br>');
+        const messageElement = document.createElement('div');
+        messageElement.className = 'bot_message';
+        messageElement.innerHTML = `
+            <div class="message_avatar">
+                <img src="/static/images/KB_SymbolMark.png" alt="KB 챗봇" class="avatar_image">
+            </div>
+            <div class="message_content">
+                <div class="message_bubble">${formattedMessage}</div>
+                <div class="message_time">${formatDbTime(timestamp)}</div>
+            </div>
+        `;
         userMessagesContainer.appendChild(messageElement);
         
         // 스크롤을 맨 아래로
@@ -734,38 +763,34 @@ document.addEventListener('DOMContentLoaded', async function() {
         setTimeout(async () => {
             // 로딩 메시지 표시
             addAILoadingMessage();
-            
+
+            const isTempChat = String(currentChatId).startsWith('temp_');
             const aiResult = await sendMessageToAI(message);
             
             // 로딩 메시지 제거
             removeAILoadingMessage();
             
             if (aiResult.success) {
+                // AI 응답을 먼저 화면에 표시
                 addAIResponse(aiResult.response);
-                
-                // AI 응답 전체 로깅
-                console.log('Current Chat ID:', currentChatId);
-                console.log('Initial Topic Summary:', aiResult.initial_topic_summary);
-                
-                // 채팅 제목 업데이트 (첫 번째 질문에서만)
-                if (currentChatId) {
-                    // 현재 채팅의 제목이 "새 채팅"인 경우에만 업데이트 (ID 타입에 안전하게 비교)
-                    const currentChat = window.chatHistoryColumn?.chatHistory?.find(chat =>
-                        String(chat.id) === String(currentChatId)
-                    );
+
+                // 임시 채팅인 경우, DB에 영구 저장하고 ID를 업데이트
+                if (isTempChat) {
+                    const tempId = currentChatId;
+                    const title = aiResult.initial_topic_summary || message.substring(0, 30);
                     
-                    if (currentChat && currentChat.title === '새 채팅') {
-                        if (aiResult.initial_topic_summary && aiResult.initial_topic_summary.trim()) {
-                            // LLM에서 제공된 요약 사용
-                            const titleToUse = aiResult.initial_topic_summary.trim();
-                            console.log('Using LLM summary:', titleToUse);
-                            await updateChatTitle(currentChatId, titleToUse);
-                        } else {
-                            console.log('No LLM summary provided, keeping default title');
-                        }
-                    } else {
-                        console.log('Chat title already set or not "새 채팅", skipping update/deletion logic.');
-                    }
+                    const newChatData = await window.chatHistoryColumn.createChatInDB(title, [
+                        { role: 'user', content: message },
+                        { role: 'assistant', content: aiResult.response }
+                    ]);
+
+                    if (newChatData) {
+                        // UI의 임시 채팅을 영구 채팅 정보로 교체
+                        window.chatHistoryColumn.replaceTempWithPermanent(tempId, newChatData);
+                        
+                        // 현재 채팅 ID를 영구 ID로 업데이트
+                        currentChatId = newChatData.id;
+                    } 
                 }
                 
                 if (aiResult.sources && aiResult.sources.length > 0) {
@@ -795,13 +820,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             const count = pdfItems.length;
             pdfCountElement.textContent = `${count}개`;
             console.log('PDF 개수 업데이트:', count);
-        }
-    }
-    
-    // 채팅 제목 업데이트 함수
-    async function updateChatTitle(chatId, title) {
-        if (window.chatHistoryColumn && typeof window.chatHistoryColumn.updateChatTitle === 'function') {
-            await window.chatHistoryColumn.updateChatTitle(chatId, title);
         }
     }
     
@@ -874,12 +892,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     // 채팅 히스토리 액션 이벤트 리스너
     document.addEventListener('chatHistoryAction', function(event) {
         const { action, data } = event.detail;
-        
-        if (action === 'new_chat') {
-            console.log('새 채팅 시작:', data);
-            startNewChat();
-            currentChatId = data.id;
-        } else if (action === 'load_chat') {
+        // 'new_chat'은 이제 'load_chat'으로 처리됨
+        if (action === 'load_chat') {
             console.log('채팅 로드:', data);
             loadChat(data);
         }
@@ -930,8 +944,50 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     // 기존 채팅을 로드하는 함수 (향후 구현)
-    function loadChat(chatData) {
-        console.log('채팅 로드 기능은 향후 구현 예정입니다:', chatData);
+    async function loadChat(chatData) {
+        console.log('Loading chat:', chatData);
+        currentChatId = chatData.id;
+
+        // UI 리셋
+        startNewChat();
+
+        // 임시 채팅이 아닌 경우, 이전 대화 내용 로드
+        if (!String(chatData.id).startsWith('temp_')) {
+            welcomeMessageContainer.innerHTML = '';
+            hideSuggestedQuestions();
+    
+            addAILoadingMessage();
+    
+            try {
+                const response = await fetch(`/kb_finaIssist/chatbot/api/chats/${chatData.id}/messages/`);
+                if (!response.ok) {
+                    throw new Error(`Failed to load messages: ${response.statusText}`);
+                }
+                const messages = await response.json();
+    
+                removeAILoadingMessage();
+    
+                if (messages.length === 0) {
+                    showWelcomeMessage();
+                } else {
+                    messages.forEach(msg => {
+                        if (msg.role === 'USER') {
+                            renderUserMessage(msg.content, msg.created_at);
+                        } else if (msg.role === 'AI') {
+                            renderBotMessage(msg.content, msg.created_at);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading chat history:', error);
+                removeAILoadingMessage();
+                addAIResponse('대화 내용을 불러오는 데 실패했습니다.');
+            }
+    
+            // 스크롤을 맨 아래로 이동
+            const chatMessagesArea = document.querySelector('.chat_messages_area');
+            chatMessagesArea.scrollTop = chatMessagesArea.scrollHeight;
+        }
     }
     
     // 세션 정보 조회 함수

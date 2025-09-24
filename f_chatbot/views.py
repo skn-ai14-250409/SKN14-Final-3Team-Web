@@ -10,7 +10,7 @@ from django.contrib import messages
 # --- 아래부터 추가 ---
 from django.http import HttpResponseForbidden, HttpResponseNotAllowed
 from django.utils.timezone import now
-from f_chatbot.models import UChatbotHistory
+from f_chatbot.models import UChatbotHistory, UChatbotSession
 # --- 추가 끝 ---
 
 from .ai_service import AIService
@@ -27,6 +27,15 @@ def _history_row(obj: UChatbotHistory):
         "created_at": obj.created_at,
         "updated_at": obj.updated_at,
     }
+
+def _message_row(obj: UChatbotSession):
+    return {
+        "id": obj.seq_id,
+        "role": obj.content_from,
+        "content": obj.content,
+        "created_at": obj.sent_at,
+    }
+
 
 @require_http_methods(["GET", "POST"])
 def api_chats(request):
@@ -57,6 +66,21 @@ def api_chats(request):
             user=user,
             title=title
         )
+
+        # 첫 대화 내용을 함께 저장하는 로직 추가
+        initial_messages = data.get("messages", [])
+        for msg in initial_messages:
+            role = msg.get('role')
+            content = msg.get('content')
+            if role and content:
+                content_from = UChatbotSession.MessageFrom.USER if role == 'user' else UChatbotSession.MessageFrom.AI
+                UChatbotSession.objects.create(
+                    chatbot_history=history,
+                    content_from=content_from,
+                    content=content,
+                    sent_at=now()
+                )
+
         return JsonResponse(_history_row(history), status=201)
 
     return HttpResponseNotAllowed(["GET", "POST"])
@@ -97,6 +121,25 @@ def api_chat_detail(request, pk: int):
         return JsonResponse({}, status=204)
 
     return HttpResponseNotAllowed(["GET", "PATCH", "DELETE"])
+
+@require_http_methods(["GET"])
+def api_chat_messages(request, pk: int):
+    """
+    GET: 특정 채팅의 메시지 목록 조회
+    """
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({"detail": "Authentication credentials were not provided."}, status=401)
+
+    try:
+        history = UChatbotHistory.objects.get(pk=pk, user_id=user_id)
+    except UChatbotHistory.DoesNotExist:
+        return JsonResponse({"detail": "Not found"}, status=404)
+
+    messages = history.messages.order_by("sent_at")
+    return JsonResponse([_message_row(m) for m in messages], safe=False)
+
+
 # --- 추가 끝 ---
 
 # Create your views here.
@@ -131,35 +174,39 @@ def chat_api(request):
                 'sources': [],
                 'category': 'error'
             })
-        
-        # 대화 히스토리 관리 (세션 사용)
-        session_key = f'chat_history_{chat_id}' if chat_id else 'default_chat'
-        chat_history = request.session.get(session_key, [])
-        
-        # 현재 메시지를 히스토리에 추가
-        chat_history.append({
-            'role': 'user',
-            'content': message,
-            'timestamp': str(datetime.now())
-        })
-        
-        # AI 서비스 호출 (chat_id와 히스토리 전달)
+
+        # --- DB 저장 로직 추가 ---
+        history_obj = None
+        if not str(chat_id).startswith('temp_'):
+            try:
+                history_obj = UChatbotHistory.objects.get(pk=chat_id, user_id=user_id)
+                # 사용자 메시지 저장
+                UChatbotSession.objects.create(
+                    chatbot_history=history_obj,
+                    content_from=UChatbotSession.MessageFrom.USER,
+                    content=message,
+                    sent_at=now()
+                )
+            except UChatbotHistory.DoesNotExist:
+                logger.error(f"Permanent chat history {chat_id} not found for user {user_id}")
+                return JsonResponse({'success': False, 'response': '존재하지 않는 채팅입니다.'}, status=404)
+
+        # AI 서비스 호출 (세션 기반 히스토리 전달은 더 이상 필요 없음)
         ai_service = AIService()
-        result = ai_service.send_message_with_langgraph_rag(message, chat_id, chat_history)
+        result = ai_service.send_message_with_langgraph_rag(message, chat_id, [])
         
-        # AI 응답 결과 로깅
         logger.info(f"initial_topic_summary: {result.get('initial_topic_summary', 'NOT_FOUND')}")
         
-        # AI 응답을 히스토리에 추가
         if result.get('success'):
-            chat_history.append({
-                'role': 'assistant',
-                'content': result.get('response', ''),
-                'timestamp': str(datetime.now())
-            })
-        
-        # 히스토리 저장 (최근 10개만 유지)
-        request.session[session_key] = chat_history[-10:]
+            ai_response_content = result.get('response', '')
+            if history_obj:  # 영구 채팅인 경우에만 AI 응답 저장
+                UChatbotSession.objects.create(
+                    chatbot_history=history_obj,
+                    content_from=UChatbotSession.MessageFrom.AI,
+                    content=ai_response_content,
+                    sent_at=now()
+                )
+                history_obj.save()  # updated_at 갱신
         
         return JsonResponse(result)
         

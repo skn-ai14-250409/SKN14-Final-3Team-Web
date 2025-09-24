@@ -11,4 +11,5 @@ urlpatterns = [
     # --- 추가: 채팅 히스토리 CRUD ---
     path("api/chats/", views.api_chats, name="chat_list_create"),
     path("api/chats/<int:pk>/", views.api_chat_detail, name="chat_detail"),
+    path("api/chats/<int:pk>/messages/", views.api_chat_messages, name="chat_messages"),
 ]
