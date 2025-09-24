@@ -83,10 +83,10 @@
             transition: all 0.2s ease;
             min-width: ptr(10px);
             min-height: ptr(10px);
+            border-radius: ptr(4px);
             
             &:hover {
-                background-color: $kb-yellow;
-                border-radius: ptr(4px);
+                background-color: lighten($kb-yellow, 30%);
             }
             
             &.empty {
@@ -122,17 +122,6 @@
                 line-height: 1;
             }
             
-            .event {
-                font-size: ptr(5px);
-                padding: ptr(0.5px);
-                border-radius: ptr(1px);
-                margin-bottom: ptr(0.5px);
-                text-align: center;
-                width: 100%;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
         }
     }
 }

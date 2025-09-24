@@ -351,9 +351,15 @@ body {
             justify-content: center;
   }
 }
+.header .logout-btn {
+  font-size: 0.625rem;
+  color: #666;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
 .header .version {
   font-size: 0.75rem;
-  color: #776c61;
+  color: #666;
   background-color: rgba(255, 255, 255, 0.1);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;

@@ -112,19 +112,6 @@ def dashboard_view(request):
         calendar.setfirstweekday(calendar.MONDAY)  # 월요일을 주의 시작으로 설정
         cal = calendar.monthcalendar(year, month)
         
-        # 디버깅: 2025년 9월 1일 요일 확인
-        if year == 2025 and month == 9:
-            first_day = datetime(2025, 9, 1)
-            weekday = first_day.weekday()  # 0=월요일, 1=화요일, ..., 6=일요일
-            print(f"Debug: 2025년 9월 1일은 {['월', '화', '수', '목', '금', '토', '일'][weekday]}요일")
-            print(f"Debug: calendar.monthcalendar 결과 (월요일 시작): {cal}")
-            
-            # 첫 번째 주 확인
-            if cal and cal[0]:
-                print(f"Debug: 첫 번째 주: {cal[0]}")
-                print(f"Debug: 1일의 위치: {cal[0].index(1) if 1 in cal[0] else '없음'}")
-                print(f"Debug: 1일이 월요일 위치(0)에 있는가: {cal[0][0] == 1 if cal[0] else False}")
-        
         # 이벤트 데이터 (현재 월에 맞게)
         events = [
             {'date': f'{year}-{month:02d}-15', 'title': '고객 미팅', 'color': '#ffc107'},
