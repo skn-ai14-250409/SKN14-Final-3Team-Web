@@ -65,7 +65,7 @@
   .header-right {
     @include flex-end;
     align-items: center;
-    gap: $spacing-md;
+    gap: ptr(5px);
     
     @include mobile {
       justify-content: center;
@@ -73,10 +73,11 @@
   }
   
   .logout-btn {
-    font-size: ptr(10px);
+    font-size: ptr(12px);
     color: $kb-text-light;
     padding: ptr(4px) ptr(8px);
     border-radius: $border-radius-sm;
+    cursor: pointer;
   }
 
   .version {

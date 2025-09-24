@@ -880,8 +880,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const suggestedQuestionCards = suggestedQuestionsContainer ? suggestedQuestionsContainer.querySelectorAll('.suggested_question_card') : [];
     suggestedQuestionCards.forEach(card => {
         card.addEventListener('click', function() {
-            const questionTitle = this.querySelector('.question_title').textContent;
-            addUserMessage(questionTitle);
+            const question = this.getAttribute('data-question');
+            if (question) {
+                addUserMessage(question);
+            } else {
+                // data-question이 없으면 기존 방식 사용
+                const questionTitle = this.querySelector('.question_title').textContent;
+                addUserMessage(questionTitle);
+            }
         });
     });
     
@@ -889,8 +895,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const suggestedQuestionCardsBottom = suggestedQuestionsCardsContainer ? suggestedQuestionsCardsContainer.querySelectorAll('.suggested_question_card') : [];
     suggestedQuestionCardsBottom.forEach(card => {
         card.addEventListener('click', function() {
-            const questionTitle = this.querySelector('.question_title').textContent;
-            addUserMessage(questionTitle);
+            const question = this.getAttribute('data-question');
+            if (question) {
+                addUserMessage(question);
+            } else {
+                // data-question이 없으면 기존 방식 사용
+                const questionTitle = this.querySelector('.question_title').textContent;
+                addUserMessage(questionTitle);
+            }
             // 카드 클릭 후 input 위의 카드들을 숨김
             closeSuggestedQuestions();
         });
@@ -1037,4 +1049,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
 

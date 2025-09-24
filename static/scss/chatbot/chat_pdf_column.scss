@@ -241,19 +241,15 @@
             padding: ptr(5px) ptr(10px);
             border-radius: ptr(6px);
             cursor: pointer;
-            transition: all 0.2s ease;
             align-items: flex-start;
             position: relative;
 
             &:hover {
                 background-color: $kb-background-gray;
-                transform: translateY(-1px);
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             }
             
             &:active {
                 transform: translateY(0);
-                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
             }
             
             // 클릭 가능함을 나타내는 시각적 힌트

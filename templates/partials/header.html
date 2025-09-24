@@ -8,7 +8,9 @@
         </div>
     </div>
     <div class="header-right">
-        <span class = "logout-btn">로그아웃</span>
+        {% if request.session.user_id or request.session.admin_id %}
+            <span class="logout-btn">로그아웃</span>
+        {% endif %}
         <span class="version">v1.0.0</span>
     </div>
 </header>
