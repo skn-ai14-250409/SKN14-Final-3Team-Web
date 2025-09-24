@@ -555,10 +555,10 @@ body {
   transition: all 0.2s ease;
   min-width: 0.625rem;
   min-height: 0.625rem;
+  border-radius: 0.25rem;
 }
 .django-calendar .calendar-days .calendar-day:hover {
-  background-color: #ffbc00;
-  border-radius: 0.25rem;
+  background-color: #ffe499;
 }
 .django-calendar .calendar-days .calendar-day.empty {
   cursor: default;
@@ -586,15 +586,4 @@ body {
   text-align: center;
   width: 100%;
   line-height: 1;
-}
-.django-calendar .calendar-days .calendar-day .event {
-  font-size: 0.3125rem;
-  padding: 0.03125rem;
-  border-radius: 0.0625rem;
-  margin-bottom: 0.03125rem;
-  text-align: center;
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }/*# sourceMappingURL=calendar.css.map */

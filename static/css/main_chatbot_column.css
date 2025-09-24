@@ -479,7 +479,7 @@ body {
           align-items: center;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0.625rem;
+  padding: 1.875rem 0.625rem 0.625rem 0.625rem;
 }
 .main_chatbot_column .chat_messages_area::-webkit-scrollbar {
   width: 0.375rem;
