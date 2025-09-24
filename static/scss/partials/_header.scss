@@ -72,6 +72,22 @@
     }
   }
   
+  .user-icon {
+    @include flex-center;
+    font-size: ptr(13px);
+    color: $kb-text-light;
+    width: ptr(22px);
+    height: ptr(22px);
+    border-radius: ptr(20px);
+    background-color: $kb-border;
+  }
+
+  .user-name {
+    font-size: ptr(12px);
+    color: $kb-text-light;
+    padding: ptr(4px) ptr(8px);
+  }
+
   .logout-btn {
     font-size: ptr(12px);
     color: $kb-text-light;
