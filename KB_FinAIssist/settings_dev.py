@@ -1,6 +1,6 @@
-# 로컬 개발환경
-from .settings import *
+# # 로컬 개발환경
+# from .settings import *
 
-DEBUG = True
+# DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
