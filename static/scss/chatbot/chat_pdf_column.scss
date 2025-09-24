@@ -243,9 +243,37 @@
             cursor: pointer;
             transition: all 0.2s ease;
             align-items: flex-start;
+            position: relative;
 
             &:hover {
                 background-color: $kb-background-gray;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+            
+            &:active {
+                transform: translateY(0);
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            }
+            
+            // 클릭 가능함을 나타내는 시각적 힌트
+            &::after {
+                content: '';
+                position: absolute;
+                right: ptr(8px);
+                top: 50%;
+                transform: translateY(-50%);
+                width: 0;
+                height: 0;
+                border-left: ptr(4px) solid $kb-text-light;
+                border-top: ptr(3px) solid transparent;
+                border-bottom: ptr(3px) solid transparent;
+                opacity: 0.6;
+                transition: opacity 0.2s ease;
+            }
+            
+            &:hover::after {
+                opacity: 1;
             }
             
             .reference_content {
