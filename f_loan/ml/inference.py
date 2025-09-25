@@ -1,244 +1,104 @@
-import os
-import logging
-from typing import Dict, List, Any, Optional
-
-import numpy as np
-import pandas as pd
-from django.conf import settings
 import joblib
+import numpy as np
+import logging
 
 logger = logging.getLogger(__name__)
 
-# --- Base Model Class ---
-class LoanApprovalModel:
-    """
-    Joblib inference wrapper for loan approval.
-    모든 예측에서 scaler.pkl을 반드시 사용하여 transform을 진행합니다.
-    """
+# ML 모델 로드
+try:
+    PERSONAL_MODEL = joblib.load('ml_models/personal_loan_lgbm.pkl')
+    PERSONAL_SCALER = joblib.load('ml_models/personal_loan_scaler.pkl')
+    CORPORATE_MODEL = joblib.load('ml_models/corporate_loan_lgbm.pkl')
+    CORPORATE_SCALER = joblib.load('ml_models/corporate_loan_scaler.pkl')
+    logger.info("ML 모델 로딩 성공")
+except Exception as e:
+    logger.error(f"ML 모델 로드 실패: {e}")
+    PERSONAL_MODEL = None
+    PERSONAL_SCALER = None
+    CORPORATE_MODEL = None
+    CORPORATE_SCALER = None
 
-    _instance: Optional["LoanApprovalModel"] = None
+def get_credit_rating(score):
+    """신용점수에 따른 등급 반환"""
+    if score >= 900: return 'AAA'
+    if score >= 800: return 'AA'
+    if score >= 700: return 'A'
+    if score >= 600: return 'B'
+    if score >= 500: return 'C'
+    return 'D'
 
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
-    def __init__(self) -> None:
-        self._model = None
-        self._scaler = None
-        self.feature_columns: List[str] = []
-        self.threshold: float = 0.5
-        self.model_path: str = ""
-        self.scaler_path: str = ""
-
-    def _ensure_loaded(self) -> None:
-        if self._model is not None and self._scaler is not None:
-            return
-        if not os.path.exists(self.model_path):
-            raise FileNotFoundError(
-                f"Loan model not found at {self.model_path}."
-            )
-        try:
-            self._model = joblib.load(self.model_path)
-            logger.info(f"Loaded joblib model from {self.model_path}")
-        except Exception as e:
-            raise RuntimeError(f"Failed to load loan model from {self.model_path}: {e}")
-
-        if not os.path.exists(self.scaler_path):
-            raise FileNotFoundError(
-                f"Scaler not found at {self.scaler_path}."
-            )
-        try:
-            self._scaler = joblib.load(self.scaler_path)
-            logger.info(f"Loaded scaler from {self.scaler_path}")
-        except Exception as e:
-            raise RuntimeError(f"Failed to load scaler from {self.scaler_path}: {e}")
-
-    def _to_dataframe(self, features: Dict[str, Any]) -> pd.DataFrame:
-        row = {col: features.get(col) for col in self.feature_columns}
-        return pd.DataFrame([row], columns=self.feature_columns)
-
-    def predict(self, features: Dict[str, Any]) -> Dict[str, Any]:
-        self._ensure_loaded()
-        X = self._to_dataframe(features)
-        # 무조건 scaler transform 적용
-        X = self._scaler.transform(X)
-        prob: float
-        if hasattr(self._model, "predict_proba"):
-            pred = self._model.predict_proba(X)
-            prob = float(pred[0][1])
-        elif hasattr(self._model, "predict"):
-            pred = self._model.predict(X)
-            prob = float(pred[0])
-        else:
-            raise RuntimeError("Loaded model has no predict_proba or predict method.")
-        decision = 1 if prob >= self.threshold else 0
-        return {"prob": prob, "decision": decision}
-
-# --- Personal Model ---
-class PersonalLoanApprovalModel(LoanApprovalModel):
-    def __init__(self) -> None:
-        super().__init__()
-        self.feature_columns: List[str] = getattr(
-            settings,
-            "PERSONAL_LOAN_FEATURE_COLUMNS",
-            [
-                "person_age",
-                "person_gender",
-                "person_education",
-                "person_income",
-                "person_emp_exp",
-                "person_home_ownership",
-                "loan_amnt",
-                "loan_intent",
-                "loan_int_rate",
-                "loan_percent_income",
-                "cb_person_cred_hist_length",
-                "credit_score",
-                "previous_loan_defaults_on_file"
-            ],
-        )
-        self.threshold: float = float(getattr(settings, "PERSONAL_LOAN_DECISION_THRESHOLD", 0.5))
-        self.model_path: str = getattr(
-            settings,
-            "PERSONAL_LOAN_LGBM_MODEL_PATH",
-            os.path.join(settings.BASE_DIR, "ml_models", "personal_loan_lgbm.pkl"),
-        )
-        self.scaler_path: str = getattr(
-            settings,
-            "PERSONAL_LOAN_SCALER_PATH",
-            os.path.join(settings.BASE_DIR, "ml_models", "personal_loan_scaler.pkl"),
-        )
-
-def build_features_from_personal_application(application) -> Dict[str, Any]:
-    cust = getattr(application, "customer", None)
-    person = getattr(cust, "person", None)
-    person_age = getattr(person, "age", None)
-    person_income = getattr(person, "income_annual", None)
-    person_emp_exp = getattr(person, "work_experience_years", None)
-    person_gender = getattr(person, "gender", None)
-    person_education = getattr(person, "education", None)
-    person_home_ownership = getattr(person, "home_ownership", None)
-    loan_amnt = getattr(application, "amount", None)
-    loan_intent = getattr(application, "intent", None)
-    loan_int_rate = getattr(application, "interest_rate", None)
-    loan_percent_income = getattr(application, "percent_income", None)
-    cb_person_cred_hist_length = getattr(person, "credit_history_length", None)
-    credit_score = getattr(person, "credit_rating", None)
-    previous_loan_defaults_on_file = getattr(person, "previous_loan_defaults_on_file", None)
-    features: Dict[str, Any] = {
-        "person_age": float(person_age) if person_age is not None else None,
-        "person_income": float(person_income) if person_income is not None else None,
-        "person_emp_exp": float(person_emp_exp) if person_emp_exp is not None else None,
-        "loan_amnt": float(loan_amnt) if loan_amnt is not None else None,
-        "loan_int_rate": float(loan_int_rate) if loan_int_rate is not None else None,
-        "loan_percent_income": float(loan_percent_income) if loan_percent_income is not None else None,
-        "cb_person_cred_hist_length": float(cb_person_cred_hist_length) if cb_person_cred_hist_length is not None else None,
-        "credit_score": int(credit_score) if credit_score is not None else None,
-        "person_gender": person_gender if person_gender is not None else None,
-        "person_education": person_education if person_education is not None else None,
-        "person_home_ownership": person_home_ownership if person_home_ownership is not None else None,
-        "loan_intent": loan_intent if loan_intent is not None else None,
-        "previous_loan_defaults_on_file": (
-            str(previous_loan_defaults_on_file).upper() if previous_loan_defaults_on_file is not None else None
-        ),
-    }
-    return features
-
-# --- Corporate Model ---
-class CorporateLoanApprovalModel(LoanApprovalModel):
-    def __init__(self) -> None:
-        super().__init__()
-        self.feature_columns: List[str] = [
-            "year",
-            "Current assets",
-            "Cost of goods sold",
-            "Depreciation and amortization",
-            "EBITDA",
-            "Inventory",
-            "Net Income",
-            "Total Receivables",
-            "Market value",
-            "Net sales",
-            "Total assets",
-            "Total Long-term debt",
-            "EBIT",
-            "Gross Profit",
-            "Total Current Liabilities",
-            "Retained Earnings",
-            "Total Revenue",
-            "Total Liabilities",
-            "Total Operating Expenses",
-            "Net Profit Margin",
-            "Gross Profit Margin",
-            "ROA",
-            "ROS",
-            "Current Ratio",
-            "Quick Ratio",
-            "Debt to asset ratio",
-            "Altman_Z",
-            "Ohlson_O",
-            "Piotroski_F"
-        ]
-        self.threshold: float = float(getattr(settings, "CORPORATE_LOAN_DECISION_THRESHOLD", 0.5))
-        self.model_path: str = getattr(
-            settings,
-            "CORPORATE_LOAN_LGBM_MODEL_PATH",
-            os.path.join(settings.BASE_DIR, "ml_models", "corporate_loan_lgbm.pkl"),
-        )
-        self.scaler_path: str = getattr(
-            settings,
-            "CORPORATE_LOAN_SCALER_PATH",
-            os.path.join(settings.BASE_DIR, "ml_models", "corporate_loan_scaler.pkl"),
-        )
-
-def build_features_from_corporate_application(application) -> Dict[str, Any]:
-    corp = getattr(application, "corporate", None)
-    features: Dict[str, Any] = {
-        "year": 2024,
-        "Current assets": float(getattr(corp, "current_assets", None) or 0),
-        "Cost of goods sold": float(getattr(corp, "cost_of_goods_sold", None) or 0),
-        "Depreciation and amortization": float(getattr(corp, "depreciation_and_amortization", None) or 0),
-        "EBITDA": float(getattr(corp, "ebitda", None) or 0),
-        "Inventory": float(getattr(corp, "inventory", None) or 0),
-        "Net Income": float(getattr(corp, "net_income", None) or 0),
-        "Total Receivables": float(getattr(corp, "total_receivables", None) or 0),
-        "Market value": float(getattr(corp, "market_value", None) or 0),
-        "Net sales": float(getattr(corp, "net_sales", None) or 0),
-        "Total assets": float(getattr(corp, "total_assets", None) or 0),
-        "Total Long-term debt": float(getattr(corp, "total_long_term_debt", None) or 0),
-        "EBIT": float(getattr(corp, "ebit", None) or 0),
-        "Gross Profit": float(getattr(corp, "gross_profit", None) or 0),
-        "Total Current Liabilities": float(getattr(corp, "total_current_liabilities", None) or 0),
-        "Retained Earnings": float(getattr(corp, "retained_earnings", None) or 0),
-        "Total Revenue": float(getattr(corp, "total_revenue", None) or 0),
-        "Total Liabilities": float(getattr(corp, "total_liabilities", None) or 0),
-        "Total Operating Expenses": float(getattr(corp, "total_operating_expenses", None) or 0),
-        "Net Profit Margin": float(getattr(corp, "net_profit_margin", None) or 0),
-        "Gross Profit Margin": float(getattr(corp, "gross_profit_margin", None) or 0),
-        "ROA": float(getattr(corp, "roa", None) or 0),
-        "ROS": float(getattr(corp, "ros", None) or 0),
-        "Current Ratio": float(getattr(corp, "current_ratio", None) or 0),
-        "Quick Ratio": float(getattr(corp, "quick_ratio", None) or 0),
-        "Debt to asset ratio": float(getattr(corp, "debt_to_asset_ratio", None) or 0),
-        "Altman_Z": float(getattr(corp, "altman_z", None) or 0),
-        "Ohlson_O": float(getattr(corp, "ohlson_o", None) or 0),
-        "Piotroski_F": int(getattr(corp, "piotroski_f", None) or 0),
-    }
-    return features
-
-# --- Factory Function ---
-def get_model_and_features(application, customer_type: str):
-    """
-    customer_type: 'personal' 또는 'corporate'
-    application: DB에서 가져온 신청 객체
-    """
-    if customer_type == "personal":
-        model = PersonalLoanApprovalModel()
-        features = build_features_from_personal_application(application)
-    elif customer_type == "corporate":
-        model = CorporateLoanApprovalModel()
-        features = build_features_from_corporate_application(application)
+def calculate_recommended_limit(score, requested_amount):
+    """신용점수에 따른 추천 한도 계산"""
+    if score >= 800:
+        return min(requested_amount * 1.2, 100000000)
+    elif score >= 700:
+        return min(requested_amount * 1.1, 80000000)
+    elif score >= 600:
+        return min(requested_amount * 1.0, 50000000)
     else:
-        raise ValueError("customer_type must be 'personal' or 'corporate'")
-    return model, features
+        return min(requested_amount * 0.8, 30000000)
+
+def map_categorical_features(customer_data):
+    """범주형 데이터를 숫자형으로 변환"""
+    education_map = {'고등학교': 1, '대학교': 2, '대학원': 3}
+    housing_map = {'전/월세': 1, '자가': 2}
+
+    customer_data['education_level_encoded'] = education_map.get(customer_data.get('education_level'), 1)
+    customer_data['housing_status_encoded'] = housing_map.get(customer_data.get('housing_status'), 1)
+    return customer_data
+
+def predict_credit_score(customer_data, loan_data, customer_type='personal'):
+    """ML 모델을 사용한 신용점수 예측"""
+    try:
+        # 범주형 데이터 변환
+        customer_data = map_categorical_features(customer_data)
+
+        if customer_type == 'personal' and PERSONAL_MODEL and PERSONAL_SCALER:
+            # 개인 고객 특성 추출
+            features = np.array([
+                customer_data.get('age', 30),
+                customer_data.get('years_of_service', 5),
+                loan_data.get('amount', 10000000),
+                loan_data.get('period', 12),
+                customer_data.get('education_level_encoded', 1),
+                customer_data.get('housing_status_encoded', 1)
+            ]).reshape(1, -1)
+            
+            scaled_features = PERSONAL_SCALER.transform(features)
+            prediction = PERSONAL_MODEL.predict(scaled_features)[0]
+            
+        elif customer_type == 'corporate' and CORPORATE_MODEL and CORPORATE_SCALER:
+            # 기업 고객 특성 추출 (예시)
+            features = np.array([
+                customer_data.get('years_of_service', 5),
+                loan_data.get('amount', 10000000),
+                loan_data.get('period', 12),
+                50 # 예시: 기업 규모
+            ]).reshape(1, -1)
+            
+            scaled_features = CORPORATE_SCALER.transform(features)
+            prediction = CORPORATE_MODEL.predict(scaled_features)[0]
+            
+        else:
+            # 모델이 없을 경우 기본값
+            prediction = 0.75 # 750점에 해당
+        
+        # 0-1000 점수로 변환
+        credit_score = max(0, min(1000, int(prediction * 1000)))
+        
+        return {
+            'credit_score': credit_score,
+            'credit_rating': get_credit_rating(credit_score),
+            'approval_status': 'approved' if credit_score >= 600 else 'rejected',
+            'recommended_limit': calculate_recommended_limit(credit_score, loan_data.get('amount', 0))
+        }
+        
+    except Exception as e:
+        logger.error(f"신용점수 예측 중 오류: {e}")
+        # 오류 발생 시 기본값 반환
+        return {
+            'credit_score': 750,
+            'credit_rating': 'B',
+            'approval_status': 'approved',
+            'recommended_limit': loan_data.get('amount', 30000000)
+        }

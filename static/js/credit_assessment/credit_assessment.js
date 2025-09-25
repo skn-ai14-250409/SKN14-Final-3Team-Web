@@ -8,10 +8,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const customerDisplayContent = document.getElementById('customer_display_content');
     const firstRow = document.querySelector('.first_row');
     const secondRow = document.getElementById('second_row');
+    const usageGuideContainer = document.getElementById('usage_guide_container');
     const thirdRow = document.getElementById('third_row');
     const assessmentResults = document.getElementById('assessment_results');
     const resultsContent = document.getElementById('results_content');
     
+    // 조회된 고객 정보를 저장할 전역 변수
+    let currentCustomerData = null;
+
     // 기본 차트 초기화
     initializeDefaultChart();
     
@@ -240,88 +244,91 @@ document.addEventListener('DOMContentLoaded', function() {
         btnCheckCustomer.disabled = true;
         btnCheckCustomer.innerHTML = '<i class="bi bi-hourglass-split"></i><span>확인 중...</span>';
         
-        // 임시 데이터로 시뮬레이션 (1초 후 결과 표시)
-        setTimeout(() => {
-            console.log('고객 정보 조회 시작');
-            
-            // 임시 고객 데이터 생성
-            const mockCustomer = {
-                id: 'KB2024001',
-                full_name: customerName || '홍길동',
-                first_name: customerName ? customerName.split(' ')[0] : '길동',
-                last_name: customerName ? customerName.split(' ')[1] : '홍',
-                rrn: customerRrn || '123456-1234567',
-                phone: customerPhone || '010-1234-5678',
-                email: customerEmail || 'hong@example.com',
-                age: 35,
-                gender: '남성',
-                education_level: '대학교',
-                company_name: '엔코아 PlayData',
-                job_title: '대리',
-                years_of_service: 8,
-                housing_status: '자가',
-                account_number: '123-456-789012'
-            };
-            
-            // 헤더 변경
-            const customerInfoHeader = document.querySelector('.customer_info_header');
-            const customerDisplayHeader = document.querySelector('.customer_display_header');
-            
-            console.log('헤더 요소들:', { customerInfoHeader, customerDisplayHeader });
-            console.log('현재 고객 타입:', currentCustomerType);
-            
-            if (customerInfoHeader && customerDisplayHeader) {
-                const headerTitle = customerDisplayHeader.querySelector('.header_title');
-                
-                if (headerTitle) {
-                    // 고객 타입에 따라 헤더 제목 변경
-                    if (currentCustomerType === 'individual') {
-                        headerTitle.textContent = '개인 고객 정보';
-                    } else {
-                        headerTitle.textContent = '기업 고객 정보';
-                    }
-                    
-                    console.log('헤더 제목 변경:', headerTitle.textContent);
-                }
-                
-                // 헤더 전환
-                customerInfoHeader.style.display = 'none';
-                customerDisplayHeader.style.display = 'flex';
-                
-                console.log('헤더 전환 완료');
+        // 서버에 고객 정보 조회 요청
+        fetch('/kb_finaIssist/credit_assessment/api/check-customer/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                customer_name: customerName,
+                customer_rrn: customerRrn,
+                customer_phone: customerPhone,
+                customer_email: customerEmail
+            })
+        })
+        .then(response => {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                return response.json();
             } else {
-                console.error('헤더 요소를 찾을 수 없습니다:', { customerInfoHeader, customerDisplayHeader });
+                // JSON이 아닌 응답(HTML 등)을 받았을 때의 처리
+                return response.text().then(text => {
+                    throw new Error("서버로부터 유효하지 않은 응답을 받았습니다. 응답 내용:\n" + text.substring(0, 200) + "...");
+                });
             }
-            
-            // 고객 정보 표시
-            displayCustomerInfo(mockCustomer);
-            console.log('고객 정보 표시 완료');
-            
-            // 숨길 요소들
-            const inputGrid = document.querySelector('.input_grid');
-            const bankerNotes = document.querySelector('.banker_notes');
-            const customerCheckActions = document.querySelector('.customer_check_actions');
-            const customerTypeToggle = document.querySelector('.customer_type_toggle');
+        })
+        .then(data => {
+            if (data.success) {
+                if (data.customer_found) {
+                    // 헤더 변경
+                    const customerInfoHeader = document.querySelector('.customer_info_header');
+                    const customerDisplayHeader = document.querySelector('.customer_display_header');
+                    
+                    if (customerInfoHeader && customerDisplayHeader) {
+                        const headerTitle = customerDisplayHeader.querySelector('.header_title');
+                        if (headerTitle) {
+                            headerTitle.textContent = currentCustomerType === 'individual' ? '개인 고객 정보' : '기업 고객 정보';
+                        }
+                        customerInfoHeader.style.display = 'none';
+                        customerDisplayHeader.style.display = 'flex';
+                    }
 
-            if (inputGrid) inputGrid.style.display = 'none';
-            if (bankerNotes) bankerNotes.style.display = 'none';
-            if (customerCheckActions) customerCheckActions.style.display = 'none';
-            if (customerTypeToggle) customerTypeToggle.style.display = 'none';
+                    // 고객 정보 표시
+                    displayCustomerInfo(data.customer);
 
-            // 보여질 요소들
-            const secondRow = document.querySelector('.second_row');
-            const thirdRow = document.querySelector('.third_row');
-            
-            if (customerDisplayContent) customerDisplayContent.style.display = 'block';
-            if (secondRow) secondRow.style.display = 'block';
-            if (thirdRow) thirdRow.style.display = 'block';
-            
-            console.log('UI 전환 완료');
-            
+                    // 전역 변수에 고객 정보 저장
+                    currentCustomerData = data.customer;
+
+                    // UI 요소 숨기기/보이기
+                    const inputGrid = document.querySelector('.input_grid');
+                    const bankerNotes = document.querySelector('.banker_notes');
+                    const customerCheckActions = document.querySelector('.customer_check_actions');
+                    const customerTypeToggle = document.querySelector('.customer_type_toggle');
+
+                    if (inputGrid) inputGrid.style.display = 'none';
+                    if (bankerNotes) bankerNotes.style.display = 'none';
+                    if (customerCheckActions) customerCheckActions.style.display = 'none';
+                    if (customerTypeToggle) customerTypeToggle.style.display = 'none';
+
+                    const secondRow = document.querySelector('.second_row');
+                    const thirdRow = document.querySelector('.third_row');
+                    
+                    if (customerDisplayContent) customerDisplayContent.style.display = 'block';
+                    if (secondRow) secondRow.style.display = 'block';
+                    if (thirdRow) thirdRow.style.display = 'block';
+                } else {
+                    displayCustomerNotFound(data.message || '일치하는 고객 정보가 없습니다.');
+                    customerDisplayContent.style.display = 'block';
+                }
+            } else {
+                // 고객 정보 없음 또는 서버 응답 메시지 표시
+                displayCustomerNotFound(data.message || '일치하는 고객 정보가 없습니다.');
+                customerDisplayContent.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('고객 정보 조회 중 오류 발생:', error);
+            // alert 대신 UI에 오류 메시지 표시
+            displayCustomerNotFound('고객 정보 조회 중 오류가 발생했습니다. 관리자에게 문의하세요.');
+            customerDisplayContent.style.display = 'block';
+        })
+        .finally(() => {
             // 버튼 상태 복원
             btnCheckCustomer.disabled = false;
             btnCheckCustomer.innerHTML = '<i class="bi bi-search"></i><span>고객 정보 확인</span>';
-        }, 1000);
+        });
     }
     
     // 고객 정보 표시
@@ -329,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const customerInfoHtml = `
             <div class="customer_info_grid">
                 <div class="info_item">
-                    <div class="info_label">회원 ID</div>
+                    <div class="info_label">고객 ID</div>
                     <div class="info_value">${customer.id}</div>
                 </div>
                 <div class="info_item">
@@ -379,11 +386,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 고객 정보 없음 표시
-    function displayCustomerNotFound() {
+    function displayCustomerNotFound(message) {
         const notFoundHtml = `
             <div class="customer_not_found">
                 <i class="bi bi-person-x"></i>
-                <p>가입하지 않은 고객입니다.</p>
+                <p>${message || '가입하지 않은 고객입니다.'}</p>
             </div>
         `;
         
@@ -496,7 +503,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // ML API 호출
     function callMLAssessmentAPI() {
-        const customerData = getCustomerData();
+        // 전역 변수에 저장된 고객 정보와 화면의 대출 정보를 가져옴
+        const customerData = currentCustomerData;
         const loanData = getLoanData();
         
         const requestData = {
@@ -505,7 +513,7 @@ document.addEventListener('DOMContentLoaded', function() {
             customer_type: currentCustomerType
         };
         
-        fetch('/credit_assessment/api/assess-credit/', {
+        fetch('/kb_finaIssist/credit_assessment/api/assess-credit/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -517,13 +525,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 displayMLAssessmentResults(data.assessment_result);
-            // 심사 결과 영역 표시
+                // 사용법 안내 숨기고 심사 결과 표시
+                if (usageGuideContainer) usageGuideContainer.style.display = 'none';
+                // 심사 결과 영역 표시
                 assessmentResults.style.display = 'flex';
             } else {
                 console.error('ML API 오류:', data.message);
                 // 오류 시 기본 데이터로 폴백
                 const fallbackData = generateMockAssessmentData();
                 displayAssessmentResults(fallbackData);
+                if (usageGuideContainer) usageGuideContainer.style.display = 'none';
                 assessmentResults.style.display = 'flex';
             }
         })
@@ -532,6 +543,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 오류 시 기본 데이터로 폴백
             const fallbackData = generateMockAssessmentData();
             displayAssessmentResults(fallbackData);
+            if (usageGuideContainer) usageGuideContainer.style.display = 'none';
             assessmentResults.style.display = 'flex';
         })
         .finally(() => {
@@ -541,24 +553,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 고객 데이터 수집
-    function getCustomerData() {
-        return {
-            full_name: document.getElementById('customer_name').value.trim(),
-            age: 35, // 실제로는 계산
-            years_of_service: 8,
-            education_level: 3,
-            housing_status: 1,
-            company_size: 50
-        };
-    }
-    
     // 대출 데이터 수집
     function getLoanData() {
         const amount = document.getElementById('loan_amount').value.replace(/[^0-9]/g, '');
+        const period = document.getElementById('loan_period').value;
         return {
-            amount: parseInt(amount) || 10000000,
-            period: parseInt(document.getElementById('loan_period').value) || 12
+            amount: parseInt(amount) || 0,
+            period: parseInt(period) || 12
         };
     }
     
@@ -591,7 +592,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (creditScoreElement) creditScoreElement.textContent = data.credit_score;
         if (creditRatingElement) creditRatingElement.textContent = data.credit_rating;
         if (approvalStatusElement) {
-            approvalStatusElement.textContent = data.approval_status === 'approved' ? '승인' : '거절';
+            approvalStatusElement.textContent = data.approval_status === 'approved' ? '승인 가능' : '불가능';
             approvalStatusElement.className = `summary_value approval_status ${data.approval_status}`;
         }
         if (recommendedLimitElement) {
@@ -819,6 +820,9 @@ document.addEventListener('DOMContentLoaded', function() {
         inputs.forEach(input => {
             input.value = '';
         });
+
+        // 전역 고객 데이터 초기화
+        currentCustomerData = null;
         
         // 입력 폼 다시 보이기
         firstRow.style.display = 'flex';
@@ -850,9 +854,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (thirdRow) thirdRow.style.display = 'none';
         
         // 심사 결과 영역 숨기기
+        if (usageGuideContainer) usageGuideContainer.style.display = 'flex';
         assessmentResults.style.display = 'none';
         
-        // 토글 버튼 초기화 (개인으로)
         toggleButtons.forEach(btn => btn.classList.remove('active'));
         document.querySelector('[data-type="individual"]').classList.add('active');
         currentCustomerType = 'individual';

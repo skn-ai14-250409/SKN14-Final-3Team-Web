@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "ebhealthcheck.apps.EBHealthCheckConfig", # EB헬스체크용
+    # "ebhealthcheck.apps.EBHealthCheckConfig", # EB헬스체크용
 
     'f_user',
     'f_todo',
@@ -163,6 +163,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# X-Frame-Options 설정 (iframe 허용)
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 # FastAPI 서버 설정
 FASTAPI_URL = os.environ.get("FASTAPI_URL", "http://127.0.0.1:8001")
 
@@ -205,6 +208,11 @@ LOGGING = {
     },
     'loggers': {
         'f_chatbot': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'f_loan': {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
