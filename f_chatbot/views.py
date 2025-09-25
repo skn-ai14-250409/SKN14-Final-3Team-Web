@@ -3,6 +3,9 @@ from django.http import JsonResponse, FileResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
+from django.db import transaction
+from f_user.models import User
+from f_chatbot.models import UChatbotHistory, UChatbotSession
 import json
 import logging
 import os
@@ -21,48 +24,117 @@ def chatbot(request) :
 def chat_api(request):
     """채팅 API 엔드포인트"""
     try:
-        data = json.loads(request.body)
-        message = data.get('message', '').strip()
-        chat_id = data.get('chat_id', None)
-        
-        logger.info(f"Received chat_id: {chat_id}")
-        
-        if not message:
+        # 로그인한 사용자 확인
+        user_id = request.session.get('user_id')
+        if not user_id:
             return JsonResponse({
                 'success': False,
-                'response': '메시지를 입력해주세요.',
+                'response': '로그인이 필요합니다.',
                 'sources': [],
                 'category': 'error'
             })
         
-        # 대화 히스토리 관리 (세션 사용)
-        session_key = f'chat_history_{chat_id}' if chat_id else 'default_chat'
-        chat_history = request.session.get(session_key, [])
+        data = json.loads(request.body)
+        message = data.get('message', '').strip()
+        chat_id = data.get('chat_id', None)
         
-        # 현재 메시지를 히스토리에 추가
-        chat_history.append({
-            'role': 'user',
-            'content': message,
-            'timestamp': str(datetime.now())
-        })
+        logger.info(f"User ID: {user_id}, Received chat_id: {chat_id}")
+        logger.info(f"Chat ID type: {type(chat_id)}")
         
-        # AI 서비스 호출 (chat_id와 히스토리 전달)
+        # 사용자 정보 조회
+        try:
+            user = User.objects.get(seq_id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'response': '사용자 정보를 찾을 수 없습니다.',
+                'sources': [],
+                'category': 'error'
+            })
+        
+        # 빈 메시지인 경우 새 채팅 히스토리만 생성
+        if not message:
+            # 새 채팅 히스토리 생성
+            chatbot_history = UChatbotHistory.objects.create(
+                user=user,
+                title="새 채팅"
+            )
+            logger.info(f"Created new empty chat history: {chatbot_history.seq_id}")
+            
+            return JsonResponse({
+                'success': True,
+                'response': '',
+                'sources': [],
+                'category': '',
+                'chat_history_id': chatbot_history.seq_id
+            })
+        
+        # 채팅 히스토리 조회 또는 생성
+        chatbot_history = None
+        if chat_id and not (isinstance(chat_id, str) and chat_id.startswith('temp_')):
+            try:
+                # 기존 채팅 히스토리 조회 (숫자 ID인 경우만)
+                chatbot_history = UChatbotHistory.objects.get(
+                    user=user, 
+                    seq_id=int(chat_id)
+                )
+                logger.info(f"Found existing chat history: {chat_id}")
+            except (UChatbotHistory.DoesNotExist, ValueError):
+                logger.info(f"Chat history not found or invalid ID: {chat_id}")
+        
+        # 새 채팅 히스토리 생성 (chat_id가 없거나 임시 ID이거나 기존 히스토리를 찾을 수 없는 경우)
+        if not chatbot_history:
+            chatbot_history = UChatbotHistory.objects.create(
+                user=user,
+                title="새 채팅"
+            )
+            logger.info(f"Created new chat history: {chatbot_history.seq_id}")
+        
+        # 기존 대화 히스토리 조회 (AI 서버용)
+        existing_messages = UChatbotSession.objects.filter(
+            chatbot_history=chatbot_history
+        ).order_by('sent_at')[:20]  # 최근 20개만
+        
+        chat_history = []
+        for msg in existing_messages:
+            chat_history.append({
+                'role': 'user' if msg.content_from == 'USER' else 'assistant',
+                'content': msg.content,
+                'timestamp': msg.sent_at.isoformat()
+            })
+        
+        # 현재 사용자 메시지를 데이터베이스에 저장
+        user_message = UChatbotSession.objects.create(
+            chatbot_history=chatbot_history,
+            content_from='USER',
+            content=message,
+            sent_at=datetime.now()
+        )
+        
+        # AI 서비스 호출
         ai_service = AIService()
-        result = ai_service.send_message_with_langgraph_rag(message, chat_id, chat_history)
+        result = ai_service.send_message_with_langgraph_rag(message, str(chatbot_history.seq_id), chat_history)
         
         # AI 응답 결과 로깅
         logger.info(f"initial_topic_summary: {result.get('initial_topic_summary', 'NOT_FOUND')}")
         
-        # AI 응답을 히스토리에 추가
+        # AI 응답을 데이터베이스에 저장
         if result.get('success'):
-            chat_history.append({
-                'role': 'assistant',
-                'content': result.get('response', ''),
-                'timestamp': str(datetime.now())
-            })
+            ai_message = UChatbotSession.objects.create(
+                chatbot_history=chatbot_history,
+                content_from='AI',
+                content=result.get('response', ''),
+                sent_at=datetime.now()
+            )
+            
+            # 채팅 제목 업데이트 (첫 번째 메시지인 경우)
+            if chatbot_history.title == "새 채팅" and result.get('initial_topic_summary'):
+                chatbot_history.title = result.get('initial_topic_summary', '새 채팅')
+                chatbot_history.save()
+                logger.info(f"Updated chat title: {chatbot_history.title}")
         
-        # 히스토리 저장 (최근 10개만 유지)
-        request.session[session_key] = chat_history[-10:]
+        # 응답에 채팅 히스토리 ID 포함
+        result['chat_history_id'] = chatbot_history.seq_id
         
         return JsonResponse(result)
         
@@ -92,6 +164,188 @@ def health_check(request):
         'status': 'healthy' if is_connected else 'unhealthy',
         'connected': is_connected
     })
+
+@require_http_methods(["GET"])
+def get_chat_histories(request):
+    """사용자별 채팅 히스토리 목록 조회"""
+    try:
+        # 로그인한 사용자 확인
+        user_id = request.session.get('user_id')
+        if not user_id:
+            return JsonResponse({
+                'success': False,
+                'message': '로그인이 필요합니다.'
+            })
+        
+        # 사용자 정보 조회
+        try:
+            user = User.objects.get(seq_id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': '사용자 정보를 찾을 수 없습니다.'
+            })
+        
+        # 사용자의 채팅 히스토리 조회 (메시지가 있는 것만)
+        chat_histories = UChatbotHistory.objects.filter(
+            user=user
+        ).order_by('-updated_at')
+        
+        # 응답 데이터 구성
+        histories = []
+        for history in chat_histories:
+            # 해당 히스토리의 메시지 개수 확인
+            message_count = UChatbotSession.objects.filter(
+                chatbot_history=history
+            ).count()
+            
+            # 메시지가 있는 히스토리 또는 "새 채팅" 제목의 빈 채팅 포함
+            if message_count > 0 or history.title == "새 채팅":
+                # 마지막 메시지 시간 조회
+                last_message = UChatbotSession.objects.filter(
+                    chatbot_history=history
+                ).order_by('-sent_at').first()
+                
+                histories.append({
+                    'id': history.seq_id,
+                    'title': history.title,
+                    'created_at': history.created_at.isoformat(),
+                    'updated_at': history.updated_at.isoformat(),
+                    'last_message_time': last_message.sent_at.isoformat() if last_message else history.created_at.isoformat()
+                })
+            else:
+                # 메시지가 없는 일반 채팅 히스토리는 삭제 (새 채팅 제외)
+                history.delete()
+                logger.info(f"Deleted empty chat history: {history.seq_id}")
+        
+        return JsonResponse({
+            'success': True,
+            'histories': histories
+        })
+        
+    except Exception as e:
+        logger.error(f"채팅 히스토리 조회 오류: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': '채팅 히스토리를 조회할 수 없습니다.'
+        })
+
+@require_http_methods(["GET"])
+def get_chat_messages(request, chat_history_id):
+    """특정 채팅 히스토리의 메시지 목록 조회"""
+    try:
+        # 로그인한 사용자 확인
+        user_id = request.session.get('user_id')
+        if not user_id:
+            return JsonResponse({
+                'success': False,
+                'message': '로그인이 필요합니다.'
+            })
+        
+        # 사용자 정보 조회
+        try:
+            user = User.objects.get(seq_id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': '사용자 정보를 찾을 수 없습니다.'
+            })
+        
+        # 채팅 히스토리 조회 (사용자 소유 확인)
+        try:
+            chat_history = UChatbotHistory.objects.get(
+                seq_id=chat_history_id,
+                user=user
+            )
+        except UChatbotHistory.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': '채팅 히스토리를 찾을 수 없습니다.'
+            })
+        
+        # 메시지 목록 조회
+        messages = UChatbotSession.objects.filter(
+            chatbot_history=chat_history
+        ).order_by('sent_at')
+        
+        # 응답 데이터 구성
+        message_list = []
+        for message in messages:
+            message_list.append({
+                'id': message.seq_id,
+                'content': message.content,
+                'from': message.content_from,
+                'sent_at': message.sent_at.isoformat()
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'chat_history': {
+                'id': chat_history.seq_id,
+                'title': chat_history.title,
+                'created_at': chat_history.created_at.isoformat(),
+                'updated_at': chat_history.updated_at.isoformat()
+            },
+            'messages': message_list
+        })
+        
+    except Exception as e:
+        logger.error(f"채팅 메시지 조회 오류: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': '채팅 메시지를 조회할 수 없습니다.'
+        })
+
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def delete_chat_history(request, chat_history_id):
+    """채팅 히스토리 삭제 (소프트 삭제)"""
+    try:
+        # 로그인한 사용자 확인
+        user_id = request.session.get('user_id')
+        if not user_id:
+            return JsonResponse({
+                'success': False,
+                'message': '로그인이 필요합니다.'
+            })
+        
+        # 사용자 정보 조회
+        try:
+            user = User.objects.get(seq_id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': '사용자 정보를 찾을 수 없습니다.'
+            })
+        
+        # 채팅 히스토리 조회 (사용자 소유 확인)
+        try:
+            chat_history = UChatbotHistory.objects.get(
+                seq_id=chat_history_id,
+                user=user
+            )
+        except UChatbotHistory.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': '채팅 히스토리를 찾을 수 없습니다.'
+            })
+        
+        # 완전 삭제 (데이터베이스에서 영구 삭제)
+        chat_history.delete()
+        
+        logger.info(f"Chat history {chat_history_id} permanently deleted by user {user_id}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': '채팅 히스토리가 완전히 삭제되었습니다.'
+        })
+        
+    except Exception as e:
+        logger.error(f"채팅 히스토리 삭제 오류: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': '채팅 히스토리 삭제 중 오류가 발생했습니다.'
+        })
 
 @require_http_methods(["GET"])
 def session_info(request, session_id):

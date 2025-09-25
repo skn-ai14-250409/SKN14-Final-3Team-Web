@@ -10,8 +10,10 @@ class ChatHistoryColumn {
     
     init() {
         console.log('Chat History Column - Initializing');
+        this.hasInitialized = false;  // 초기화 플래그 설정
         this.setupEventListeners();
         this.setupKeyboardShortcuts();
+        this.loadChatHistories();
     }
     
     setupEventListeners() {
@@ -110,38 +112,129 @@ class ChatHistoryColumn {
         });
     }
     
-    createNewChat() {
-        console.log('Creating new chat');
-        
-        // 새 채팅 데이터 생성
-        const newChat = {
-            id: Date.now(),
-            title: "새 채팅",
-            time: "방금 전",
-            timestamp: Date.now()
-        };
-        
-        // 히스토리 맨 위에 추가
-        this.chatHistory.unshift(newChat);
-        
-        // UI 업데이트
-        this.renderHistoryList();
-        this.selectChat(0);
-        
-        // 메인 챗봇 영역에 새 채팅 알림
-        this.notifyMainChatbot('new_chat', newChat);
-        
-        // 새 채팅 ID 반환
-        return newChat.id;
+    // CSRF 토큰 가져오기
+    getCSRFToken() {
+        const token = document.querySelector('[name=csrfmiddlewaretoken]');
+        return token ? token.value : '';
     }
     
-    selectChat(index) {
-        console.log('Selecting chat:', index);
+    async createNewChat() {
+        console.log('Creating new chat');
+        
+        // 이미 빈 새 채팅이 있는지 확인 (제목이 "새 채팅"이고 메시지가 없는 것)
+        const existingEmptyChat = this.chatHistory.find(chat => 
+            chat.title === "새 채팅"
+        );
+        
+        if (existingEmptyChat) {
+            // 해당 채팅에 실제로 메시지가 있는지 확인
+            try {
+                const messages = await this.loadChatMessages(existingEmptyChat.id);
+                if (messages.length === 0) {
+                    console.log('Empty new chat already exists, using existing one:', existingEmptyChat.id);
+                    
+                    // 현재 채팅 ID 설정
+                    this.currentChatId = existingEmptyChat.id;
+                    
+                    // 히스토리 목록 렌더링
+                    this.renderHistoryList();
+                    
+                    // 기존 빈 채팅을 선택하고 새 채팅으로 시작
+                    const existingChatIndex = this.chatHistory.findIndex(chat => chat.id === existingEmptyChat.id);
+                    this.selectChat(existingChatIndex);
+                    this.notifyMainChatbot('new_chat', existingEmptyChat);
+                    
+                    return existingEmptyChat.id;
+                } else {
+                    console.log('Existing "새 채팅" has messages, will create new one');
+                }
+            } catch (error) {
+                console.log('Error checking existing chat messages, will create new one:', error);
+            }
+        }
+        
+        try {
+            // 서버에 새 채팅 히스토리 생성 요청
+            const response = await fetch('/kb_finaIssist/chatbot/api/chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCSRFToken()
+                },
+                body: JSON.stringify({
+                    message: '',  // 빈 메시지로 새 채팅 생성
+                    chat_id: null
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.chat_history_id) {
+                const newChatId = data.chat_history_id;
+                const newChat = {
+                    id: newChatId,
+                    title: "새 채팅",
+                    time: "방금 전",
+                    timestamp: Date.now(),
+                    isNew: true  // 새 채팅임을 표시
+                };
+                
+                // 히스토리 맨 위에 추가
+                this.chatHistory.unshift(newChat);
+                
+                // 현재 채팅 ID 설정
+                this.currentChatId = newChatId;
+                
+                // UI 업데이트
+                this.renderHistoryList();
+                this.selectChat(0);
+                
+                // 메인 챗봇의 currentChatId도 업데이트
+                if (window.currentChatId !== undefined) {
+                    window.currentChatId = newChatId;
+                    console.log('Updated main chatbot currentChatId to:', newChatId);
+                }
+                
+                // 메인 챗봇에 새 채팅 생성 알림
+                this.notifyMainChatbot('new_chat', newChat);
+                
+                console.log('New chat created with final ID:', newChatId);
+                return newChatId;
+            } else {
+                console.error('Failed to create new chat:', data.message || 'Unknown error');
+                return null;
+            }
+        } catch (error) {
+            console.error('Error creating new chat:', error);
+            return null;
+        }
+    }
+    
+    async selectChat(indexOrId) {
+        console.log('Selecting chat:', indexOrId);
         
         // 히스토리가 비어있으면 선택할 수 없음
         if (this.chatHistory.length === 0) {
             console.log('No chat history available');
             return;
+        }
+        
+        // indexOrId가 ID인지 인덱스인지 확인
+        let index;
+        if (typeof indexOrId === 'number' && indexOrId < this.chatHistory.length) {
+            // 인덱스인 경우
+            index = indexOrId;
+        } else {
+            // ID인 경우, 해당 ID를 가진 채팅의 인덱스 찾기
+            index = this.chatHistory.findIndex(chat => 
+                chat.id === indexOrId || 
+                chat.id === parseInt(indexOrId) || 
+                chat.id === String(indexOrId)
+            );
+            if (index === -1) {
+                console.error('Chat not found with ID:', indexOrId);
+                return;
+            }
         }
         
         // 모든 히스토리 아이템에서 active 클래스 제거
@@ -155,8 +248,29 @@ class ChatHistoryColumn {
             historyItems[index].classList.add('active');
             this.currentChatId = this.chatHistory[index].id;
             
-            // 메인 챗봇 영역에 채팅 로드 알림
-            this.notifyMainChatbot('load_chat', this.chatHistory[index]);
+            const selectedChat = this.chatHistory[index];
+            console.log('Selected chat:', selectedChat);
+            
+            // 새 채팅이 아닌 경우 메시지 로드
+            if (!selectedChat.isNew) {
+                try {
+                    const messages = await this.loadChatMessages(selectedChat.id);
+                    console.log('Loaded messages for chat:', selectedChat.id, messages);
+                    
+                    // 메인 챗봇에 선택된 채팅과 메시지 전달
+                    this.notifyMainChatbot('load_chat', {
+                        chat: selectedChat,
+                        messages: messages
+                    });
+                } catch (error) {
+                    console.error('Error loading chat messages:', error);
+                    // 에러 발생 시에도 채팅 선택은 진행
+                    this.notifyMainChatbot('load_chat', selectedChat);
+                }
+            } else {
+                // 새 채팅인 경우 메시지 없이 전달
+                this.notifyMainChatbot('load_chat', selectedChat);
+            }
         }
     }
     
@@ -225,10 +339,50 @@ class ChatHistoryColumn {
         }
     }
     
-    deleteChat(index) {
-        if (confirm('이 채팅을 삭제하시겠습니까?')) {
-            this.chatHistory.splice(index, 1);
-            this.renderHistoryList();
+    async deleteChat(index) {
+        const chat = this.chatHistory[index];
+        if (!chat) return;
+        
+        // 모든 채팅은 데이터베이스에 저장된 채팅이므로 서버에 완전 삭제 요청
+        if (confirm('이 채팅을 완전히 삭제하시겠습니까? 삭제된 채팅은 복구할 수 없습니다.')) {
+            try {
+                const response = await fetch(`/kb_finaIssist/chatbot/api/chat/histories/${chat.id}/delete/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCSRFToken()
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('Chat deleted successfully:', chat.id);
+                    
+                    // 히스토리 새로고침
+                    await this.refreshChatHistories();
+                    
+                    // 삭제된 채팅이 현재 선택된 채팅인 경우 처리
+                    if (this.currentChatId === chat.id || this.currentChatId === String(chat.id)) {
+                        // 현재 채팅 ID 초기화
+                        this.currentChatId = null;
+                        window.currentChatId = null;
+                        
+                        // 히스토리가 비어있으면 빈 상태 표시, 아니면 새 채팅 생성
+                        if (this.chatHistory.length === 0) {
+                            this.showEmptyState();
+                        } else {
+                            this.createNewChat();
+                        }
+                    }
+                } else {
+                    alert('채팅 삭제에 실패했습니다: ' + data.message);
+                    console.error('Delete failed:', data.message);
+                }
+            } catch (error) {
+                console.error('Error deleting chat:', error);
+                alert('채팅 삭제 중 오류가 발생했습니다.');
+            }
         }
     }
     
@@ -277,7 +431,8 @@ class ChatHistoryColumn {
         this.chatHistory.forEach((chat, index) => {
             const historyItem = document.createElement('div');
             historyItem.className = 'history_item';
-            if (index === 0 && this.currentChatId === null) {
+            // 현재 선택된 채팅에 active 클래스 추가
+            if (chat.id === this.currentChatId) {
                 historyItem.classList.add('active');
             }
             
@@ -330,6 +485,108 @@ class ChatHistoryColumn {
         document.dispatchEvent(event);
     }
     
+    // 데이터베이스에서 채팅 히스토리 로드
+    async loadChatHistories() {
+        try {
+            const response = await fetch('/kb_finaIssist/chatbot/api/chat/histories/');
+            const data = await response.json();
+            
+            if (data.success) {
+                this.chatHistory = data.histories.map(history => ({
+                    id: history.id,
+                    title: history.title,
+                    time: this.formatTime(history.last_message_time),
+                    timestamp: new Date(history.last_message_time).getTime(),
+                    isNew: false  // 데이터베이스에서 로드된 채팅
+                }));
+                
+                console.log('Loaded chat histories:', this.chatHistory);
+                console.log('Chat history length:', this.chatHistory.length);
+                console.log('Has initialized:', this.hasInitialized);
+                
+                // 초기 로드 시에만 처리
+                if (!this.hasInitialized) {
+                    if (this.chatHistory.length === 0) {
+                        // 히스토리가 없으면 새 채팅 생성하지 않고 사용법 안내만 표시
+                        console.log('No chat history found, showing empty state');
+                        this.renderHistoryList();
+                        this.showEmptyState();
+                    } else {
+                        // 히스토리가 있으면 가장 최근 채팅을 자동으로 선택
+                        console.log('Chat history found, selecting most recent chat');
+                        this.renderHistoryList();
+                        // 가장 최근 채팅 (인덱스 0)을 선택
+                        this.selectChat(0);
+                    }
+                    this.hasInitialized = true;
+                } else {
+                    // 히스토리 목록 렌더링 (항상 실행)
+                    console.log('Rendering history list (already initialized)');
+                    this.renderHistoryList();
+                }
+            } else {
+                console.error('Failed to load chat histories:', data.message);
+                // 로드 실패 시에도 빈 상태 표시 (새 채팅 자동 생성하지 않음)
+                if (!this.hasInitialized) {
+                    this.renderHistoryList();
+                    this.showEmptyState();
+                    this.hasInitialized = true;
+                }
+            }
+        } catch (error) {
+            console.error('Error loading chat histories:', error);
+            // 에러 발생 시에도 빈 상태 표시 (새 채팅 자동 생성하지 않음)
+            if (!this.hasInitialized) {
+                this.renderHistoryList();
+                this.showEmptyState();
+                this.hasInitialized = true;
+            }
+        }
+    }
+    
+    // 시간 포맷팅 함수
+    formatTime(isoString) {
+        const date = new Date(isoString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) return '방금 전';
+        if (diffMins < 60) return `${diffMins}분 전`;
+        if (diffHours < 24) return `${diffHours}시간 전`;
+        if (diffDays < 7) return `${diffDays}일 전`;
+        
+        return date.toLocaleDateString('ko-KR');
+    }
+    
+    // 특정 채팅의 메시지 로드
+    async loadChatMessages(chatId) {
+        try {
+            const response = await fetch(`/kb_finaIssist/chatbot/api/chat/histories/${chatId}/messages/`);
+            const data = await response.json();
+            
+            if (data.success) {
+                return data.messages;
+            } else {
+                console.error('Failed to load chat messages:', data.message);
+                return [];
+            }
+        } catch (error) {
+            console.error('Error loading chat messages:', error);
+            return [];
+        }
+    }
+    
+    // 채팅 히스토리 새로고침
+    async refreshChatHistories() {
+        console.log('Refreshing chat histories...');
+        // 새로고침 시에는 초기화 플래그를 true로 설정하여 새 채팅 생성을 방지
+        this.hasInitialized = true;
+        await this.loadChatHistories();
+    }
+    
     // 외부에서 호출할 수 있는 메서드들
     addChatMessage(chatId, message) {
         const chat = this.chatHistory.find(c => c.id === chatId);
@@ -337,8 +594,18 @@ class ChatHistoryColumn {
             chat.title = message.length > 20 ? message.substring(0, 20) + '...' : message;
             chat.time = '방금 전';
             chat.timestamp = Date.now();
+            chat.isNew = false;  // 메시지가 있으므로 더 이상 새 채팅이 아님
             
             // UI 업데이트
+            this.renderHistoryList();
+        }
+    }
+    
+    // 새 채팅 상태를 업데이트하는 함수
+    updateChatStatus(chatId, isNew = false) {
+        const chat = this.chatHistory.find(c => c.id === chatId);
+        if (chat) {
+            chat.isNew = isNew;
             this.renderHistoryList();
         }
     }
@@ -371,6 +638,26 @@ class ChatHistoryColumn {
         } else {
             console.log('Chat not found for ID:', chatId);
         }
+    }
+    
+    // 빈 상태 표시 함수 (히스토리가 없을 때)
+    showEmptyState() {
+        console.log('Showing empty state - no chat history');
+        
+        // 웰컴 메시지와 자주 묻는 질문을 먼저 숨김
+        const welcomeMessageContainer = document.getElementById('welcome_message_container');
+        const suggestedQuestionsContainer = document.querySelector('.suggested_questions_container');
+        
+        if (welcomeMessageContainer) {
+            welcomeMessageContainer.style.display = 'none';
+        }
+        if (suggestedQuestionsContainer) {
+            suggestedQuestionsContainer.innerHTML = '';
+            suggestedQuestionsContainer.style.display = 'none';
+        }
+        
+        // 메인 챗봇에 빈 상태 알림
+        this.notifyMainChatbot('empty_state', null);
     }
 }
 
