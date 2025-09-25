@@ -368,11 +368,12 @@ class ChatHistoryColumn {
                         this.currentChatId = null;
                         window.currentChatId = null;
                         
-                        // 히스토리가 비어있으면 빈 상태 표시, 아니면 새 채팅 생성
+                        // 히스토리가 비어있으면 빈 상태 표시, 아니면 첫 번째 채팅 선택
                         if (this.chatHistory.length === 0) {
                             this.showEmptyState();
                         } else {
-                            this.createNewChat();
+                            // 첫 번째 채팅을 자동으로 선택
+                            this.selectChat(0);
                         }
                     }
                 } else {

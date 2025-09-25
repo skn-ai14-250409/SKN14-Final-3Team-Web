@@ -3796,9 +3796,9 @@ body {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  background: #ffbc00;
+  width: 0.9375rem;
+  height: 0.9375rem;
+  background: #ffe499;
   color: #392e1b;
   border-radius: 50%;
   font-size: 0.6875rem;
@@ -4059,6 +4059,10 @@ body {
       -ms-flex-pack: center;
           justify-content: center;
   margin-bottom: 0.625rem;
+}
+.main_chatbot_column .chat_messages_area .suggested_questions_container.force-hidden {
+  display: none !important;
+  visibility: hidden !important;
 }
 .main_chatbot_column .chat_messages_area .suggested_questions_container .suggested_questions {
   width: 75%;

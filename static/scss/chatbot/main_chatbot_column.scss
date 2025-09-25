@@ -102,9 +102,9 @@
                         
                         .step_number {
                             @include flex-center;
-                            width: ptr(24px);
-                            height: ptr(24px);
-                            background: $kb-yellow;
+                            width: ptr(15px);
+                            height: ptr(15px);
+                            background: lighten($kb-yellow, 30%);
                             color: $kb-dark;
                             border-radius: 50%;
                             font-size: ptr(11px);
