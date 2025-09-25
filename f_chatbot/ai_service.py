@@ -57,6 +57,7 @@ class AIService:
             if chat_id:
                 request_data['session_id'] = str(chat_id)
                 logger.info(f"[LANGGRAPH] Sending session_id: {chat_id}")
+                logger.info(f"[LANGGRAPH] Session ID type: {type(chat_id)}")
             else:
                 logger.info(f"[LANGGRAPH] No session_id provided")
             

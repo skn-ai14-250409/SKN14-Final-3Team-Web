@@ -9,12 +9,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeQuestionsButton = document.querySelector('.close_questions_button');
     const inputContainer = document.querySelector('.input_container');
     
-    // 현재 채팅 ID (멀티턴을 위해 필요)
-    let currentChatId = null;
+    // 원래 suggested_questions_container 내용 저장
+    const originalSuggestedQuestionsContent = suggestedQuestionsContainer ? suggestedQuestionsContainer.innerHTML : '';
     
-    // 페이지 로드 시 환영 메시지 표시 및 새 채팅 생성
-    showWelcomeMessage();
-
+    // 현재 채팅 ID (멀티턴을 위해 필요) - 전역 변수로 설정
+    let currentChatId = null;
+    window.currentChatId = currentChatId;
+  
     // 페이지 로드 시 입력창 포커스
     focusInput();
     
@@ -23,31 +24,10 @@ document.addEventListener('DOMContentLoaded', function() {
         suggestedQuestionsButtonContainer.style.display = 'none';
     }
     
-    createNewChatInHistory();
-    
-    // 새 채팅 생성 후 입력창에 포커스
+    // 입력창에 포커스
     setTimeout(() => {
         focusInput();
     }, 200);
-    
-    // 채팅 히스토리에 새 채팅을 추가하는 함수
-    function createNewChatInHistory() {
-        // ChatHistoryColumn 인스턴스에 접근하여 새 채팅 생성
-        if (window.chatHistoryColumn && typeof window.chatHistoryColumn.createNewChat === 'function') {
-            const newChatId = window.chatHistoryColumn.createNewChat();
-            currentChatId = newChatId; // 새 채팅 ID 설정
-            console.log('New chat created with ID:', currentChatId);
-        } else {
-            // ChatHistoryColumn이 아직 초기화되지 않은 경우 잠시 후 재시도
-            setTimeout(() => {
-                if (window.chatHistoryColumn && typeof window.chatHistoryColumn.createNewChat === 'function') {
-                    const newChatId = window.chatHistoryColumn.createNewChat();
-                    currentChatId = newChatId; // 새 채팅 ID 설정
-                    console.log('New chat created with ID (delayed):', currentChatId);
-                }
-            }, 100);
-        }
-    }
 
     function focusInput() {
         if (chatInput) {
@@ -91,41 +71,167 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 자주 묻는 질문을 숨기는 함수 (대화창 밑에서 input 위로 이동)
     function hideSuggestedQuestions() {
+        console.log('hideSuggestedQuestions called');
+        console.log('suggestedQuestionsContainer:', suggestedQuestionsContainer);
+        console.log('suggestedQuestionsCardsContainer:', suggestedQuestionsCardsContainer);
+        
         if (suggestedQuestionsContainer) {
+            // 완전히 숨기기 위해 innerHTML을 비우고 display를 none으로 설정
+            suggestedQuestionsContainer.innerHTML = '';
             suggestedQuestionsContainer.style.display = 'none';
+            suggestedQuestionsContainer.style.visibility = 'hidden';
+            console.log('suggestedQuestionsContainer hidden');
         }
         // input 위의 카드들도 숨김
         if (suggestedQuestionsCardsContainer) {
             suggestedQuestionsCardsContainer.style.display = 'none';
+            suggestedQuestionsCardsContainer.style.visibility = 'hidden';
+            console.log('suggestedQuestionsCardsContainer hidden');
         }
         // 질문을 한 후에는 show_questions_button 표시
         if (suggestedQuestionsButtonContainer) {
             suggestedQuestionsButtonContainer.style.display = 'flex';
+            suggestedQuestionsButtonContainer.style.visibility = 'visible';
+            console.log('suggestedQuestionsButtonContainer shown');
         }
     }
     
     // 자주 묻는 질문을 표시하는 함수 (input 위에 표시)
     function showSuggestedQuestions() {
+        console.log('showSuggestedQuestions called');
+        console.log('suggestedQuestionsButtonContainer:', suggestedQuestionsButtonContainer);
+        console.log('suggestedQuestionsCardsContainer:', suggestedQuestionsCardsContainer);
+        
         if (suggestedQuestionsButtonContainer) {
             suggestedQuestionsButtonContainer.style.display = 'none';
+            console.log('Button container hidden');
         }
         if (suggestedQuestionsCardsContainer) {
             suggestedQuestionsCardsContainer.style.display = 'block';
+            suggestedQuestionsCardsContainer.style.visibility = 'visible';
+            console.log('Cards container shown');
+        } else {
+            console.error('suggestedQuestionsCardsContainer not found!');
         }
     }
     
     // 자주 묻는 질문을 닫는 함수
     function closeSuggestedQuestions() {
+        console.log('closeSuggestedQuestions called');
+        
         if (suggestedQuestionsCardsContainer) {
             suggestedQuestionsCardsContainer.style.display = 'none';
+            suggestedQuestionsCardsContainer.style.visibility = 'hidden';
+            console.log('Cards container hidden');
         }
         if (suggestedQuestionsButtonContainer) {
             suggestedQuestionsButtonContainer.style.display = 'flex';
+            suggestedQuestionsButtonContainer.style.visibility = 'visible';
+            console.log('Button container shown');
         }
+    }
+    
+    // 사용법 안내를 표시하는 함수
+    function showUsageGuide() {
+        console.log('showUsageGuide called');
+        const usageGuideContainer = document.getElementById('usage_guide_container');
+        console.log('usage_guide_container found:', usageGuideContainer);
+        
+        if (usageGuideContainer) {
+            usageGuideContainer.style.display = 'flex';
+            console.log('Usage guide container display set to flex');
+        } else {
+            console.error('usage_guide_container element not found!');
+        }
+        
+        // 웰컴 메시지와 자주 묻는 질문 숨김
+        if (welcomeMessageContainer) {
+            welcomeMessageContainer.style.display = 'none';
+            welcomeMessageContainer.style.visibility = 'hidden';
+            console.log('Welcome message container hidden');
+        }
+        if (suggestedQuestionsContainer) {
+            suggestedQuestionsContainer.style.display = 'none';
+            suggestedQuestionsContainer.style.visibility = 'hidden';
+            console.log('Suggested questions container hidden');
+        }
+        if (suggestedQuestionsButtonContainer) {
+            suggestedQuestionsButtonContainer.style.display = 'none';
+            suggestedQuestionsButtonContainer.style.visibility = 'hidden';
+            console.log('Suggested questions button container hidden');
+        }
+        if (suggestedQuestionsCardsContainer) {
+            suggestedQuestionsCardsContainer.style.display = 'none';
+            suggestedQuestionsCardsContainer.style.visibility = 'hidden';
+            console.log('Suggested questions cards container hidden');
+        }
+    }
+    
+    // 사용법 안내를 숨기는 함수
+    function hideUsageGuide() {
+        const usageGuideContainer = document.getElementById('usage_guide_container');
+        if (usageGuideContainer) {
+            usageGuideContainer.style.display = 'none';
+        }
+        
+        // 웰컴 메시지와 자주 묻는 질문 다시 표시
+        if (welcomeMessageContainer) {
+            welcomeMessageContainer.style.display = 'block';
+            welcomeMessageContainer.style.visibility = 'visible';
+        }
+        if (suggestedQuestionsContainer) {
+            suggestedQuestionsContainer.style.display = 'flex';
+            suggestedQuestionsContainer.style.visibility = 'visible';
+        }
+        if (suggestedQuestionsButtonContainer) {
+            suggestedQuestionsButtonContainer.style.display = 'flex';
+            suggestedQuestionsButtonContainer.style.visibility = 'visible';
+        }
+        if (suggestedQuestionsCardsContainer) {
+            suggestedQuestionsCardsContainer.style.display = 'none';
+            suggestedQuestionsCardsContainer.style.visibility = 'hidden';
+        }
+    }
+    
+    // 빈 상태 표시 함수 (히스토리가 없을 때)
+    function showEmptyState() {
+        console.log('Showing empty state');
+        
+        // 기존 메시지들 제거
+        userMessagesContainer.innerHTML = '';
+        welcomeMessageContainer.innerHTML = '';
+        
+        // 사용법 안내 표시
+        showUsageGuide();
+        
+        // currentChatId 초기화
+        currentChatId = null;
+        window.currentChatId = null;
+        
+        // PDF 참조 목록 초기화
+        const currentPdfsList = document.querySelector('.current_pdfs_list');
+        const pdfReferenceList = document.querySelector('.pdf_reference_list');
+        
+        if (currentPdfsList) {
+            currentPdfsList.innerHTML = '';
+        }
+        if (pdfReferenceList) {
+            pdfReferenceList.innerHTML = '';
+        }
+        
+        // PDF 개수 초기화
+        updatePdfCount();
+        
+        // 스크롤을 맨 위로
+        const chatMessagesArea = document.querySelector('.chat_messages_area');
+        chatMessagesArea.scrollTop = 0;
     }
     
     // AI 응답을 추가하는 함수
     function addAIResponse(message) {
+        console.log('Adding AI response:', message);
+        console.log('userMessagesContainer:', userMessagesContainer);
+        
         // 다양한 줄바꿈 문자를 HTML <br> 태그로 변환
         let formattedMessage = message
             .replace(/\n/g, '<br>')           // 일반 줄바꿈
@@ -150,11 +256,81 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         // AI 메시지를 컨테이너에 추가
-        userMessagesContainer.appendChild(messageElement);
+        if (userMessagesContainer) {
+            userMessagesContainer.appendChild(messageElement);
+            console.log('AI response added successfully');
+        } else {
+            console.error('userMessagesContainer not found');
+        }
         
         // 스크롤을 맨 아래로
         const chatMessagesArea = document.querySelector('.chat_messages_area');
         chatMessagesArea.scrollTop = chatMessagesArea.scrollHeight;
+    }
+    
+    // 히스토리에서 사용자 메시지를 추가하는 함수 (AI 재응답 방지)
+    function addUserMessageForHistory(message) {
+        console.log('Adding user message for history:', message);
+        
+        // 고유한 메시지 ID 생성
+        const userMessageId = `user_message_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        const messageElement = document.createElement('div');
+        messageElement.className = 'user_message';
+        messageElement.id = userMessageId;
+        messageElement.innerHTML = `
+            <div class="message_content">
+                <div class="message_bubble">${message}</div>
+                <div class="message_time">${getCurrentTime()}</div>
+            </div>
+            <div class="message_avatar">
+                <i class="bi bi-person-fill"></i>
+            </div>
+        `;
+        
+        // 사용자 메시지를 컨테이너에 추가
+        if (userMessagesContainer) {
+            userMessagesContainer.appendChild(messageElement);
+            console.log('User message for history added successfully');
+        } else {
+            console.error('userMessagesContainer not found');
+        }
+    }
+    
+    // 히스토리에서 AI 응답을 추가하는 함수 (AI 재응답 방지)
+    function addAIResponseForHistory(message) {
+        console.log('Adding AI response for history:', message);
+        
+        // 다양한 줄바꿈 문자를 HTML <br> 태그로 변환
+        let formattedMessage = message
+            .replace(/\n/g, '<br>')           // 일반 줄바꿈
+            .replace(/\r\n/g, '<br>')         // Windows 줄바꿈
+            .replace(/\r/g, '<br>')           // Mac 줄바꿈
+            .replace(/\\n/g, '<br>');         // 이스케이프된 줄바꿈
+        
+        // 고유한 메시지 ID 생성
+        const messageId = `ai_message_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        const messageElement = document.createElement('div');
+        messageElement.className = 'bot_message';
+        messageElement.id = messageId;
+        messageElement.innerHTML = `
+            <div class="message_avatar">
+                <img src="/static/images/KB_SymbolMark.png" alt="KB 챗봇" class="avatar_image">
+            </div>
+            <div class="message_content">
+                <div class="message_bubble">${formattedMessage}</div>
+                <div class="message_time">${getCurrentTime()}</div>
+            </div>
+        `;
+        
+        // AI 메시지를 컨테이너에 추가
+        if (userMessagesContainer) {
+            userMessagesContainer.appendChild(messageElement);
+            console.log('AI response for history added successfully');
+        } else {
+            console.error('userMessagesContainer not found');
+        }
         
         // 메시지 ID 반환 (PDF 참조와 연결하기 위해)
         return messageId;
@@ -756,13 +932,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // CSRF 토큰 가져오기
+    function getCSRFToken() {
+        const token = document.querySelector('[name=csrfmiddlewaretoken]');
+        return token ? token.value : '';
+    }
+    
     // AI 서버에 메시지를 전송하는 함수
     async function sendMessageToAI(message) {
         try {
+            console.log('Sending message to AI with session ID:', currentChatId);
+            
             const response = await fetch('/kb_finaIssist/chatbot/api/chat/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
                 },
                 body: JSON.stringify({
                     message: message,
@@ -772,6 +957,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (response.ok) {
                 const data = await response.json();
+                console.log('AI response received for session ID:', currentChatId);
                 return data;
             } else {
                 throw new Error('AI 서버 응답 오류');
@@ -789,6 +975,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 사용자 메시지를 추가하고 AI 응답을 처리하는 함수
     async function addUserMessage(message) {
+        console.log('Adding user message:', message);
+        console.log('userMessagesContainer:', userMessagesContainer);
+        
         // 고유한 메시지 ID 생성
         const userMessageId = `user_message_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
@@ -806,10 +995,19 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         // 사용자 메시지를 컨테이너에 추가
-        userMessagesContainer.appendChild(messageElement);
+        if (userMessagesContainer) {
+            userMessagesContainer.appendChild(messageElement);
+            console.log('User message added successfully');
+        } else {
+            console.error('userMessagesContainer not found');
+        }
         
         // 자주 묻는 질문 섹션을 숨김
+        console.log('Hiding suggested questions after user message');
         hideSuggestedQuestions();
+        
+        // 사용법 안내 숨김
+        hideUsageGuide();
         
         // 스크롤을 맨 아래로
         const chatMessagesArea = document.querySelector('.chat_messages_area');
@@ -828,9 +1026,27 @@ document.addEventListener('DOMContentLoaded', function() {
             if (aiResult.success) {
                 const aiMessageId = addAIResponse(aiResult.response);
                 
+1                // 서버에서 받은 채팅 히스토리 ID 확인
+                if (aiResult.chat_history_id) {
+                    const serverChatId = aiResult.chat_history_id;
+                    console.log('Received chat history ID from server:', serverChatId);
+                    
+                    // 현재 ID와 서버 ID가 다른 경우 동기화
+                    if (currentChatId !== serverChatId && currentChatId !== String(serverChatId)) {
+                        currentChatId = serverChatId;
+                        window.currentChatId = serverChatId;
+                        console.log('Synchronized chat ID with server:', serverChatId);
+                    }
+                }
+                
                 // AI 응답 전체 로깅
                 console.log('Current Chat ID:', currentChatId);
                 console.log('Initial Topic Summary:', aiResult.initial_topic_summary);
+                
+                // 채팅 히스토리에서 새 채팅 상태 업데이트
+                if (window.chatHistoryColumn && window.chatHistoryColumn.updateChatStatus) {
+                    window.chatHistoryColumn.updateChatStatus(currentChatId, false);
+                }
                 
                 // 채팅 제목 업데이트 (첫 번째 질문에서만)
                 if (currentChatId) {
@@ -974,8 +1190,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('chatHistoryAction', function(event) {
         const { action, data } = event.detail;
         
+        if (action === 'empty_state') {
+            console.log('빈 상태 표시:', data);
+            showEmptyState();
+        }
         if (action === 'new_chat') {
             console.log('새 채팅 시작:', data);
+            // 새 채팅 ID로 currentChatId 업데이트
+            if (data && data.id) {
+                currentChatId = data.id;
+                window.currentChatId = data.id;
+                console.log('Updated currentChatId from new_chat event:', currentChatId);
+            }
             startNewChat();
         } else if (action === 'load_chat') {
             console.log('채팅 로드:', data);
@@ -983,21 +1209,58 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    
+    // 새 채팅 시작 중복 방지 플래그
+    let isStartingNewChat = false;
+    
     // 새 채팅을 시작하는 함수
-    function startNewChat() {
+    async function startNewChat() {
+        // 이미 새 채팅을 시작 중이면 중복 실행 방지
+        if (isStartingNewChat) {
+            console.log('New chat is already being started, skipping duplicate call');
+            return;
+        }
+        
+        isStartingNewChat = true;
+        console.log('Starting new chat...');
+        
+        try {
+            // ChatHistoryColumn에서 새 채팅 생성 (최종 ID로)
+            if (window.chatHistoryColumn && typeof window.chatHistoryColumn.createNewChat === 'function') {
+                const newChatId = await window.chatHistoryColumn.createNewChat();
+                if (newChatId) {
+                    console.log('New chat session started with final ID:', newChatId);
+                } else {
+                    console.log('New chat already exists or creation skipped - continuing');
+                    // 새 채팅이 이미 있거나 생성이 건너뛰어진 경우
+                }
+            } else {
+                console.error('ChatHistoryColumn not available - continuing with existing chat');
+                // ChatHistoryColumn이 없어도 계속 진행
+            }
+        } finally {
+            isStartingNewChat = false;
+        }
+        
         // 기존 메시지들 제거
         userMessagesContainer.innerHTML = '';
         welcomeMessageContainer.innerHTML = '';
         
-        // 환영 메시지 다시 표시
+        // 사용법 안내 숨기기
+        hideUsageGuide();
+        
+        // 환영 메시지 표시 (새 채팅 시작 시에만)
         showWelcomeMessage();
         
-        // 자주 묻는 질문 섹션 다시 표시
+        // 자주 묻는 질문 섹션 표시 (새 채팅 시작 시에만)
         if (suggestedQuestionsContainer) {
             suggestedQuestionsContainer.style.display = 'flex';
         }
         if (suggestedQuestionsButtonContainer) {
             suggestedQuestionsButtonContainer.style.display = 'none';  // 새 채팅에서는 버튼 숨김
+        }
+        if (suggestedQuestionsCardsContainer) {
+            suggestedQuestionsCardsContainer.style.display = 'none';  // 새 채팅에서는 카드도 숨김
         }
         
         // PDF 참조 목록 초기화
@@ -1027,9 +1290,82 @@ document.addEventListener('DOMContentLoaded', function() {
         chatMessagesArea.scrollTop = 0;
     }
     
-    // 기존 채팅을 로드하는 함수 (향후 구현)
+    // 기존 채팅을 로드하는 함수
     function loadChat(chatData) {
-        console.log('채팅 로드 기능은 향후 구현 예정입니다:', chatData);
+        console.log('Loading chat:', chatData);
+        
+        // chatData 구조 확인 및 정규화
+        let chat, messages;
+        
+        if (chatData && chatData.chat) {
+            // 기존 구조: { chat: {...}, messages: [...] }
+            chat = chatData.chat;
+            messages = chatData.messages;
+        } else if (chatData && chatData.id) {
+            // 새 구조: 직접 chat 객체가 전달됨
+            chat = chatData;
+            messages = [];
+        } else {
+            console.error('Invalid chatData:', chatData);
+            return;
+        }
+        
+        // 현재 채팅 ID 업데이트
+        currentChatId = chat.id;
+        window.currentChatId = chat.id;
+        console.log('Updated currentChatId to:', currentChatId);
+        
+        // 기존 메시지들 제거
+        userMessagesContainer.innerHTML = '';
+        welcomeMessageContainer.innerHTML = '';
+        
+        // 사용법 안내 숨김 (기존 채팅 로드 시)
+        hideUsageGuide();
+        
+        // 기존 채팅 로드 시에도 웰컴 메시지 표시
+        showWelcomeMessage();
+        
+        // 메시지가 있는 경우 로드
+        if (messages && messages.length > 0) {
+            console.log('Loading messages:', messages);
+            messages.forEach((message, index) => {
+                console.log(`Loading message ${index}:`, message);
+                if (message.from === 'USER' || message.role === 'user') {
+                    addUserMessageForHistory(message.content);
+                } else if (message.from === 'AI' || message.role === 'assistant') {
+                    addAIResponseForHistory(message.content);
+                }
+            });
+            console.log('All messages loaded successfully');
+            
+            // 기존 채팅 로드 시 UI 요소들 숨김/표시
+            if (suggestedQuestionsContainer) {
+                suggestedQuestionsContainer.style.display = 'none';
+            }
+            if (suggestedQuestionsButtonContainer) {
+                suggestedQuestionsButtonContainer.style.display = 'flex';
+            }
+            if (suggestedQuestionsCardsContainer) {
+                suggestedQuestionsCardsContainer.style.display = 'none';
+            }
+        } else {
+            // 메시지가 없는 경우 (빈 채팅)
+            console.log('No messages to load for this chat');
+            
+            // 빈 채팅인 경우 자주 묻는 질문 표시
+            if (suggestedQuestionsContainer) {
+                suggestedQuestionsContainer.style.display = 'flex';
+            }
+            if (suggestedQuestionsButtonContainer) {
+                suggestedQuestionsButtonContainer.style.display = 'none';
+            }
+            if (suggestedQuestionsCardsContainer) {
+                suggestedQuestionsCardsContainer.style.display = 'none';
+            }
+        }
+        
+        // PDF 개수 업데이트 (함수가 없으므로 주석 처리)
+        // updatePDFCount(0);
     }
     
     // 세션 정보 조회 함수

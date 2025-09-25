@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "ebhealthcheck.apps.EBHealthCheckConfig", # EB헬스체크용
+    # "ebhealthcheck.apps.EBHealthCheckConfig", # EB헬스체크용
 
     'f_user',
     'f_todo',
