@@ -209,5 +209,10 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'f_loan': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
     },
 }
