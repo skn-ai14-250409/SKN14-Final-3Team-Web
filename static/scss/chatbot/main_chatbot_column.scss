@@ -57,7 +57,7 @@
             z-index: 10;
             
             .usage_guide {
-                max-width: ptr(450px);
+                min-width: ptr(500px);
                 text-align: center;
                 
                 .usage_guide_header {
@@ -83,6 +83,7 @@
                         font-weight: 600;
                         color: $kb-dark;
                         margin: 0;
+                        padding-bottom: ptr(20px)
                     }
                 }
                 
@@ -134,7 +135,7 @@
                 
                 .usage_guide_tips {
                     border-top: 1px solid rgba($kb-border, 0.5);
-                    padding-top: ptr(16px);
+                    padding-top: ptr(25px);
                     
                     .tip_item {
                         display: flex;
@@ -143,6 +144,7 @@
                         margin-bottom: ptr(8px);
                         font-size: ptr(9px);
                         color: $kb-text-dark;
+                        justify-content: end;
                         
                         &:last-child {
                             margin-bottom: 0;
