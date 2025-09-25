@@ -163,6 +163,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# X-Frame-Options 설정 (iframe 허용)
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 # FastAPI 서버 설정
 FASTAPI_URL = os.environ.get("FASTAPI_URL", "http://127.0.0.1:8001")
 

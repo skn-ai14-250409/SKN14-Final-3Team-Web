@@ -342,7 +342,6 @@ body {
       -ms-flex-pack: end;
           justify-content: flex-end;
   align-items: center;
-  gap: 0.3125rem;
 }
 @media (max-width: 480px) {
   .header .header-right {

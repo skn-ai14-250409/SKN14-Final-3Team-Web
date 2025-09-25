@@ -489,6 +489,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const newPdfItem = document.createElement('div');
             newPdfItem.className = 'current_pdf_item';
             newPdfItem.setAttribute('data-pdf-id', `pdf_${Date.now()}`);
+            newPdfItem.setAttribute('data-file-path', topSource.file_path || '');
             newPdfItem.innerHTML = `
                 <div class="pdf_thumbnail">
                     <i class="bi bi-file-earmark-pdf"></i>
@@ -503,6 +504,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             `;
+            
+            // PDF 아이템 클릭 이벤트 추가
+            newPdfItem.addEventListener('click', function(e) {
+                // X 버튼 클릭이 아닌 경우에만 PDF 팝업 열기
+                if (!e.target.closest('.pdf_actions')) {
+                    const filePath = this.getAttribute('data-file-path');
+                    if (filePath) {
+                        openPdfPopup(filePath, pdfFileName);
+                    }
+                }
+            });
+            
+            // X 버튼 클릭 이벤트 추가
+            const closeButton = newPdfItem.querySelector('.action_icon');
+            closeButton.addEventListener('click', function(e) {
+                e.stopPropagation(); // 부모 클릭 이벤트 방지
+                newPdfItem.remove();
+                updatePdfCount();
+            });
             
             // 리스트의 맨 위에 추가
             currentPdfsList.insertBefore(newPdfItem, currentPdfsList.firstChild);
@@ -602,6 +622,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 전역에서 접근 가능하도록 등록
     window.scrollToMessage = scrollToMessage;
+    
+    // PDF 모달 함수는 별도 파일(pdf_modal.js)에서 관리
+    
+    // PDF 모달 초기화는 별도 파일(pdf_modal.js)에서 관리
     
     // 현재 질문 내용을 가져오는 함수
     function getCurrentQuestion() {
@@ -1048,6 +1072,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return null;
         }
     }
+
+    // PDF 모달 관련 코드는 별도 파일(pdf_modal.js)에서 관리
 });
 
 
