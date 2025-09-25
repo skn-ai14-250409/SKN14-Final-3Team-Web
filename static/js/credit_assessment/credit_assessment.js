@@ -8,10 +8,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const customerDisplayContent = document.getElementById('customer_display_content');
     const firstRow = document.querySelector('.first_row');
     const secondRow = document.getElementById('second_row');
+    const usageGuideContainer = document.getElementById('usage_guide_container');
     const thirdRow = document.getElementById('third_row');
     const assessmentResults = document.getElementById('assessment_results');
     const resultsContent = document.getElementById('results_content');
     
+    // 조회된 고객 정보를 저장할 전역 변수
+    let currentCustomerData = null;
+
     // 기본 차트 초기화
     initializeDefaultChart();
     
@@ -284,6 +288,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 고객 정보 표시
                     displayCustomerInfo(data.customer);
 
+                    // 전역 변수에 고객 정보 저장
+                    currentCustomerData = data.customer;
+
                     // UI 요소 숨기기/보이기
                     const inputGrid = document.querySelector('.input_grid');
                     const bankerNotes = document.querySelector('.banker_notes');
@@ -496,7 +503,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // ML API 호출
     function callMLAssessmentAPI() {
-        const customerData = getCustomerData();
+        // 전역 변수에 저장된 고객 정보와 화면의 대출 정보를 가져옴
+        const customerData = currentCustomerData;
         const loanData = getLoanData();
         
         const requestData = {
@@ -517,13 +525,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 displayMLAssessmentResults(data.assessment_result);
-            // 심사 결과 영역 표시
+                // 사용법 안내 숨기고 심사 결과 표시
+                if (usageGuideContainer) usageGuideContainer.style.display = 'none';
+                // 심사 결과 영역 표시
                 assessmentResults.style.display = 'flex';
             } else {
                 console.error('ML API 오류:', data.message);
                 // 오류 시 기본 데이터로 폴백
                 const fallbackData = generateMockAssessmentData();
                 displayAssessmentResults(fallbackData);
+                if (usageGuideContainer) usageGuideContainer.style.display = 'none';
                 assessmentResults.style.display = 'flex';
             }
         })
@@ -532,6 +543,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 오류 시 기본 데이터로 폴백
             const fallbackData = generateMockAssessmentData();
             displayAssessmentResults(fallbackData);
+            if (usageGuideContainer) usageGuideContainer.style.display = 'none';
             assessmentResults.style.display = 'flex';
         })
         .finally(() => {
@@ -541,24 +553,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 고객 데이터 수집
-    function getCustomerData() {
-        return {
-            full_name: document.getElementById('customer_name').value.trim(),
-            age: 35, // 실제로는 계산
-            years_of_service: 8,
-            education_level: 3,
-            housing_status: 1,
-            company_size: 50
-        };
-    }
-    
     // 대출 데이터 수집
     function getLoanData() {
         const amount = document.getElementById('loan_amount').value.replace(/[^0-9]/g, '');
+        const period = document.getElementById('loan_period').value;
         return {
-            amount: parseInt(amount) || 10000000,
-            period: parseInt(document.getElementById('loan_period').value) || 12
+            amount: parseInt(amount) || 0,
+            period: parseInt(period) || 12
         };
     }
     
@@ -591,7 +592,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (creditScoreElement) creditScoreElement.textContent = data.credit_score;
         if (creditRatingElement) creditRatingElement.textContent = data.credit_rating;
         if (approvalStatusElement) {
-            approvalStatusElement.textContent = data.approval_status === 'approved' ? '승인' : '거절';
+            approvalStatusElement.textContent = data.approval_status === 'approved' ? '승인 가능' : '불가능';
             approvalStatusElement.className = `summary_value approval_status ${data.approval_status}`;
         }
         if (recommendedLimitElement) {
@@ -819,6 +820,9 @@ document.addEventListener('DOMContentLoaded', function() {
         inputs.forEach(input => {
             input.value = '';
         });
+
+        // 전역 고객 데이터 초기화
+        currentCustomerData = null;
         
         // 입력 폼 다시 보이기
         firstRow.style.display = 'flex';
@@ -850,9 +854,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (thirdRow) thirdRow.style.display = 'none';
         
         // 심사 결과 영역 숨기기
+        if (usageGuideContainer) usageGuideContainer.style.display = 'flex';
         assessmentResults.style.display = 'none';
         
-        // 토글 버튼 초기화 (개인으로)
         toggleButtons.forEach(btn => btn.classList.remove('active'));
         document.querySelector('[data-type="individual"]').classList.add('active');
         currentCustomerType = 'individual';
