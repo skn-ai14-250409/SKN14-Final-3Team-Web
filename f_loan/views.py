@@ -8,26 +8,12 @@ import logging
 import plotly.graph_objects as go
 import plotly.express as px
 import plotly.utils
-import joblib
-import numpy as np
 
 from f_customer.models import Customer
 from .models import LoanProduct
+from .ml import inference # ML 모듈 임포트
 
 logger = logging.getLogger(__name__)
-
-# ML 모델 로드
-try:
-    PERSONAL_MODEL = joblib.load('ml_models/personal_loan_lgbm.pkl')
-    PERSONAL_SCALER = joblib.load('ml_models/personal_loan_scaler.pkl')
-    CORPORATE_MODEL = joblib.load('ml_models/corporate_loan_lgbm.pkl')
-    CORPORATE_SCALER = joblib.load('ml_models/corporate_loan_scaler.pkl')
-except Exception as e:
-    logger.warning(f"ML 모델 로드 실패: {e}")
-    PERSONAL_MODEL = None
-    PERSONAL_SCALER = None
-    CORPORATE_MODEL = None
-    CORPORATE_SCALER = None
 
 def create_credit_score_chart(score):
     """고급 신용점수 원형 차트 생성"""
@@ -122,84 +108,6 @@ def create_progress_chart(data):
     )
     
     return plotly.utils.PlotlyJSONEncoder().encode(fig)
-
-def predict_credit_score(customer_data, loan_data, customer_type='personal'):
-    """ML 모델을 사용한 신용점수 예측"""
-    try:
-        if customer_type == 'personal' and PERSONAL_MODEL and PERSONAL_SCALER:
-            # 개인 고객 특성 추출
-            features = np.array([
-                customer_data.get('age', 30),
-                customer_data.get('years_of_service', 5),
-                loan_data.get('amount', 10000000),
-                loan_data.get('period', 12),
-                customer_data.get('education_level', 3),
-                customer_data.get('housing_status', 1)
-            ]).reshape(1, -1)
-            
-            scaled_features = PERSONAL_SCALER.transform(features)
-            prediction = PERSONAL_MODEL.predict(scaled_features)[0]
-            
-        elif customer_type == 'corporate' and CORPORATE_MODEL and CORPORATE_SCALER:
-            # 기업 고객 특성 추출
-            features = np.array([
-                customer_data.get('years_of_service', 5),
-                loan_data.get('amount', 10000000),
-                loan_data.get('period', 12),
-                customer_data.get('company_size', 50)
-            ]).reshape(1, -1)
-            
-            scaled_features = CORPORATE_SCALER.transform(features)
-            prediction = CORPORATE_MODEL.predict(scaled_features)[0]
-            
-        else:
-            # 모델이 없을 경우 기본값
-            prediction = 750
-        
-        # 0-1000 점수로 변환
-        credit_score = max(0, min(1000, int(prediction * 1000)))
-        
-        return {
-            'credit_score': credit_score,
-            'credit_rating': get_credit_rating(credit_score),
-            'approval_status': 'approved' if credit_score >= 600 else 'rejected',
-            'recommended_limit': calculate_recommended_limit(credit_score, loan_data.get('amount', 0))
-        }
-        
-    except Exception as e:
-        logger.error(f"신용점수 예측 중 오류: {e}")
-        return {
-            'credit_score': 750,
-            'credit_rating': 'B',
-            'approval_status': 'approved',
-            'recommended_limit': 30000000
-        }
-
-def get_credit_rating(score):
-    """신용점수에 따른 등급 반환"""
-    if score >= 900:
-        return 'AAA'
-    elif score >= 800:
-        return 'AA'
-    elif score >= 700:
-        return 'A'
-    elif score >= 600:
-        return 'B'
-    elif score >= 500:
-        return 'C'
-    else:
-        return 'D'
-
-def calculate_recommended_limit(score, requested_amount):
-    """신용점수에 따른 추천 한도 계산"""
-    if score >= 800:
-        return min(requested_amount * 1.2, 100000000)
-    elif score >= 700:
-        return min(requested_amount * 1.1, 80000000)
-    elif score >= 600:
-        return min(requested_amount * 1.0, 50000000)
-    else:
-        return min(requested_amount * 0.8, 30000000)
 
 def credit_assessment_view(request):
     """여신 심사 페이지"""
@@ -354,7 +262,7 @@ def assess_credit(request):
         logger.info(f"신용평가 요청: {customer_type}, {customer_data.get('full_name', 'Unknown')}")
         
         # ML 모델로 신용점수 예측
-        prediction_result = predict_credit_score(customer_data, loan_data, customer_type)
+        prediction_result = inference.predict_credit_score(customer_data, loan_data, customer_type)
         
         # 차트 데이터 생성
         credit_score_chart = create_credit_score_chart(prediction_result['credit_score'])
