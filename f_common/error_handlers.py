@@ -14,7 +14,7 @@ def is_api_request(request):
         return True
     
     # API 경로 확인
-    api_paths = ['/kb_finaIssist/chatbot/api/', '/api/']
+    api_paths = ['/kb_bank/chatbot/api/', '/api/']
     for api_path in api_paths:
         if request.path.startswith(api_path):
             return True

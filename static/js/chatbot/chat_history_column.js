@@ -155,7 +155,7 @@ class ChatHistoryColumn {
         
         try {
             // 서버에 새 채팅 히스토리 생성 요청
-            const response = await fetch('/kb_finaIssist/chatbot/api/chat/', {
+            const response = await fetch('/kb_bank/chatbot/api/chat/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -346,7 +346,7 @@ class ChatHistoryColumn {
         // 모든 채팅은 데이터베이스에 저장된 채팅이므로 서버에 완전 삭제 요청
         if (confirm('이 채팅을 완전히 삭제하시겠습니까? 삭제된 채팅은 복구할 수 없습니다.')) {
             try {
-                const response = await fetch(`/kb_finaIssist/chatbot/api/chat/histories/${chat.id}/delete/`, {
+                const response = await fetch(`/kb_bank/chatbot/api/chat/histories/${chat.id}/delete/`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -489,7 +489,7 @@ class ChatHistoryColumn {
     // 데이터베이스에서 채팅 히스토리 로드
     async loadChatHistories() {
         try {
-            const response = await fetch('/kb_finaIssist/chatbot/api/chat/histories/');
+            const response = await fetch('/kb_bank/chatbot/api/chat/histories/');
             const data = await response.json();
             
             if (data.success) {
@@ -565,7 +565,7 @@ class ChatHistoryColumn {
     // 특정 채팅의 메시지 로드
     async loadChatMessages(chatId) {
         try {
-            const response = await fetch(`/kb_finaIssist/chatbot/api/chat/histories/${chatId}/messages/`);
+            const response = await fetch(`/kb_bank/chatbot/api/chat/histories/${chatId}/messages/`);
             const data = await response.json();
             
             if (data.success) {

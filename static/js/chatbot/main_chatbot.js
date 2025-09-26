@@ -870,7 +870,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // AI 서버 연결 상태를 확인하는 함수
     async function checkAIServerConnection() {
         try {
-            const response = await fetch('/kb_finaIssist/chatbot/api/chat/health/', {
+            const response = await fetch('/kb_bank/chatbot/api/chat/health/', {
                 method: 'GET',
                 timeout: 3000
             });
@@ -893,7 +893,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             console.log('Sending message to AI with session ID:', currentChatId);
             
-            const response = await fetch('/kb_finaIssist/chatbot/api/chat/', {
+            const response = await fetch('/kb_bank/chatbot/api/chat/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1143,7 +1143,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // PDF 참조 정보를 서버에 저장하는 함수
     async function savePDFReferences(sessionMsgId, pdfReferences) {
         try {
-            const response = await fetch('/kb_finaIssist/chatbot/api/pdf-references/save/', {
+            const response = await fetch('/kb_bank/chatbot/api/pdf-references/save/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1171,7 +1171,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 특정 세션 메시지의 PDF 참조 정보를 불러오는 함수
     async function loadPDFReferences(sessionMsgId) {
         try {
-            const response = await fetch(`/kb_finaIssist/chatbot/api/pdf-references/${sessionMsgId}/`);
+            const response = await fetch(`/kb_bank/chatbot/api/pdf-references/${sessionMsgId}/`);
             const data = await response.json();
             
             if (data.success) {

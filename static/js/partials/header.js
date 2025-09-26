@@ -3,7 +3,7 @@ const logoutBtn = document.querySelector('.logout-btn');
 
 if (headerLogo) {
     headerLogo.addEventListener('click', () => {
-        window.location.href = '/kb_finaIssist/dashboard/';
+        window.location.href = '/kb_bank/dashboard/';
     });
 }
 
@@ -11,7 +11,7 @@ if (headerLogo) {
 if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
         // Django logout view를 호출하여 세션을 정리하고 로그인 페이지로 리다이렉트
-        window.location.href = '/kb_finaIssist/logout/';
+        window.location.href = '/kb_bank/logout/';
     });
 }
 
