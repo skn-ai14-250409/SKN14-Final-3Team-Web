@@ -3,6 +3,7 @@
 @import 'chat_history_column';
 @import 'chat_pdf_column';
 @import 'main_chatbot_column';
+@import '../common/error_pages';
 
 .chatbot_container {
     display: flex; 
