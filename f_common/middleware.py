@@ -17,7 +17,6 @@ class AuthenticationMiddleware:
         self.public_paths = [
             '/login/',                    # 혹시 direct mount된 경우 대비
             '/kb_finaIssist/login/',     # 실제 프로젝트 로그인 prefix
-            '/kb_finaIssist/common/',     # 에러 페이지 테스트용 (임시)
             '/static/',                  # 정적 파일은 인증 제외
             '/media/',                   # 미디어 파일은 인증 제외
         ]
@@ -71,5 +70,5 @@ class AuthenticationMiddleware:
             }, status=401)
         else:
             # HTML 요청: 302 로그인 페이지 리다이렉트
-            login_url = reverse('f_login:login')
+            login_url = '/kb_finaIssist/login/'
             return HttpResponseRedirect(login_url)
