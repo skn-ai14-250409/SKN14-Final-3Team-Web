@@ -545,7 +545,7 @@ body {
   z-index: 10;
 }
 .main_chatbot_column .chat_messages_area #usage_guide_container .usage_guide {
-  max-width: 28.125rem;
+  min-width: 31.25rem;
   text-align: center;
 }
 .main_chatbot_column .chat_messages_area #usage_guide_container .usage_guide .usage_guide_header {
@@ -578,6 +578,7 @@ body {
   font-weight: 600;
   color: #392e1b;
   margin: 0;
+  padding-bottom: 1.25rem;
 }
 .main_chatbot_column .chat_messages_area #usage_guide_container .usage_guide .usage_guide_content {
   margin-bottom: 1.25rem;
@@ -606,9 +607,9 @@ body {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  background: #ffbc00;
+  width: 0.9375rem;
+  height: 0.9375rem;
+  background: #ffe499;
   color: #392e1b;
   border-radius: 50%;
   font-size: 0.6875rem;
@@ -635,7 +636,7 @@ body {
 }
 .main_chatbot_column .chat_messages_area #usage_guide_container .usage_guide .usage_guide_tips {
   border-top: 1px solid rgba(226, 225, 224, 0.5);
-  padding-top: 1rem;
+  padding-top: 1.5625rem;
 }
 .main_chatbot_column .chat_messages_area #usage_guide_container .usage_guide .usage_guide_tips .tip_item {
   display: -webkit-box;
@@ -648,6 +649,9 @@ body {
   margin-bottom: 0.5rem;
   font-size: 0.5625rem;
   color: #333;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: end;
 }
 .main_chatbot_column .chat_messages_area #usage_guide_container .usage_guide .usage_guide_tips .tip_item:last-child {
   margin-bottom: 0;

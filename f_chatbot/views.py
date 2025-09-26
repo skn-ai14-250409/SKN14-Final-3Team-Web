@@ -5,7 +5,7 @@ from django.views.decorators.http import require_http_methods
 from django.conf import settings
 from django.db import transaction
 from f_user.models import User
-from f_chatbot.models import UChatbotHistory, UChatbotSession
+from f_chatbot.models import UChatbotHistory, UChatbotSession, ChatbotPDFReference
 import json
 import logging
 import os
@@ -133,8 +133,10 @@ def chat_api(request):
                 chatbot_history.save()
                 logger.info(f"Updated chat title: {chatbot_history.title}")
         
-        # 응답에 채팅 히스토리 ID 포함
+        # 응답에 채팅 히스토리 ID와 AI 메시지 ID 포함
         result['chat_history_id'] = chatbot_history.seq_id
+        if result.get('success') and 'ai_message' in locals():
+            result['session_msg_id'] = ai_message.seq_id
         
         return JsonResponse(result)
         
@@ -434,3 +436,130 @@ def serve_pdf(request, file_path):
     except Exception as e:
         logger.error(f"PDF 파일 서빙 오류: {e}")
         raise Http404("PDF 파일을 불러올 수 없습니다.")
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def save_pdf_references(request):
+    """PDF 참조 정보를 저장하는 API"""
+    try:
+        # 로그인한 사용자 확인
+        user_id = request.session.get('user_id')
+        if not user_id:
+            return JsonResponse({
+                'success': False,
+                'message': '로그인이 필요합니다.'
+            })
+        
+        data = json.loads(request.body)
+        session_msg_id = data.get('session_msg_id')
+        pdf_references = data.get('pdf_references', [])
+        
+        if not session_msg_id:
+            return JsonResponse({
+                'success': False,
+                'message': '세션 메시지 ID가 필요합니다.'
+            })
+        
+        # 세션 메시지 확인
+        try:
+            session_msg = UChatbotSession.objects.get(seq_id=session_msg_id)
+        except UChatbotSession.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': '세션 메시지를 찾을 수 없습니다.'
+            })
+        
+        # 기존 PDF 참조 정보 삭제
+        ChatbotPDFReference.objects.filter(session_msg=session_msg).delete()
+        
+        # 새로운 PDF 참조 정보 저장 (CURRENT_PDF만)
+        saved_references = []
+        for ref in pdf_references:
+            # CURRENT_PDF만 저장
+            if ref.get('item_type') == 'CURRENT_PDF':
+                pdf_ref = ChatbotPDFReference.objects.create(
+                    session_msg=session_msg,
+                    item_type=ref.get('item_type', 'CURRENT_PDF'),
+                    file_name=ref.get('file_name', ''),
+                    file_path=ref.get('file_path', ''),
+                    page_number=ref.get('page_number'),
+                    content=ref.get('content', ''),
+                    score=ref.get('score'),
+                    product_name=ref.get('product_name', ''),
+                    category=ref.get('category', '')
+                )
+                saved_references.append({
+                    'id': pdf_ref.seq_id,
+                    'item_type': pdf_ref.item_type,
+                    'file_name': pdf_ref.file_name,
+                    'file_path': pdf_ref.file_path,
+                    'page_number': pdf_ref.page_number,
+                    'content': pdf_ref.content,
+                    'score': pdf_ref.score,
+                    'product_name': pdf_ref.product_name,
+                    'category': pdf_ref.category
+                })
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'PDF 참조 정보가 저장되었습니다.',
+            'references': saved_references
+        })
+        
+    except Exception as e:
+        logger.error(f"PDF 참조 정보 저장 오류: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': f'PDF 참조 정보 저장 중 오류가 발생했습니다: {str(e)}'
+        })
+
+@require_http_methods(["GET"])
+def get_pdf_references(request, session_msg_id):
+    """특정 세션 메시지의 PDF 참조 정보를 조회하는 API"""
+    try:
+        # 로그인한 사용자 확인
+        user_id = request.session.get('user_id')
+        if not user_id:
+            return JsonResponse({
+                'success': False,
+                'message': '로그인이 필요합니다.'
+            })
+        
+        # 세션 메시지 확인
+        try:
+            session_msg = UChatbotSession.objects.get(seq_id=session_msg_id)
+        except UChatbotSession.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': '세션 메시지를 찾을 수 없습니다.'
+            })
+        
+        # PDF 참조 정보 조회
+        pdf_references = ChatbotPDFReference.objects.filter(session_msg=session_msg).order_by('-created_at')
+        
+        references = []
+        for ref in pdf_references:
+            references.append({
+                'id': ref.seq_id,
+                'item_type': ref.item_type,
+                'file_name': ref.file_name,
+                'file_path': ref.file_path,
+                'page_number': ref.page_number,
+                'content': ref.content,
+                'score': ref.score,
+                'product_name': ref.product_name,
+                'category': ref.category,
+                'created_at': ref.created_at.isoformat()
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'references': references
+        })
+        
+    except Exception as e:
+        logger.error(f"PDF 참조 정보 조회 오류: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': f'PDF 참조 정보 조회 중 오류가 발생했습니다: {str(e)}'
+        })

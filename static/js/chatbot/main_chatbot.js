@@ -15,18 +15,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // 현재 채팅 ID (멀티턴을 위해 필요) - 전역 변수로 설정
     let currentChatId = null;
     window.currentChatId = currentChatId;
-  
-    // 페이지 로드 시 입력창 포커스
-    focusInput();
     
-    // 초기 로드 시에는 show_questions_button 숨김
+    // 초기 로딩 상태 관리
+    let isInitialLoadComplete = false;
+  
+    // 초기 로드 시에는 모든 UI 요소 숨김 (데이터 로드 완료 후 표시)
     if (suggestedQuestionsButtonContainer) {
         suggestedQuestionsButtonContainer.style.display = 'none';
     }
+    if (inputContainer) {
+        inputContainer.style.display = 'none';
+    }
     
-    // 입력창에 포커스
+    // 초기 로딩 완료 후 입력창에 포커스
     setTimeout(() => {
-        focusInput();
+        if (isInitialLoadComplete) {
+            focusInput();
+        }
     }, 200);
 
     function focusInput() {
@@ -71,45 +76,34 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 자주 묻는 질문을 숨기는 함수 (대화창 밑에서 input 위로 이동)
     function hideSuggestedQuestions() {
-        console.log('hideSuggestedQuestions called');
-        console.log('suggestedQuestionsContainer:', suggestedQuestionsContainer);
-        console.log('suggestedQuestionsCardsContainer:', suggestedQuestionsCardsContainer);
         
         if (suggestedQuestionsContainer) {
             // 완전히 숨기기 위해 innerHTML을 비우고 display를 none으로 설정
             suggestedQuestionsContainer.innerHTML = '';
             suggestedQuestionsContainer.style.display = 'none';
             suggestedQuestionsContainer.style.visibility = 'hidden';
-            console.log('suggestedQuestionsContainer hidden');
         }
         // input 위의 카드들도 숨김
         if (suggestedQuestionsCardsContainer) {
             suggestedQuestionsCardsContainer.style.display = 'none';
             suggestedQuestionsCardsContainer.style.visibility = 'hidden';
-            console.log('suggestedQuestionsCardsContainer hidden');
         }
         // 질문을 한 후에는 show_questions_button 표시
         if (suggestedQuestionsButtonContainer) {
             suggestedQuestionsButtonContainer.style.display = 'flex';
             suggestedQuestionsButtonContainer.style.visibility = 'visible';
-            console.log('suggestedQuestionsButtonContainer shown');
         }
     }
     
     // 자주 묻는 질문을 표시하는 함수 (input 위에 표시)
     function showSuggestedQuestions() {
-        console.log('showSuggestedQuestions called');
-        console.log('suggestedQuestionsButtonContainer:', suggestedQuestionsButtonContainer);
-        console.log('suggestedQuestionsCardsContainer:', suggestedQuestionsCardsContainer);
         
         if (suggestedQuestionsButtonContainer) {
             suggestedQuestionsButtonContainer.style.display = 'none';
-            console.log('Button container hidden');
         }
         if (suggestedQuestionsCardsContainer) {
             suggestedQuestionsCardsContainer.style.display = 'block';
             suggestedQuestionsCardsContainer.style.visibility = 'visible';
-            console.log('Cards container shown');
         } else {
             console.error('suggestedQuestionsCardsContainer not found!');
         }
@@ -117,29 +111,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 자주 묻는 질문을 닫는 함수
     function closeSuggestedQuestions() {
-        console.log('closeSuggestedQuestions called');
         
         if (suggestedQuestionsCardsContainer) {
             suggestedQuestionsCardsContainer.style.display = 'none';
             suggestedQuestionsCardsContainer.style.visibility = 'hidden';
-            console.log('Cards container hidden');
         }
         if (suggestedQuestionsButtonContainer) {
             suggestedQuestionsButtonContainer.style.display = 'flex';
             suggestedQuestionsButtonContainer.style.visibility = 'visible';
-            console.log('Button container shown');
         }
     }
     
     // 사용법 안내를 표시하는 함수
     function showUsageGuide() {
-        console.log('showUsageGuide called');
         const usageGuideContainer = document.getElementById('usage_guide_container');
-        console.log('usage_guide_container found:', usageGuideContainer);
         
         if (usageGuideContainer) {
             usageGuideContainer.style.display = 'flex';
-            console.log('Usage guide container display set to flex');
         } else {
             console.error('usage_guide_container element not found!');
         }
@@ -148,22 +136,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (welcomeMessageContainer) {
             welcomeMessageContainer.style.display = 'none';
             welcomeMessageContainer.style.visibility = 'hidden';
-            console.log('Welcome message container hidden');
         }
         if (suggestedQuestionsContainer) {
             suggestedQuestionsContainer.style.display = 'none';
             suggestedQuestionsContainer.style.visibility = 'hidden';
-            console.log('Suggested questions container hidden');
         }
         if (suggestedQuestionsButtonContainer) {
             suggestedQuestionsButtonContainer.style.display = 'none';
             suggestedQuestionsButtonContainer.style.visibility = 'hidden';
-            console.log('Suggested questions button container hidden');
         }
         if (suggestedQuestionsCardsContainer) {
             suggestedQuestionsCardsContainer.style.display = 'none';
             suggestedQuestionsCardsContainer.style.visibility = 'hidden';
-            console.log('Suggested questions cards container hidden');
         }
     }
     
@@ -174,19 +158,13 @@ document.addEventListener('DOMContentLoaded', function() {
             usageGuideContainer.style.display = 'none';
         }
         
-        // 웰컴 메시지와 자주 묻는 질문 다시 표시
+        // 웰컴 메시지만 표시 (자주 묻는 질문은 별도로 처리)
         if (welcomeMessageContainer) {
             welcomeMessageContainer.style.display = 'block';
             welcomeMessageContainer.style.visibility = 'visible';
         }
-        if (suggestedQuestionsContainer) {
-            suggestedQuestionsContainer.style.display = 'flex';
-            suggestedQuestionsContainer.style.visibility = 'visible';
-        }
-        if (suggestedQuestionsButtonContainer) {
-            suggestedQuestionsButtonContainer.style.display = 'flex';
-            suggestedQuestionsButtonContainer.style.visibility = 'visible';
-        }
+        // suggested_questions_container는 hideUsageGuide에서 처리하지 않음
+        // (addUserMessage에서 이미 hideSuggestedQuestions로 처리됨)
         if (suggestedQuestionsCardsContainer) {
             suggestedQuestionsCardsContainer.style.display = 'none';
             suggestedQuestionsCardsContainer.style.visibility = 'hidden';
@@ -195,7 +173,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 빈 상태 표시 함수 (히스토리가 없을 때)
     function showEmptyState() {
-        console.log('Showing empty state');
         
         // 기존 메시지들 제거
         userMessagesContainer.innerHTML = '';
@@ -203,6 +180,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 사용법 안내 표시
         showUsageGuide();
+        
+        // input_container 숨기기
+        if (inputContainer) {
+            inputContainer.style.display = 'none';
+        }
         
         // currentChatId 초기화
         currentChatId = null;
@@ -225,12 +207,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // 스크롤을 맨 위로
         const chatMessagesArea = document.querySelector('.chat_messages_area');
         chatMessagesArea.scrollTop = 0;
+        
+        // 초기 로딩 완료 표시
+        isInitialLoadComplete = true;
     }
     
     // AI 응답을 추가하는 함수
     function addAIResponse(message) {
-        console.log('Adding AI response:', message);
-        console.log('userMessagesContainer:', userMessagesContainer);
         
         // 다양한 줄바꿈 문자를 HTML <br> 태그로 변환
         let formattedMessage = message
@@ -258,7 +241,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // AI 메시지를 컨테이너에 추가
         if (userMessagesContainer) {
             userMessagesContainer.appendChild(messageElement);
-            console.log('AI response added successfully');
         } else {
             console.error('userMessagesContainer not found');
         }
@@ -266,11 +248,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // 스크롤을 맨 아래로
         const chatMessagesArea = document.querySelector('.chat_messages_area');
         chatMessagesArea.scrollTop = chatMessagesArea.scrollHeight;
+        
+        // 메시지 ID 반환
+        return messageId;
     }
     
     // 히스토리에서 사용자 메시지를 추가하는 함수 (AI 재응답 방지)
     function addUserMessageForHistory(message) {
-        console.log('Adding user message for history:', message);
         
         // 고유한 메시지 ID 생성
         const userMessageId = `user_message_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -291,7 +275,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // 사용자 메시지를 컨테이너에 추가
         if (userMessagesContainer) {
             userMessagesContainer.appendChild(messageElement);
-            console.log('User message for history added successfully');
         } else {
             console.error('userMessagesContainer not found');
         }
@@ -299,7 +282,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 히스토리에서 AI 응답을 추가하는 함수 (AI 재응답 방지)
     function addAIResponseForHistory(message) {
-        console.log('Adding AI response for history:', message);
         
         // 다양한 줄바꿈 문자를 HTML <br> 태그로 변환
         let formattedMessage = message
@@ -327,7 +309,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // AI 메시지를 컨테이너에 추가
         if (userMessagesContainer) {
             userMessagesContainer.appendChild(messageElement);
-            console.log('AI response for history added successfully');
         } else {
             console.error('userMessagesContainer not found');
         }
@@ -375,10 +356,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // PDF 참조 정보를 업데이트하는 함수
     function updatePDFReference(sources, productName, category = '', messageId = null) {
-        console.log('updatePDFReference 호출됨:', { sources, productName, category });
         
         if (!sources || sources.length === 0) {
-            console.log('PDF 소스 정보가 없습니다.');
             return;
         }
         
@@ -405,12 +384,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const currentQuestion = getCurrentQuestion();
             if (currentQuestion) {
                 const questionKeywords = extractKeywordsFromQuestion(currentQuestion);
-                console.log('추출된 질문 키워드:', questionKeywords);
                 
                 // 카테고리 기반 우선 필터링
                 if (category) {
                     const categoryKeywords = getCategoryKeywords(category);
-                    console.log('카테고리 키워드:', categoryKeywords);
                     
                     // 카테고리와 관련된 PDF 우선 선택
                     const categoryFiltered = sources.filter(source => {
@@ -431,7 +408,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     if (categoryFiltered.length > 0) {
                         filteredSources = categoryFiltered;
-                        console.log('카테고리 기반 필터링 결과:', categoryFiltered.length, '개');
                     }
                 }
                 
@@ -451,14 +427,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 키워드 필터링 결과가 있으면 사용
                     if (keywordFiltered.length > 0) {
                         filteredSources = keywordFiltered;
-                        console.log('키워드 기반 필터링 결과:', keywordFiltered.length, '개');
                     }
                 }
                 
                 // 필터링된 결과가 없으면 원본 사용
                 if (filteredSources.length === 0) {
                     filteredSources = sources;
-                    console.log('필터링 결과 없음, 원본 사용');
                 }
             }
         }
@@ -471,9 +445,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // 상품명 정리 (특수문자 제거, 화살표 제거)
             const cleanProductName = productName.replace(/[-→]/g, '').trim();
             const productKeywords = cleanProductName.toLowerCase().split(/[\s,]+/).filter(keyword => keyword.length > 1);
-            console.log('정리된 상품명:', cleanProductName);
-            console.log('상품명 키워드:', productKeywords);
-            console.log('전체 소스 목록:', filteredSources.map(s => s.file_name || s.filename || s.source || s.relative_path));
             
             // 상품명 키워드와 파일명의 유사도 점수 계산
             const scoredSources = filteredSources.map(source => {
@@ -509,15 +480,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // 점수 순으로 정렬
             scoredSources.sort((a, b) => b.score - a.score);
-            console.log('점수별 소스 순위:', scoredSources.map(s => ({ 
-                fileName: s.source.file_name, 
-                score: s.score 
-            })));
-            
             // 가장 높은 점수의 소스 선택 (점수가 0보다 큰 경우만)
             if (scoredSources[0] && scoredSources[0].score > 0) {
                 topSource = scoredSources[0].source;
-                console.log('상품명 기반 소스 선택:', topSource, '점수:', scoredSources[0].score);
             }
         }
         
@@ -525,11 +490,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!topSource) {
             const currentResponse = getCurrentAIResponse();
             if (currentResponse) {
-                console.log('AI 응답 기반 매칭 시도:', currentResponse.substring(0, 100) + '...');
                 
                 // AI 응답에서 상품명이나 키워드 추출
                 const responseKeywords = extractKeywordsFromResponse(currentResponse);
-                console.log('응답에서 추출된 키워드:', responseKeywords);
                 
                 if (responseKeywords.length > 0) {
                     const scoredSources = filteredSources.map(source => {
@@ -554,7 +517,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 가장 높은 점수의 소스 선택
                     if (scoredSources[0] && scoredSources[0].score > 0) {
                         topSource = scoredSources[0].source;
-                        console.log('응답 기반 소스 선택:', topSource, '점수:', scoredSources[0].score);
                     }
                 }
             }
@@ -562,7 +524,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 3. 모든 매칭이 실패한 경우 관련성 기반 선택
         if (!topSource) {
-            console.log('매칭 실패 - 관련성 기반 선택 시도');
             
             // 상품 관련 키워드로 재시도
             const productRelatedKeywords = ['대출', '예금', '카드', '펀드', '보험', '상품', '개인', '기업'];
@@ -589,28 +550,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // 점수 순으로 정렬
             scoredSources.sort((a, b) => b.score - a.score);
-            console.log('관련성 기반 점수:', scoredSources.map(s => ({ 
-                fileName: s.source.file_name, 
-                score: s.score 
-            })));
-            
             // 가장 높은 점수의 소스 선택
             if (scoredSources[0] && scoredSources[0].score > 0) {
                 topSource = scoredSources[0].source;
-                console.log('관련성 기반 소스 선택:', topSource, '점수:', scoredSources[0].score);
             } else {
                 // 최후의 수단: 첫 번째 소스 사용
                 topSource = filteredSources[0];
-                console.log('첫 번째 소스 선택 (최후 수단):', topSource);
             }
         }
-        
-        console.log('최종 선택된 PDF:', {
-            fileName: topSource.file_name || topSource.filename || topSource.source || topSource.relative_path,
-            category: topSource.document_category || topSource.main_category,
-            subCategory: topSource.sub_category,
-            filePath: topSource.file_path
-        });
         
         // PDF 파일명 추출 (예: "KB국민은행 대출상품 가이드.pdf")
         let pdfFileName = 'PDF 문서';
@@ -655,12 +602,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        console.log('추출된 정보:', { pdfFileName, pageNumber, content });
         
         // current_pdfs_list에 새로운 PDF 아이템 추가
         const currentPdfsList = document.querySelector('.current_pdfs_list');
         
         if (currentPdfsList) {
+            // 기존 current_pdf_item은 제거하지 않고 새로운 것만 추가
+            
             // 새로운 PDF 아이템 생성
             const newPdfItem = document.createElement('div');
             newPdfItem.className = 'current_pdf_item';
@@ -700,20 +648,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 updatePdfCount();
             });
             
-            // 리스트의 맨 위에 추가
-            currentPdfsList.insertBefore(newPdfItem, currentPdfsList.firstChild);
+            // 리스트의 맨 아래에 추가 (오래된 순으로 정렬)
+            currentPdfsList.appendChild(newPdfItem);
             
             // PDF 개수 업데이트
             updatePdfCount();
         }
         
-        // pdf_reference_list에 새로운 참조 아이템 추가
+        // pdf_reference_list에 새로운 참조 아이템 추가 (CURRENT_PDF와 동일한 내용)
         const pdfReferenceList = document.querySelector('.pdf_reference_list');
         
         if (pdfReferenceList) {
-            // 기존 active 클래스 제거
-            const existingActiveReferences = pdfReferenceList.querySelectorAll('.reference_item.active');
-            existingActiveReferences.forEach(item => item.classList.remove('active'));
+            // 기존 reference_item은 제거하지 않고 새로운 것만 추가
             
             // 새로운 참조 아이템 생성
             const newReferenceItem = document.createElement('div');
@@ -748,10 +694,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // 마우스 오버 시 커서 변경
                 newReferenceItem.style.cursor = 'pointer';
+            } else {
+                console.warn('No messageId provided for reference item');
             }
             
-            // 리스트의 맨 위에 추가
-            pdfReferenceList.insertBefore(newReferenceItem, pdfReferenceList.firstChild);
+            // 리스트의 맨 아래에 추가 (오래된 순으로 정렬)
+            pdfReferenceList.appendChild(newReferenceItem);
         }
         
     }
@@ -793,6 +741,8 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('스크롤 완료:', messageId);
         } else {
             console.log('메시지를 찾을 수 없습니다:', messageId);
+            // 다른 채팅의 메시지를 클릭한 경우 알림
+            alert('해당 메시지는 현재 채팅에 없습니다. 올바른 채팅을 선택해주세요.');
         }
     }
     
@@ -974,9 +924,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 사용자 메시지를 추가하고 AI 응답을 처리하는 함수
-    async function addUserMessage(message) {
-        console.log('Adding user message:', message);
-        console.log('userMessagesContainer:', userMessagesContainer);
+    async function addUserMessage(message, source = 'input') {
+        console.log('Adding user message:', message, 'from source:', source);
         
         // 고유한 메시지 ID 생성
         const userMessageId = `user_message_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -1002,9 +951,30 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('userMessagesContainer not found');
         }
         
-        // 자주 묻는 질문 섹션을 숨김
-        console.log('Hiding suggested questions after user message');
-        hideSuggestedQuestions();
+        // 자주 묻는 질문 섹션을 숨김 (소스에 따라 다르게 처리)
+        console.log('Hiding suggested questions after user message from source:', source);
+        if (source === 'suggested_questions_container') {
+            // suggested_questions_container에서 온 경우에만 hideSuggestedQuestions 호출
+            hideSuggestedQuestions();
+        } else if (source === 'suggested_questions_grid') {
+            // suggested_questions_grid에서 온 경우에는 closeSuggestedQuestions만 호출
+            closeSuggestedQuestions();
+        } else {
+            // input에서 온 경우에는 hideSuggestedQuestions 호출
+            hideSuggestedQuestions();
+        }
+        
+        // 숨김 처리 후 상태 확인
+        setTimeout(() => {
+            if (suggestedQuestionsContainer) {
+                const isVisible = suggestedQuestionsContainer.style.display !== 'none' && 
+                                 suggestedQuestionsContainer.style.visibility !== 'hidden';
+                console.log('suggested_questions_container visibility after hide:', isVisible);
+                if (isVisible) {
+                    console.warn('suggested_questions_container is still visible after hideSuggestedQuestions!');
+                }
+            }
+        }, 100);
         
         // 사용법 안내 숨김
         hideUsageGuide();
@@ -1075,6 +1045,34 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 가장 높은 점수의 PDF 정보 추출 및 HTML 업데이트
                     // AI 메시지 ID를 전달하여 PDF 참조와 연결
                     updatePDFReference(aiResult.sources, aiResult.product_name, aiResult.category, aiMessageId);
+                    
+                    // PDF 참조 정보를 서버에 저장 (current_pdf_item과 reference_item)
+                    const pdfReferences = [];
+                    
+                    // PDF 참조 정보 저장 (CURRENT_PDF만 저장)
+                    if (aiResult.sources && aiResult.sources.length > 0) {
+                        const topSource = aiResult.sources[0];
+                        
+                        // current_pdf_item 정보만 저장 (가장 높은 점수의 PDF)
+                        pdfReferences.push({
+                            item_type: 'CURRENT_PDF',
+                            file_name: topSource.file_name || '',
+                            file_path: topSource.file_path || '',
+                            page_number: topSource.page_number || null,
+                            content: topSource.content || '',
+                            score: topSource.score || null,
+                            product_name: aiResult.product_name || '',
+                            category: aiResult.category || ''
+                        });
+                    }
+                    
+                    // 세션 메시지 ID를 찾아서 저장
+                    const sessionMsgId = aiResult.session_msg_id;
+                    if (sessionMsgId) {
+                        savePDFReferences(sessionMsgId, pdfReferences);
+                    } else {
+                        console.error('No session_msg_id found in AI result:', aiResult);
+                    }
                 }
             } else {
                 addAIResponse(aiResult.response);
@@ -1083,6 +1081,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // AI 응답 처리 완료 후 입력창에 포커스
             setTimeout(() => {
                 focusInput();
+                
+                // AI 응답 처리 후 suggested_questions_container 상태 확인
+                if (suggestedQuestionsContainer) {
+                    const isVisible = suggestedQuestionsContainer.style.display !== 'none' && 
+                                     suggestedQuestionsContainer.style.visibility !== 'hidden';
+                    console.log('suggested_questions_container visibility after AI response:', isVisible);
+                    if (isVisible) {
+                        console.warn('suggested_questions_container became visible after AI response!');
+                        // 강제로 숨기기
+                        hideSuggestedQuestions();
+                    }
+                }
             }, 100);
         }, 500);
     }
@@ -1097,7 +1107,196 @@ document.addEventListener('DOMContentLoaded', function() {
             const pdfItems = currentPdfsList.querySelectorAll('.current_pdf_item');
             const count = pdfItems.length;
             pdfCountElement.textContent = `${count}개`;
-            console.log('PDF 개수 업데이트:', count);
+        }
+    }
+    
+    // PDF 제거 함수 (전역 함수로 정의)
+    window.removeCurrentPdf = function(button) {
+        const pdfItem = button.closest('.current_pdf_item');
+        if (pdfItem) {
+            pdfItem.remove();
+            updatePdfCount();
+        }
+    };
+    
+    // 모든 PDF 참조 정보를 초기화하는 함수
+    function clearAllPDFReferences() {
+        // current_pdf_item 모두 제거
+        const currentPdfsList = document.querySelector('.current_pdfs_list');
+        if (currentPdfsList) {
+            const existingItems = currentPdfsList.querySelectorAll('.current_pdf_item');
+            existingItems.forEach(item => item.remove());
+        }
+        
+        // reference_item 모두 제거
+        const pdfReferenceList = document.querySelector('.pdf_reference_list');
+        if (pdfReferenceList) {
+            const existingReferences = pdfReferenceList.querySelectorAll('.reference_item');
+            existingReferences.forEach(item => item.remove());
+        }
+        
+        // PDF 개수 업데이트
+        updatePdfCount();
+        
+    }
+    
+    // PDF 참조 정보를 서버에 저장하는 함수
+    async function savePDFReferences(sessionMsgId, pdfReferences) {
+        try {
+            const response = await fetch('/kb_finaIssist/chatbot/api/pdf-references/save/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({
+                    session_msg_id: sessionMsgId,
+                    pdf_references: pdfReferences
+                })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                return data.references;
+            } else {
+                console.error('PDF 참조 정보 저장 실패:', data.message);
+                return null;
+            }
+        } catch (error) {
+            console.error('PDF 참조 정보 저장 오류:', error);
+            return null;
+        }
+    }
+    
+    // 특정 세션 메시지의 PDF 참조 정보를 불러오는 함수
+    async function loadPDFReferences(sessionMsgId) {
+        try {
+            const response = await fetch(`/kb_finaIssist/chatbot/api/pdf-references/${sessionMsgId}/`);
+            const data = await response.json();
+            
+            if (data.success) {
+                return data.references;
+            } else {
+                console.error('PDF 참조 정보 로드 실패:', data.message);
+                return [];
+            }
+        } catch (error) {
+            console.error('PDF 참조 정보 로드 오류:', error);
+            return [];
+        }
+    }
+    
+    // 저장된 PDF 참조 정보를 UI에 표시하는 함수
+    function displayPDFReferences(pdfReferences, messageId, isHistoryLoad = false) {
+        
+        // current_pdf_item만 필터링하고 오래된 순으로 정렬
+        const currentPdfItems = pdfReferences.filter(ref => ref.item_type === 'CURRENT_PDF')
+            .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        
+        // current_pdf_item 표시 (참조 중인 문서)
+        if (currentPdfItems.length > 0) {
+            const currentPdfsList = document.querySelector('.current_pdfs_list');
+            if (currentPdfsList) {
+                // 히스토리 로드일 때만 기존 current_pdf_item 제거
+                if (isHistoryLoad) {
+                    const existingItems = currentPdfsList.querySelectorAll('.current_pdf_item');
+                    existingItems.forEach(item => item.remove());
+                }
+                
+                // 모든 current_pdf_item 추가
+                currentPdfItems.forEach(item => {
+                    const newPdfItem = document.createElement('div');
+                    newPdfItem.className = 'current_pdf_item';
+                    newPdfItem.setAttribute('data-pdf-id', `pdf_${item.id}`);
+                    newPdfItem.setAttribute('data-file-path', item.file_path || '');
+                    
+                    newPdfItem.innerHTML = `
+                        <div class="pdf_thumbnail">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                        </div>
+                        <div class="pdf_info">
+                            <div class="pdf_name">${item.file_name}</div>
+                            <div class="pdf_pages">${item.page_number ? `페이지 ${item.page_number}` : '페이지 정보 없음'}</div>
+                        </div>
+                        <div class="pdf_actions">
+                            <div class="action_icon">
+                                <i class="bi bi-x"></i>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // PDF 아이템 클릭 이벤트 추가
+                    newPdfItem.addEventListener('click', function(e) {
+                        // X 버튼 클릭이 아닌 경우에만 PDF 팝업 열기
+                        if (!e.target.closest('.pdf_actions')) {
+                            const filePath = this.getAttribute('data-file-path');
+                            if (filePath) {
+                                openPdfPopup(filePath, item.file_name);
+                            }
+                        }
+                    });
+                    
+                    // X 버튼 클릭 이벤트 추가
+                    const closeButton = newPdfItem.querySelector('.action_icon');
+                    closeButton.addEventListener('click', function(e) {
+                        e.stopPropagation(); // 부모 클릭 이벤트 방지
+                        newPdfItem.remove();
+                        updatePdfCount();
+                    });
+                    
+                    // 리스트에 추가 (오래된 순으로 정렬)
+                    currentPdfsList.appendChild(newPdfItem);
+                });
+                
+                // PDF 개수 업데이트
+                updatePdfCount();
+            }
+        }
+        
+        // reference_item 표시 (참조된 페이지) - CURRENT_PDF를 참조된 페이지에도 표시
+        if (currentPdfItems.length > 0) {
+            const pdfReferenceList = document.querySelector('.pdf_reference_list');
+            if (pdfReferenceList) {
+                // 히스토리 로드일 때만 기존 reference_item 제거
+                if (isHistoryLoad) {
+                    const existingReferences = pdfReferenceList.querySelectorAll('.reference_item');
+                    existingReferences.forEach(item => item.remove());
+                }
+                
+                // 모든 current_pdf_item을 reference_item으로도 표시
+                currentPdfItems.forEach((item, index) => {
+                    const newReferenceItem = document.createElement('div');
+                    newReferenceItem.className = index === 0 ? 'reference_item active' : 'reference_item';
+                    newReferenceItem.setAttribute('data-message-id', item.messageId || messageId);
+                    
+                    newReferenceItem.innerHTML = `
+                        <div class="reference_content">
+                            <div class="reference_content_header">
+                                <span class="reference_source">
+                                    <span class="title_line_container"><div class="title_line"></div></span>
+                                    <span class="pdf_file_name">${item.file_name}</span>
+                                    <span class="pdf_page_number">${item.page_number ? `p. ${item.page_number}` : 'p. ?'}</span>
+                                </span>
+                            </div>
+                            <div class="reference_content_body">
+                                <div class="reference_preview">${item.content ? (item.content.length > 100 ? item.content.substring(0, 100) + '...' : item.content) : '관련 문서에서 검색된 내용입니다.'}</div>
+                                <div class="reference_time">방금 전</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 클릭 이벤트 추가 - 해당 메시지로 스크롤
+                    newReferenceItem.addEventListener('click', function() {
+                        scrollToMessage(item.messageId || messageId);
+                    });
+                    
+                    // 마우스 오버 시 커서 변경
+                    newReferenceItem.style.cursor = 'pointer';
+                    
+                    // 리스트에 추가 (오래된 순으로 정렬)
+                    pdfReferenceList.appendChild(newReferenceItem);
+                });
+            }
         }
     }
     
@@ -1116,20 +1315,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // 자주 묻는 질문 카드 클릭 이벤트 (대화창 밑의 카드들)
-    const suggestedQuestionCards = suggestedQuestionsContainer ? suggestedQuestionsContainer.querySelectorAll('.suggested_question_card') : [];
-    suggestedQuestionCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const question = this.getAttribute('data-question');
-            if (question) {
-                addUserMessage(question);
-            } else {
-                // data-question이 없으면 기존 방식 사용
-                const questionTitle = this.querySelector('.question_title').textContent;
-                addUserMessage(questionTitle);
-            }
+    // 자주 묻는 질문 카드 클릭 이벤트 설정 함수
+    function setupSuggestedQuestionCards() {
+        const suggestedQuestionCards = suggestedQuestionsContainer ? suggestedQuestionsContainer.querySelectorAll('.suggested_question_card') : [];
+        suggestedQuestionCards.forEach(card => {
+            // 기존 이벤트 리스너 제거 (중복 방지)
+            card.removeEventListener('click', handleSuggestedQuestionClick);
+            // 새 이벤트 리스너 추가
+            card.addEventListener('click', handleSuggestedQuestionClick);
         });
-    });
+    }
+    
+    // 자주 묻는 질문 카드 클릭 핸들러
+    function handleSuggestedQuestionClick() {
+        const question = this.getAttribute('data-question');
+        if (question) {
+            addUserMessage(question, 'suggested_questions_container');
+        } else {
+            // data-question이 없으면 기존 방식 사용
+            const questionTitle = this.querySelector('.question_title').textContent;
+            addUserMessage(questionTitle, 'suggested_questions_container');
+        }
+    }
+    
+    // 초기 설정
+    setupSuggestedQuestionCards();
     
     // 자주 묻는 질문 카드 클릭 이벤트 (input 위의 카드들)
     const suggestedQuestionCardsBottom = suggestedQuestionsCardsContainer ? suggestedQuestionsCardsContainer.querySelectorAll('.suggested_question_card') : [];
@@ -1137,11 +1347,11 @@ document.addEventListener('DOMContentLoaded', function() {
         card.addEventListener('click', function() {
             const question = this.getAttribute('data-question');
             if (question) {
-                addUserMessage(question);
+                addUserMessage(question, 'suggested_questions_grid');
             } else {
                 // data-question이 없으면 기존 방식 사용
                 const questionTitle = this.querySelector('.question_title').textContent;
-                addUserMessage(questionTitle);
+                addUserMessage(questionTitle, 'suggested_questions_grid');
             }
             // 카드 클릭 후 input 위의 카드들을 숨김
             closeSuggestedQuestions();
@@ -1191,21 +1401,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const { action, data } = event.detail;
         
         if (action === 'empty_state') {
-            console.log('빈 상태 표시:', data);
             showEmptyState();
         }
         if (action === 'new_chat') {
-            console.log('새 채팅 시작:', data);
             // 새 채팅 ID로 currentChatId 업데이트
             if (data && data.id) {
                 currentChatId = data.id;
                 window.currentChatId = data.id;
-                console.log('Updated currentChatId from new_chat event:', currentChatId);
             }
             startNewChat();
         } else if (action === 'load_chat') {
-            console.log('채팅 로드:', data);
-            loadChat(data);
+            loadChat(data).catch(error => {
+                console.error('채팅 로드 오류:', error);
+            });
         }
     });
     
@@ -1217,21 +1425,17 @@ document.addEventListener('DOMContentLoaded', function() {
     async function startNewChat() {
         // 이미 새 채팅을 시작 중이면 중복 실행 방지
         if (isStartingNewChat) {
-            console.log('New chat is already being started, skipping duplicate call');
             return;
         }
         
         isStartingNewChat = true;
-        console.log('Starting new chat...');
         
         try {
             // ChatHistoryColumn에서 새 채팅 생성 (최종 ID로)
             if (window.chatHistoryColumn && typeof window.chatHistoryColumn.createNewChat === 'function') {
                 const newChatId = await window.chatHistoryColumn.createNewChat();
                 if (newChatId) {
-                    console.log('New chat session started with final ID:', newChatId);
                 } else {
-                    console.log('New chat already exists or creation skipped - continuing');
                     // 새 채팅이 이미 있거나 생성이 건너뛰어진 경우
                 }
             } else {
@@ -1242,6 +1446,9 @@ document.addEventListener('DOMContentLoaded', function() {
             isStartingNewChat = false;
         }
         
+        // PDF 참조 정보 초기화
+        clearAllPDFReferences();
+        
         // 기존 메시지들 제거
         userMessagesContainer.innerHTML = '';
         welcomeMessageContainer.innerHTML = '';
@@ -1249,12 +1456,22 @@ document.addEventListener('DOMContentLoaded', function() {
         // 사용법 안내 숨기기
         hideUsageGuide();
         
+        // input_container 보이기
+        if (inputContainer) {
+            inputContainer.style.display = 'flex';
+        }
+        
         // 환영 메시지 표시 (새 채팅 시작 시에만)
         showWelcomeMessage();
         
         // 자주 묻는 질문 섹션 표시 (새 채팅 시작 시에만)
         if (suggestedQuestionsContainer) {
+            // 내용 복원
+            suggestedQuestionsContainer.innerHTML = originalSuggestedQuestionsContent;
             suggestedQuestionsContainer.style.display = 'flex';
+            suggestedQuestionsContainer.style.visibility = 'visible';
+            // 이벤트 리스너 다시 설정
+            setupSuggestedQuestionCards();
         }
         if (suggestedQuestionsButtonContainer) {
             suggestedQuestionsButtonContainer.style.display = 'none';  // 새 채팅에서는 버튼 숨김
@@ -1277,6 +1494,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // PDF 개수 초기화
         updatePdfCount();
         
+        // 초기 로딩 완료 표시
+        isInitialLoadComplete = true;
+        
         // 새 채팅 시작 후 입력창에 포커스
         setTimeout(() => {
             focusInput();
@@ -1291,8 +1511,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 기존 채팅을 로드하는 함수
-    function loadChat(chatData) {
-        console.log('Loading chat:', chatData);
+    async function loadChat(chatData) {
         
         // chatData 구조 확인 및 정규화
         let chat, messages;
@@ -1313,7 +1532,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // 현재 채팅 ID 업데이트
         currentChatId = chat.id;
         window.currentChatId = chat.id;
-        console.log('Updated currentChatId to:', currentChatId);
         
         // 기존 메시지들 제거
         userMessagesContainer.innerHTML = '';
@@ -1322,21 +1540,68 @@ document.addEventListener('DOMContentLoaded', function() {
         // 사용법 안내 숨김 (기존 채팅 로드 시)
         hideUsageGuide();
         
+        // input_container 보이기
+        if (inputContainer) {
+            inputContainer.style.display = 'flex';
+        }
+        
         // 기존 채팅 로드 시에도 웰컴 메시지 표시
         showWelcomeMessage();
         
+        // 채팅 변경 시 PDF 참조 정보 초기화
+        clearAllPDFReferences();
+        
         // 메시지가 있는 경우 로드
         if (messages && messages.length > 0) {
-            console.log('Loading messages:', messages);
-            messages.forEach((message, index) => {
-                console.log(`Loading message ${index}:`, message);
+            // 메시지들을 순차적으로 로드하고 모든 AI 메시지의 PDF 참조 정보를 수집
+            const allPDFReferences = [];
+            let lastAIMessageId = null;
+            
+            for (let index = 0; index < messages.length; index++) {
+                const message = messages[index];
+                
                 if (message.from === 'USER' || message.role === 'user') {
                     addUserMessageForHistory(message.content);
                 } else if (message.from === 'AI' || message.role === 'assistant') {
-                    addAIResponseForHistory(message.content);
+                    const aiMessageId = addAIResponseForHistory(message.content);
+                    lastAIMessageId = aiMessageId;
+                    
+                    // 각 AI 메시지의 PDF 참조 정보 로드
+                    const pdfReferences = await loadPDFReferences(message.id);
+                    if (pdfReferences && pdfReferences.length > 0) {
+                        // 각 PDF 참조에 메시지 ID 추가
+                        pdfReferences.forEach(ref => {
+                            ref.messageId = aiMessageId;
+                        });
+                        allPDFReferences.push(...pdfReferences);
+                    } else {
+                    }
                 }
-            });
-            console.log('All messages loaded successfully');
+            }
+            
+            // 모든 PDF 참조 정보를 UI에 표시 (CURRENT_PDF만)
+            if (allPDFReferences.length > 0) {
+                
+                // CURRENT_PDF만 필터링
+                const currentPdfReferences = allPDFReferences.filter(ref => ref.item_type === 'CURRENT_PDF');
+                
+                // 중복 제거 (같은 파일명, 페이지 번호)
+                const uniquePDFReferences = [];
+                const seen = new Set();
+                
+                currentPdfReferences.forEach(ref => {
+                    const key = `${ref.file_name}_${ref.page_number}`;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        uniquePDFReferences.push(ref);
+                    }
+                });
+                
+                // 모든 고유한 PDF 참조 정보를 표시 (히스토리 로드)
+                if (uniquePDFReferences.length > 0) {
+                    displayPDFReferences(uniquePDFReferences, lastAIMessageId, true);
+                }
+            }
             
             // 기존 채팅 로드 시 UI 요소들 숨김/표시
             if (suggestedQuestionsContainer) {
@@ -1354,7 +1619,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // 빈 채팅인 경우 자주 묻는 질문 표시
             if (suggestedQuestionsContainer) {
+                // 내용 복원
+                suggestedQuestionsContainer.innerHTML = originalSuggestedQuestionsContent;
                 suggestedQuestionsContainer.style.display = 'flex';
+                suggestedQuestionsContainer.style.visibility = 'visible';
+                // 이벤트 리스너 다시 설정
+                setupSuggestedQuestionCards();
             }
             if (suggestedQuestionsButtonContainer) {
                 suggestedQuestionsButtonContainer.style.display = 'none';
@@ -1363,6 +1633,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 suggestedQuestionsCardsContainer.style.display = 'none';
             }
         }
+        
+        // 초기 로딩 완료 표시
+        isInitialLoadComplete = true;
         
         // PDF 개수 업데이트 (함수가 없으므로 주석 처리)
         // updatePDFCount(0);
@@ -1388,7 +1661,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'DELETE'
             });
             const data = await response.json();
-            console.log('세션 삭제 결과:', data);
             return data;
         } catch (error) {
             console.error('세션 삭제 오류:', error);
