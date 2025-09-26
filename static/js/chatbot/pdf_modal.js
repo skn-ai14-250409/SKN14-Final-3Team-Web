@@ -28,7 +28,7 @@ function openPdfPopup(filePath, pdfTitle) {
     
     // PDF URL 생성 (URL 인코딩)
     const encodedPath = encodeURIComponent(filePath);
-    const pdfUrl = `/kb_finaIssist/chatbot/pdf/${encodedPath}`;
+    const pdfUrl = `/kb_bank/chatbot/pdf/${encodedPath}`;
     
     // iframe에 PDF 로드
     modalViewer.src = pdfUrl;

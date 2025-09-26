@@ -1,5 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
-def common(request) : 
+def common(request):
+    """공통 페이지"""
     return render(request, 'common/common.html')

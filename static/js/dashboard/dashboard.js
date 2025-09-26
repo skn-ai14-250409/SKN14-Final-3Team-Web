@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatbotContainer = document.querySelector('.chatbot_container');
     if (chatbotContainer) {
         chatbotContainer.addEventListener('click', function() {
-            window.location.href = '/kb_finaIssist/chatbot/';
+            window.location.href = '/kb_bank/chatbot/';
         });
     }
 
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const creditAssessmentContainer = document.querySelector('.credit_assessment_container');
     if (creditAssessmentContainer) {
         creditAssessmentContainer.addEventListener('click', function() {
-            window.location.href = '/kb_finaIssist/credit_assessment/';
+            window.location.href = '/kb_bank/credit_assessment/';
         });
     }
 });
@@ -21,6 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // 로그아웃 함수
 function logout() {
     if (confirm('로그아웃 하시겠습니까?')) {
-        window.location.href = '/kb_finaIssist/logout/';
+        window.location.href = '/kb_bank/logout/';
     }
 }

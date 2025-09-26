@@ -9,9 +9,9 @@ def admin_view(request):
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", RedirectView.as_view(url="/kb_finaIssist/login/"), name="main"),
-    path("kb_finaIssist/", include([
-        path("login/", include("f_login.urls")),
+    path("", RedirectView.as_view(url="/kb_bank/login/"), name="main"),
+    path("kb_bank/", include([
+        path("login/", include("f_login.urls", namespace="login")),
         path("logout/", logout_view, name="logout"),
         path("dashboard/", dashboard_view, name="dashboard"),
         path("chatbot/", include("f_chatbot.urls")),
