@@ -419,9 +419,14 @@ document.addEventListener('DOMContentLoaded', function () {
     function getLoanData() {
         const amountRaw = document.getElementById('loan_amount').value.replace(/[^0-9]/g, '');
         const period = document.getElementById('loan_period').value;
+        const loanProductSelect = document.getElementById('loan_product');
+        const selectedOption = loanProductSelect.options[loanProductSelect.selectedIndex];
+        const interestRate = selectedOption ? selectedOption.dataset.interestRate : '5.0'; // 기본값 5.0
+
         return {
-        amount: parseInt(amountRaw, 10) || 0,
-        period: parseInt(period, 10) || 12,
+            amount: parseInt(amountRaw, 10) || 0,
+            period: parseInt(period, 10) || 12,
+            interest_rate: parseFloat(interestRate) || 5.0,
         };
     }
 
@@ -550,7 +555,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const chartContainer = document.getElementById('risk_analysis_chart_container');
         if (chartContainer && window.Plotly) {
         const cfg = safeJSONParse(chartData);
-        Plotly.newPlot(chartContainer, cfg.data, cfg.layout, {
+    Plotly.newPlot(chartContainer, cfg, {}, {
             responsive: true,
             displayModeBar: false,
         });
