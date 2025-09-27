@@ -145,10 +145,20 @@
                         gap: ptr(20px);
 
                         .credit_score_graph_container{
-                            display: flex;
+                            display: block;
+                            flex-direction: column;
                             justify-content: center;
                             align-items: center;
+                            gap: ptr(8px);  
                             width: ptr(280px);
+
+                            #credit_score_chart_container {
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                padding-bottom: ptr(25px);
+                                
+                            }
                         }
                     }
 
@@ -159,8 +169,8 @@
                         position: relative;
                         
                         #credit_score_chart_container {
-                            width: 140px;
-                            height: 140px;
+                            width: ptr(140px);
+                            height: ptr(140px);
                             position: relative;
                             border-radius: 50%;
                             box-shadow: 
@@ -170,7 +180,7 @@
                             background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
                             backdrop-filter: blur(10px);
                             transition: all 0.3s ease;
-                            
+                          
                             &:hover {
                                 transform: scale(1.05);
                                 box-shadow: 

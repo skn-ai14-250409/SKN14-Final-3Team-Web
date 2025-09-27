@@ -115,8 +115,8 @@ body {
   color: #392e1b;
 }
 .btn.btn-primary:hover {
-  background-color: #cc9600;
-  border-color: #cc9600;
+  background-color: rgb(204, 150.4, 0);
+  border-color: rgb(204, 150.4, 0);
 }
 .btn.btn-outline-primary {
   color: #ffbc00;
@@ -921,13 +921,13 @@ body {
       -ms-flex-direction: column;
           flex-direction: column;
   min-height: 0;
-  background-color: #322818;
+  background-color: rgb(50.0785714286, 40.4142857143, 23.7214285714);
   border-radius: 0.375rem;
   overflow: hidden;
 }
 .team_channel_column .chat_container .chat_header {
   padding: 0.25rem 0.5rem;
-  background-color: #2b2314;
+  background-color: rgb(43.1571428571, 34.8285714286, 20.4428571429);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   -webkit-box-flex: 0;
       -ms-flex: 0 0 auto;
@@ -1013,7 +1013,7 @@ body {
   display: flex;
   -ms-flex-pack: distribute;
       justify-content: space-around;
-  background-color: #2b2314;
+  background-color: rgb(43.1571428571, 34.8285714286, 20.4428571429);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   -webkit-box-flex: 0;
       -ms-flex: 0 0 auto;
@@ -1048,7 +1048,7 @@ body {
 }
 .team_channel_column .chat_container .message_input_area {
   padding: 0.1875rem 0.1875rem;
-  background-color: #2b2314;
+  background-color: rgb(43.1571428571, 34.8285714286, 20.4428571429);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   -webkit-box-flex: 0;
       -ms-flex: 0 0 auto;
@@ -1202,8 +1202,8 @@ body {
   color: #392e1b;
 }
 .btn.btn-primary:hover {
-  background-color: #cc9600;
-  border-color: #cc9600;
+  background-color: rgb(204, 150.4, 0);
+  border-color: rgb(204, 150.4, 0);
 }
 .btn.btn-outline-primary {
   color: #ffbc00;
@@ -2050,6 +2050,8 @@ body {
 }
 .second_column .third_row .assessment_actions {
   display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
   gap: 0.5rem;
   padding-top: 1.25rem;
 }
@@ -2209,8 +2211,8 @@ body {
   color: #392e1b;
 }
 .btn.btn-primary:hover {
-  background-color: #cc9600;
-  border-color: #cc9600;
+  background-color: rgb(204, 150.4, 0);
+  border-color: rgb(204, 150.4, 0);
 }
 .btn.btn-outline-primary {
   color: #ffbc00;
@@ -2705,16 +2707,31 @@ body {
   gap: 1.25rem;
 }
 .third_column .assessment_results .assessment_details .detail_section .credit_score_grid .credit_score_graph_container {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
+  display: block;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+  gap: 0.5rem;
   width: 17.5rem;
+}
+.third_column .assessment_results .assessment_details .detail_section .credit_score_grid .credit_score_graph_container #credit_score_chart_container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  padding-bottom: 1.5625rem;
 }
 .third_column .assessment_results .assessment_details .detail_section .credit_score_graph {
   display: grid;
@@ -2723,15 +2740,14 @@ body {
   position: relative;
 }
 .third_column .assessment_results .assessment_details .detail_section .credit_score_graph #credit_score_chart_container {
-  width: 140px;
-  height: 140px;
+  width: 8.75rem;
+  height: 8.75rem;
   position: relative;
   border-radius: 50%;
   -webkit-box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15), 0 4px 12px rgba(16, 185, 129, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
           box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15), 0 4px 12px rgba(16, 185, 129, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-  -webkit-backdrop-filter: blur(10px);
-          backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   -webkit-transition: all 0.3s ease;
   transition: all 0.3s ease;
 }
@@ -2875,6 +2891,7 @@ body {
 }
 .third_column .assessment_results .assessment_details .detail_section .risk_analysis_graph #risk_analysis_chart_container {
   width: 100%;
+  height: 12.5rem;
   overflow: visible;
 }
 .third_column .assessment_results .assessment_details .detail_section .risk_analysis_detail {
@@ -3193,6 +3210,110 @@ body {
   color: #374151;
 }
 
+#usage_guide_container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 1.25rem 0.9375rem;
+}
+#usage_guide_container .usage_guide {
+  max-width: 28.125rem;
+  text-align: center;
+}
+#usage_guide_container .usage_guide .usage_guide_header {
+  margin-bottom: 1.25rem;
+}
+#usage_guide_container .usage_guide .usage_guide_header .usage_guide_icon {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, #ffbc00 0%, #ffd700 100%);
+  border-radius: 50%;
+  margin: 0 auto 0.625rem;
+  -webkit-box-shadow: 0 2px 8px rgba(255, 188, 0, 0.3);
+          box-shadow: 0 2px 8px rgba(255, 188, 0, 0.3);
+}
+#usage_guide_container .usage_guide .usage_guide_header .usage_guide_icon i {
+  font-size: 1.125rem;
+  color: #392e1b;
+}
+#usage_guide_container .usage_guide .usage_guide_header .usage_guide_title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #392e1b;
+  margin: 0;
+}
+#usage_guide_container .usage_guide .usage_guide_content {
+  margin-bottom: 1.25rem;
+}
+#usage_guide_container .usage_guide .usage_guide_content .usage_guide_step {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+#usage_guide_container .usage_guide .usage_guide_content .usage_guide_step:last-child {
+  margin-bottom: 0;
+}
+#usage_guide_container .usage_guide .usage_guide_content .usage_guide_step .step_number {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: #ffbc00;
+  color: #392e1b;
+  border-radius: 50%;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+#usage_guide_container .usage_guide .usage_guide_content .usage_guide_step .step_content {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+#usage_guide_container .usage_guide .usage_guide_content .usage_guide_step .step_content h4 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #392e1b;
+  margin: 0 0 0.25rem 0;
+}
+#usage_guide_container .usage_guide .usage_guide_content .usage_guide_step .step_content p {
+  font-size: 0.625rem;
+  color: #333;
+  line-height: 1.4;
+  margin: 0;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -3302,8 +3423,8 @@ body {
   color: #392e1b;
 }
 .btn.btn-primary:hover {
-  background-color: #cc9600;
-  border-color: #cc9600;
+  background-color: rgb(204, 150.4, 0);
+  border-color: rgb(204, 150.4, 0);
 }
 .btn.btn-outline-primary {
   color: #ffbc00;
