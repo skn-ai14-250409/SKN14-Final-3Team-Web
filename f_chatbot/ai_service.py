@@ -61,12 +61,14 @@ class AIService:
             else:
                 logger.info(f"[LANGGRAPH] No session_id provided")
             
-            # 멀티턴 대화의 경우 chat_history를 별도로 전송하지 않음
-            # FastAPI에서 session_id로 세션 관리
-            if chat_history and len(chat_history) > 1:
-                logger.info(f"[LANGGRAPH] Multiturn conversation with {len(chat_history)} messages in session")
+            # 대화 히스토리 전송 (LangGraph에서 컨텍스트로 사용)
+            if chat_history and len(chat_history) > 0:
+                request_data['chat_history'] = chat_history
+                logger.info(f"[LANGGRAPH] Sending chat history: {len(chat_history)} messages")
+                for i, msg in enumerate(chat_history):
+                    logger.info(f"[LANGGRAPH] Message {i+1}: {msg.get('role', 'unknown')} - {msg.get('content', '')[:50]}...")
             else:
-                logger.info(f"[LANGGRAPH] First turn conversation")
+                logger.info(f"[LANGGRAPH] No chat history provided - first turn conversation")
             
             # 요청 데이터 로깅
             logger.info(f"[LANGGRAPH] Request data: {request_data}")
@@ -171,15 +173,25 @@ class AIService:
                 
                 # AI 서버에서 받은 실제 sources 데이터 사용
                 sources_data = data.get('sources', [])
+                logger.info(f"[SOURCES] FastAPI에서 받은 sources 데이터: {len(sources_data)}개")
                 
                 # sources가 비어있으면 다른 키들에서 메타데이터 찾기
                 if not sources_data:
+                    logger.info("[SOURCES] sources가 비어있어서 다른 키들에서 찾는 중...")
                     # 가능한 메타데이터 키들 확인
                     metadata_keys = ['metadata', 'documents', 'docs', 'sources', 'source']
                     for key in metadata_keys:
                         if key in data and data[key]:
                             sources_data = data[key] if isinstance(data[key], list) else [data[key]]
+                            logger.info(f"[SOURCES] {key} 키에서 {len(sources_data)}개 소스 발견")
                             break
+                
+                # 각 소스의 구조 로깅
+                for i, source in enumerate(sources_data):
+                    if isinstance(source, dict):
+                        logger.info(f"[SOURCES] 소스 {i+1}: file_name={source.get('file_name', 'N/A')}, file_path={source.get('file_path', 'N/A')}, page_number={source.get('page_number', 'N/A')}")
+                    else:
+                        logger.info(f"[SOURCES] 소스 {i+1}: {type(source)} 타입, 값={str(source)[:100]}")
                 
                 # RAG 검색 결과 필터링 - 관련성 높은 문서만 선택
                 sources_data = self._filter_relevant_sources(sources_data, message)
@@ -187,19 +199,11 @@ class AIService:
                 normalized_sources = []
                 for source in sources_data:
                     if isinstance(source, dict):
-                        # 이미 딕셔너리 형태인 경우 그대로 사용하되, 필요한 필드 확인
+                        # FastAPI의 extract_sources_from_docs 구조에 맞게 매핑
                         normalized_source = source.copy()
                         
-                        # page_content가 없으면 다른 필드에서 찾기
-                        if 'page_content' not in normalized_source or not normalized_source['page_content']:
-                            normalized_source['page_content'] = (
-                                normalized_source.get('text', '') or 
-                                normalized_source.get('content', '') or 
-                                normalized_source.get('snippet', '') or
-                                '관련 문서에서 검색된 내용입니다.'
-                            )
-                        
-                        # file_name이 없으면 다른 필드에서 찾기
+                        # FastAPI에서 제공하는 필드들을 우선 사용
+                        # file_name: FastAPI에서 직접 제공
                         if 'file_name' not in normalized_source or not normalized_source['file_name']:
                             normalized_source['file_name'] = (
                                 normalized_source.get('filename', '') or 
@@ -208,11 +212,34 @@ class AIService:
                                 'PDF 문서'
                             )
                         
+                        # file_path: FastAPI에서 제공하는 경로 사용
+                        if 'file_path' not in normalized_source:
+                            normalized_source['file_path'] = normalized_source.get('file_path', '')
+                        
+                        # page_number: FastAPI에서 제공하는 페이지 번호 사용
+                        if 'page_number' not in normalized_source:
+                            normalized_source['page_number'] = normalized_source.get('page_number', 0)
+                        
+                        # page_content: FastAPI의 full_text 또는 text 사용
+                        if 'page_content' not in normalized_source or not normalized_source['page_content']:
+                            normalized_source['page_content'] = (
+                                normalized_source.get('full_text', '') or
+                                normalized_source.get('text', '') or 
+                                normalized_source.get('content', '') or 
+                                normalized_source.get('snippet', '') or
+                                '관련 문서에서 검색된 내용입니다.'
+                            )
+                        
                         # text 필드도 page_content와 동일하게 설정 (호환성)
                         if 'text' not in normalized_source or not normalized_source['text']:
                             normalized_source['text'] = normalized_source['page_content']
                         
+                        # relevance_score: FastAPI에서 제공하는 점수 사용
+                        if 'relevance_score' in normalized_source:
+                            normalized_source['score'] = normalized_source['relevance_score']
+                        
                         normalized_sources.append(normalized_source)
+                        logger.info(f"[SOURCES] 정규화된 소스 {len(normalized_sources)}: file_name={normalized_source.get('file_name', 'N/A')}, file_path={normalized_source.get('file_path', 'N/A')}, page_number={normalized_source.get('page_number', 'N/A')}")
                     elif isinstance(source, str):
                         # 문자열인 경우 기본 구조로 변환
                         normalized_sources.append({
