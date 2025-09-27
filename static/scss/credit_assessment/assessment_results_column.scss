@@ -291,6 +291,7 @@
                         
                         #risk_analysis_chart_container {
                             width: 100%;
+                            height: ptr(200px); // 차트가 그려질 높이를 명시적으로 지정
                             overflow: visible;
                         }
                     }

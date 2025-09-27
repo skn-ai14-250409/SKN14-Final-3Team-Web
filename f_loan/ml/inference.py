@@ -70,11 +70,11 @@ def predict_credit_score(customer_data, loan_data, customer_type='personal'):
             # 1. 모델이 학습한 순서대로 13개 기본 특성을 구성합니다.
             
             try:
-                annual_income = float(str(customer_data.get('annual_income', '1')).replace(',', ''))
+                annual_income = float(str(customer_data.get('annual_income', '1')).replace(',', '')) / 10000
             except (ValueError, TypeError):
                 annual_income = 1.0
 
-            loan_amount = loan_data.get('amount', 0)
+            loan_amount = float(loan_data.get('amount', 0)) / 10000
 
             # 2. DataFrame 생성
             input_data = {

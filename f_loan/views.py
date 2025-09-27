@@ -127,44 +127,50 @@ def create_risk_analysis_chart(customer_data, loan_data, prediction_result):
         return 100 - score if invert else score
 
     # 2. 지표별 점수 계산
-    # 모든 입력을 안전하게 숫자형으로 변환
+    # 모든 입력을 안전하게 숫자형으로 변환하고 기본값 설정
     try:
         annual_income = float(customer_data.get('annual_income', 0))
     except (ValueError, TypeError):
         annual_income = 0.0
     
     try:
-        loan_amount = float(loan_data.get('amount', 0))
+        requested_amount = float(loan_data.get('amount', 0))
     except (ValueError, TypeError):
-        loan_amount = 0.0
+        requested_amount = 0.0
 
     try:
-        years_of_service = int(customer_data.get('years_of_service', 0))
+        # 'loan_data'에서 'interest_rate'를 가져오도록 수정
+        interest_rate = float(loan_data.get('interest_rate', 10.0)) # 기본값 10%
     except (ValueError, TypeError):
-        years_of_service = 0
-
-    income_score = normalize(annual_income, 0, 100000000)
-    dti = (loan_amount / annual_income) if annual_income > 0 else 1
-    dti_score = normalize(dti, 0, 0.4, invert=True)
-    history_score = normalize(years_of_service, 0, 10)
-    amount_score = normalize(loan_amount, 0, 100000000, invert=True)
+        interest_rate = 10.0
 
     # 신용점수: 1000점 만점
     try:
         raw_credit_score = int(prediction_result.get('credit_score', 0))
     except (ValueError, TypeError):
-        raw_credit_score = 0 # 변환 실패 시 기본값
+        raw_credit_score = 0
 
-    credit_score = normalize(raw_credit_score, 0, 1000)
+    # 수입 대비 대출률 계산
+    loan_to_income_ratio = (requested_amount / annual_income) if annual_income > 0 else 999.0
 
-    categories = ['소득', '부채비율', '신용이력', '대출규모', '신용점수']
-    values = [income_score, dti_score, history_score, amount_score, credit_score]
+    # 각 변수를 0-100점 척도로 정규화
+    # 값이 클수록 좋은 경우: normalize(value, min, max)
+    # 값이 작을수록 좋은 경우: normalize(value, min, max, invert=True)
+    income_score = normalize(annual_income, 20000000, 150000000) # 연소득 2천만원 ~ 1.5억원 기준
+    loan_amount_score = normalize(requested_amount, 1000000, 500000000, invert=True) # 대출 신청 금액 1백만원 ~ 5억원 기준 (적을수록 좋음)
+    interest_rate_score = normalize(interest_rate, 2.5, 15.0, invert=True) # 대출 금리 2.5% ~ 15% 기준 (낮을수록 좋음)
+    loan_to_income_score = normalize(loan_to_income_ratio, 0.1, 2.0, invert=True) # 수입 대비 대출률 10% ~ 200% 기준 (낮을수록 좋음)
+    credit_score_normalized = normalize(raw_credit_score, 300, 1000) # 신용점수 300점 ~ 1000점 기준
+
+    # 요청하신 변수명으로 카테고리 설정
+    categories = ['수입', '요청 대출금', '대출 금리', '수입 대비 대출률', '신용 점수']
+    values = [income_score, loan_amount_score, interest_rate_score, loan_to_income_score, credit_score_normalized]
 
     fig = go.Figure()
 
     fig.add_trace(go.Scatterpolar(
         r=values,
-        theta=categories,
+        theta=[0, 72, 144, 216, 288],
         fill='toself',
         name='위험도 분석',
         fillcolor='rgba(16,185,129,0.25)',
@@ -172,11 +178,31 @@ def create_risk_analysis_chart(customer_data, loan_data, prediction_result):
     ))
 
     fig.update_layout(
-        polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+        polar=dict(
+            bgcolor='white',
+            gridshape='linear',
+            radialaxis=dict(
+                visible=True, range=[0, 100],
+                linecolor='black', linewidth=1,
+                gridcolor='lightgray'
+            ),
+            angularaxis=dict(
+                tickmode='array',
+                tickvals=[0, 72, 144, 216, 288],
+                ticktext=categories,
+                tickfont=dict(size=12),
+                linecolor='black',
+                gridcolor='lightgray',
+                layer="above traces"
+            )
+        ),
         showlegend=False,
-        margin=dict(l=40, r=40, t=40, b=40),
+        margin=dict(l=60, r=60, t=60, b=60),
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
+        width=300,
+        height=250,
+        font=dict(size=12)
     )
     return plotly.utils.PlotlyJSONEncoder().encode(fig)
 

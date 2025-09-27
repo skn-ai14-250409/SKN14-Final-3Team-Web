@@ -788,6 +788,7 @@ body {
 }
 .third_column .assessment_results .assessment_details .detail_section .risk_analysis_graph #risk_analysis_chart_container {
   width: 100%;
+   height: 12.5rem;
   overflow: visible;
 }
 .third_column .assessment_results .assessment_details .detail_section .risk_analysis_detail {
