@@ -1,307 +1,195 @@
 <!-- 세 번째 컬럼 - 심사 결과 표시 영역 -->
 <div class="third_column">
-    <!-- 사용법 안내 (히스토리가 없을 때 표시) -->
+    <!-- 사용법 안내 (초기 표시) -->
     <div id="usage_guide_container" style="display: flex;">
         <div class="usage_guide">
-            <div class="usage_guide_header">
-                <div class="usage_guide_icon">
-                    <i class="bi bi-lightbulb"></i>
-                </div>
-                <h3 class="usage_guide_title">KB FinAIssist 사용법</h3>
+        <div class="usage_guide_header">
+            <div class="usage_guide_icon"><i class="bi bi-lightbulb"></i></div>
+            <h3 class="usage_guide_title">KB FinAIssist 사용법</h3>
+        </div>
+        <div class="usage_guide_content">
+            <div class="usage_guide_step">
+            <div class="step_number">1</div>
+            <div class="step_content">
+                <h4>질문 입력</h4>
+                <p>하단 입력창에 궁금한 업무나 규정에 대해 질문해주세요.</p>
             </div>
-            <div class="usage_guide_content">
-                <div class="usage_guide_step">
-                    <div class="step_number">1</div>
-                    <div class="step_content">
-                        <h4>질문 입력</h4>
-                        <p>하단 입력창에 궁금한 업무나 규정에 대해 질문해주세요.</p>
-                    </div>
-                </div>
-                <div class="usage_guide_step">
-                    <div class="step_number">2</div>
-                    <div class="step_content">
-                        <h4>자주 묻는 질문 활용</h4>
-                        <p>아래 카드에서 자주 묻는 질문을 선택하거나 "자주 묻는 질문" 버튼을 클릭하세요.</p>
-                    </div>
-                </div>
-                <div class="usage_guide_step">
-                    <div class="step_number">3</div>
-                    <div class="step_content">
-                        <h4>AI 답변 확인</h4>
-                        <p>FinAIssist가 관련 문서를 참조하여 정확한 답변을 제공합니다.</p>
-                    </div>
-                </div>
             </div>
-            <div class="usage_guide_tips">
-                <div class="tip_item">
-                    <i class="bi bi-chat-dots"></i>
-                    <span>구체적인 질문을 하면 더 정확한 답변을 받을 수 있습니다.</span>
-                </div>
-                <div class="tip_item">
-                    <i class="bi bi-file-earmark-pdf"></i>
-                    <span>답변에 참조된 PDF 문서를 클릭하여 상세 내용을 확인할 수 있습니다.</span>
-                </div>
+            <div class="usage_guide_step">
+            <div class="step_number">2</div>
+            <div class="step_content">
+                <h4>자주 묻는 질문 활용</h4>
+                <p>아래 카드에서 자주 묻는 질문을 선택하거나 "자주 묻는 질문" 버튼을 클릭하세요.</p>
             </div>
+            </div>
+            <div class="usage_guide_step">
+            <div class="step_number">3</div>
+            <div class="step_content">
+                <h4>AI 답변 확인</h4>
+                <p>FinAIssist가 관련 문서를 참조하여 정확한 답변을 제공합니다.</p>
+            </div>
+            </div>
+        </div>
+        <div class="usage_guide_tips">
+            <div class="tip_item"><i class="bi bi-chat-dots"></i><span>구체적인 질문을 하면 더 정확한 답변을 받을 수 있습니다.</span></div>
+            <div class="tip_item"><i class="bi bi-file-earmark-pdf"></i><span>답변에 참조된 PDF 문서를 클릭하여 상세 내용을 확인할 수 있습니다.</span></div>
+        </div>
         </div>
     </div>
 
-    <!-- 심사 결과 표시 영역 (초기에는 숨김) -->
+    <!-- 심사 결과 (초기 숨김) -->
     <div class="assessment_results" id="assessment_results" style="display: none;">
         <div class="results_header">
-            <i class="bi bi-clipboard-check header_icon"></i>
-            <span>김의령 </span>
-            <span>고객님의 </span>
-            <span>심사 결과</span>
+        <i class="bi bi-clipboard-check header_icon"></i>
+        <span id="result_customer_name">고객님의 </span>
+        <span>심사 결과</span>
         </div>
+
         <div class="section_title">전체 평가</div>
+
         <div class="results_content" id="results_content">
-            <div class="assessment_summary">
-                <div class="summary_card">
-                    <div class="summary_label">신용 점수</div>
-                    <div class="summary_value credit_score">850</div>
-                </div>
-                <div class="summary_card">
-                    <div class="summary_label">신용 등급</div>
-                    <div class="summary_value credit_rating">A</div>
-                </div>
-                <div class="summary_card">
-                    <div class="summary_label">승인 가능 여부</div>
-                    <div class="summary_value approval_status approved">승인 가능</div>
-                </div>
-                <div class="summary_card">
-                    <div class="summary_label">추천 한도</div>
-                    <div class="summary_value">3,000만원</div>
-                </div>
+        <div class="assessment_summary">
+            <div class="summary_card">
+            <div class="summary_label">신용 점수</div>
+            <div class="summary_value credit_score"></div>
             </div>
-            
-            <div class="assessment_details">
-                <!-- 평가 그래프 -->
-                <div class="detail_section">
-                    <div class="section_title">신용점수 분포도</div>
-                    <div class = "credit_score_grid">
-                        <div class="credit_score_graph_container">
-                            <div class="credit_score_graph" role="img" aria-label="신용점수 원형 그래프">
-                                <div id="credit_score_chart_container"></div>
-                                <div class="credit_score_detail">
-                                    850/1000점
-                                </div>
-                            </div>
-                        </div>
-                        <div class="credit_score_discription_container">
-                            <div class = "credit_score_discription">
-                                <div class="description_main">
-                                    <strong>신용점수 850점</strong>은 1000점 만점 기준으로 <strong>우수</strong> 등급에 해당합니다.
-                                </div>
-                                <div class="description_detail">
-                                    이 점수는 고객님의 과거 대출 상환 이력, 소득 안정성, 부채 수준, 신용 이용 패턴 등을 종합적으로 분석하여 산출된 결과입니다. 
-                                    850점은 상위 15% 내의 우수한 신용도를 의미하며, 금융기관에서 신뢰할 수 있는 고객으로 평가됩니다.
-                                </div>
-                                <div class="description_benefit">
-                                    <strong>대출 승인 가능성: 매우 높음</strong> | 
-                                    <strong>우대 금리 적용 가능</strong> | 
-                                    <strong>높은 대출 한도 승인 예상</strong>
-                                </div>
-                                <div class="description_note">
-                                    ※ 신용점수는 정기적으로 업데이트되며, 지속적인 신용 관리로 더욱 향상시킬 수 있습니다.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 위험도 분석 그래프 -->
-                <div class="detail_section">
-                    <div class="section_title">위험도 분석</div>
-                    <div class="risk_analysis_grid">
-                        <div class="risk_analysis_graph_container">
-                            <div class="risk_analysis_graph" role="img" aria-label="위험도 분석 레이더 차트">
-                                <div id="risk_analysis_chart_container"></div>
-                                <div class="risk_analysis_detail">
-                                    종합 위험도: A등급
-                                </div>
-                            </div>
-                        </div>
-                        <div class="risk_analysis_discription_container">
-                            <div class="risk_analysis_discription">
-                                <div class="description_main">
-                                    고객의 주요 리스크 요인을 다각도로 평가한 결과입니다.
-                                </div>
-                                <div class="description_detail">
-                                    지표는 신용도, 소득안정성, 상환능력, 담보가치, 시장환경의 5가지 축으로 구성되며, 각 항목은 0~100 구간에서 상대 점수로 산정됩니다. 
-                                    점수 영역이 넓고 고르게 분포될수록 전반적 리스크가 낮음을 의미합니다.
-                                </div>
-                                <div class="description_benefit">
-                                    <strong>해석 가이드</strong> | 70점 이상: 안정적 | 50~69점: 관리 필요 | 49점 이하: 주의 요망
-                                </div>
-                                <div class="description_note">
-                                    ※ 실제 심사에서는 최신 데이터와 정책 가중치를 반영하여 동적으로 산정됩니다.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detail_section">
-                    <div class="section_title">재무 안정성 지표</div>
-                    <div class="detail_grid">
-                        <div class="detail_item">
-                            <div class="detail_header">
-                                <span class="detail_label">부채비율</span>
-                                <span class="detail_value">35%</span>
-                            </div>
-                            <div class="progress_bar low_risk">
-                                <div class="progress_fill" style="width: 35%"></div>
-                            </div>
-                        </div>
-                        <div class="detail_item">
-                            <div class="detail_header">
-                                <span class="detail_label">소득 안정성</span>
-                                <span class="detail_value">85%</span>
-                            </div>
-                            <div class="progress_bar low_risk">
-                                <div class="progress_fill" style="width: 85%"></div>
-                            </div>
-                        </div>
-                        <div class="detail_item">
-                            <div class="detail_header">
-                                <span class="detail_label">상환능력</span>
-                                <span class="detail_value">90%</span>
-                            </div>
-                            <div class="progress_bar low_risk">
-                                <div class="progress_fill" style="width: 90%"></div>
-                            </div>
-                        </div>
-                        <div class="detail_item">
-                            <div class="detail_header">
-                                <span class="detail_label">신용이력</span>
-                                <span class="detail_value">95%</span>
-                            </div>
-                            <div class="progress_bar low_risk">
-                                <div class="progress_fill" style="width: 95%"></div>
-                            </div>
-                        </div>
-                        <div class="detail_item">
-                            <div class="detail_header">
-                                <span class="detail_label">현금보유비율</span>
-                                <span class="detail_value">25%</span>
-                            </div>
-                            <div class="progress_bar medium_risk">
-                                <div class="progress_fill" style="width: 25%"></div>
-                            </div>
-                        </div>
-                        <div class="detail_item">
-                            <div class="detail_header">
-                                <span class="detail_label">자산증가율</span>
-                                <span class="detail_value">22%</span>
-                            </div>
-                            <div class="progress_bar low_risk">
-                                <div class="progress_fill" style="width: 22%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
+            <div class="summary_card">
+            <div class="summary_label">신용 등급</div>
+            <div class="summary_value credit_rating">-</div>
             </div>
-            
+            <div class="summary_card">
+            <div class="summary_label">승인 가능 여부</div>
+            <div class="summary_value approval_status rejected">불가능</div>
+            </div>
+            <div class="summary_card">
+            <div class="summary_label">추천 한도</div>
+            <div class="summary_value" id="recommended_limit">0만원</div>
+            </div>
+        </div>
+
+        <div class="assessment_details">
+            <!-- 신용점수 분포도 -->
             <div class="detail_section">
-                <div class="section_title">AI 분석 보고서</div>
-                <div class="ai_analysis_content">
-                    <div class="analysis_summary">
-                        <div class="summary_icon">
-                            <i class="bi bi-check-circle-fill"></i>
-                        </div>
-                        <div class="summary_text">
-                            <div class="summary_title">대출 승인 권장</div>
-                            <div class="summary_description">
-                                고객의 종합적인 신용도 분석 결과, 안정적인 상환 능력과 우수한 신용 이력을 확인했습니다.<br><br>
-                                AI 기반 머신러닝 모델을 통해 고객의 과거 대출 이력, 소득 패턴, 부채 구조, 신용 이용 행태를 다각도로 분석한 결과, 
-                                신용점수 850점으로 상위 15% 내의 우수한 신용도를 보여주고 있습니다.<br><br>
-                                특히 월 소득 대비 부채비율이 35%로 안정적이며, 정규직 근무로 소득의 지속성이 확보되어 있어 
-                                대출 상환에 대한 리스크가 매우 낮은 것으로 평가됩니다.
-                            </div>
-                        </div>
+            <div class="section_title">신용점수 분포도</div>
+            <div class="credit_score_grid">
+                <div class="credit_score_graph_container">
+                <div class="credit_score_graph" role="img" aria-label="신용점수 원형 그래프">
+                    <div id="credit_score_chart_container" style="position: relative;"></div>
+                </div>
+                <div class="credit_score_detail" id="credit_score_detail_text"></div>
+                </div>
+                <div class="credit_score_discription_container">
+                <div class="credit_score_discription">
+                    <div class="description_main" id="credit_score_description_main"></div>
+                    <div class="description_detail" id="credit_score_description_detail"></div>
+                    <div class="description_benefit">
+                    <strong>대출 승인 가능성: 매우 높음</strong> | <strong>우대 금리 적용 가능</strong> | <strong>높은 대출 한도 승인 예상</strong>
                     </div>
-                    
-                    <div class="analysis_details">
-                        <div class="detail_item">
-                            <div class="detail_header">
-                                <span class="detail_label">신용점수 분석</span>
-                                <span class="detail_value">850점</span>
-                            </div>
-                            <div class="detail_description">상위 15% 내 우수 등급</div>
-                        </div>
-                        <div class="detail_item">
-                            <div class="detail_header">
-                                <span class="detail_label">상환능력 평가</span>
-                                <span class="detail_value">90%</span>
-                            </div>
-                            <div class="detail_description">월 소득 대비 부채비율 35%로 안정적</div>
-                        </div>
-                        <div class="detail_item">
-                            <div class="detail_header">
-                                <span class="detail_label">소득 안정성</span>
-                                <span class="detail_value">85%</span>
-                            </div>
-                            <div class="detail_description">정규직 근무, 소득 증빙 완료</div>
-                        </div>
-                        <div class="detail_item">
-                            <div class="detail_header">
-                                <span class="detail_label">신용 이력</span>
-                                <span class="detail_value">95%</span>
-                            </div>
-                            <div class="detail_description">과거 대출 연체 이력 없음</div>
-                        </div>
-                    </div>
-                    
-                    <div class="analysis_recommendations">
-                        <div class="recommendation_section">
-                            <div class="section_header">
-                                <i class="bi bi-star-fill"></i>
-                                <span>추천 사항</span>
-                            </div>
-                            <div class="recommendation_list">
-                                <div class="recommendation_item">
-                                    <i class="bi bi-check-circle"></i>
-                                    <span>신청 금액 3,000만원 승인 권장 (요청 대비 100% 승인)</span>
-                                </div>
-                                <div class="recommendation_item">
-                                    <i class="bi bi-check-circle"></i>
-                                    <span>우대 금리 적용 가능 (기준금리 + 1.5%p)</span>
-                                </div>
-                                <div class="recommendation_item">
-                                    <i class="bi bi-check-circle"></i>
-                                    <span>담보 제출 불필요 (신용 대출 기준 충족)</span>
-                                </div>
-                                <div class="recommendation_item">
-                                    <i class="bi bi-check-circle"></i>
-                                    <span>빠른 승인 처리 예상 (1-2일 내)</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="recommendation_section">
-                            <div class="section_header">
-                                <i class="bi bi-exclamation-triangle-fill"></i>
-                                <span>주의사항</span>
-                            </div>
-                            <div class="recommendation_list">
-                                <div class="recommendation_item warning">
-                                    <i class="bi bi-exclamation-circle"></i>
-                                    <span>현금보유비율 25%로 다소 낮음 - 유동성 관리 권장</span>
-                                </div>
-                                <div class="recommendation_item warning">
-                                    <i class="bi bi-exclamation-circle"></i>
-                                    <span>자산증가율 22% - 향후 자산 형성 계획 수립 필요</span>
-                                </div>
-                                <div class="recommendation_item warning">
-                                    <i class="bi bi-exclamation-circle"></i>
-                                    <span>정기적인 소득 증빙서 갱신 요청</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="description_note">※ 신용점수는 정기적으로 업데이트되며, 지속적인 신용 관리로 더욱 향상시킬 수 있습니다.</div>
+                </div>
                 </div>
             </div>
+            </div>
+
+            <!-- 위험도 분석 -->
+            <div class="detail_section">
+            <div class="section_title">위험도 분석</div>
+            <div class="risk_analysis_grid">
+                <div class="risk_analysis_graph_container">
+                <div class="risk_analysis_graph" role="img" aria-label="위험도 분석 레이더 차트">
+                    <div id="risk_analysis_chart_container"></div>
+                    <div class="risk_analysis_detail">종합 위험도: -</div>
+                </div>
+                </div>
+                <div class="risk_analysis_discription_container">
+                <div class="risk_analysis_discription">
+                    <div class="description_main">고객의 주요 리스크 요인을 다각도로 평가한 결과입니다.</div>
+                    <div class="description_detail">
+                    지표는 신용도, 소득안정성, 상환능력, 담보가치, 시장환경의 5가지 축으로 구성되며, 각 항목은 0~100 구간에서 상대 점수로 산정됩니다.
+                    </div>
+                    <div class="description_benefit"><strong>해석 가이드</strong> | 70점 이상: 안정적 | 50~69점: 관리 필요 | 49점 이하: 주의 요망</div>
+                    <div class="description_note">※ 실제 심사에서는 최신 데이터와 정책 가중치를 반영하여 동적으로 산정됩니다.</div>
+                </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- 재무 안정성 지표 (샘플 바) -->
+            <div class="detail_section">
+            <div class="section_title">재무 안정성 지표</div>
+            <div class="detail_grid">
+                <div class="detail_item">
+                <div class="detail_header"><span class="detail_label">부채비율</span><span class="detail_value">-</span></div>
+                <div class="progress_bar"><div class="progress_fill" style="width: 0%"></div></div>
+                </div>
+                <div class="detail_item">
+                <div class="detail_header"><span class="detail_label">소득 안정성</span><span class="detail_value">-</span></div>
+                <div class="progress_bar"><div class="progress_fill" style="width: 0%"></div></div>
+                </div>
+                <div class="detail_item">
+                <div class="detail_header"><span class="detail_label">상환능력</span><span class="detail_value">-</span></div>
+                <div class="progress_bar"><div class="progress_fill" style="width: 0%"></div></div>
+                </div>
+                <div class="detail_item">
+                <div class="detail_header"><span class="detail_label">신용이력</span><span class="detail_value">-</span></div>
+                <div class="progress_bar"><div class="progress_fill" style="width: 0%"></div></div>
+                </div>
+                <div class="detail_item">
+                <div class="detail_header"><span class="detail_label">현금보유비율</span><span class="detail_value">-</span></div>
+                <div class="progress_bar"><div class="progress_fill" style="width: 0%"></div></div>
+                </div>
+                <div class="detail_item">
+                <div class="detail_header"><span class="detail_label">자산증가율</span><span class="detail_value">-</span></div>
+                <div class="progress_bar"><div class="progress_fill" style="width: 0%"></div></div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- AI 분석 보고서 -->
+        <div class="detail_section">
+            <div class="section_title">AI 분석 보고서</div>
+            <div class="ai_analysis_content">
+            <div class="analysis_summary">
+                <div class="summary_icon"><i class="bi bi-check-circle-fill" id="ai_summary_icon"></i></div>
+                <div class="summary_text">
+                <div class="summary_title" id="ai_summary_title">대출 승인 권장</div>
+                <div class="summary_description" id="ai_summary_description"></div>
+                </div>
+            </div>
+
+            <div class="analysis_details">
+                <div class="detail_item">
+                <div class="detail_header"><span class="detail_label">신용점수 분석</span><span class="detail_value" id="ai_detail_score"></span></div>
+                <div class="detail_description" id="ai_detail_score_desc">상위 15% 내 우수 등급</div>
+                </div>
+                <div class="detail_item">
+                <div class="detail_header"><span class="detail_label">상환능력 평가</span><span class="detail_value" id="ai_detail_repayment">-</span></div>
+                <div class="detail_description" id="ai_detail_repayment_desc">월 소득 대비 부채비율 안정적</div>
+                </div>
+                <div class="detail_item">
+                <div class="detail_header"><span class="detail_label">소득 안정성</span><span class="detail_value" id="ai_detail_income">-</span></div>
+                <div class="detail_description" id="ai_detail_income_desc">정규직 근무, 소득 증빙</div>
+                </div>
+                <div class="detail_item">
+                <div class="detail_header"><span class="detail_label">신용 이력</span><span class="detail_value" id="ai_detail_history">-</span></div>
+                <div class="detail_description" id="ai_detail_history_desc">과거 대출 연체 이력 없음</div>
+                </div>
+            </div>
+
+            <div class="analysis_recommendations">
+                <div class="recommendation_section">
+                <div class="section_header"><i class="bi bi-star-fill"></i><span>추천 사항</span></div>
+                <div class="recommendation_list"></div>
+                </div>
+                <div class="recommendation_section">
+                <div class="section_header"><i class="bi bi-exclamation-triangle-fill"></i><span>주의사항</span></div>
+                <div class="recommendation_list"></div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <!-- /AI 분석 보고서 -->
         </div>
     </div>
-</div>
+    </div>

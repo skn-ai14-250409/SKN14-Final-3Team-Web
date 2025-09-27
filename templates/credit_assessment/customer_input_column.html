@@ -8,10 +8,6 @@
         <div class="customer_info_header">
             <i class="bi bi-person-fill header_icon"></i>
             <span class="header_title">고객 정보 입력</span>
-            <div class="customer_type_toggle">
-                <button type="button" class="toggle_btn active" data-type="individual">개인</button>
-                <button type="button" class="toggle_btn" data-type="corporate">기업</button>
-            </div>
         </div>
         <div class="customer_display_header" style="display: none;">
             <i class="bi bi-person-check-fill header_icon"></i>
@@ -26,11 +22,11 @@
                 </div>
                 <div class="input_group required rrn_input">
                     <label for="customer_rrn">주민번호 <span class="error-message" id="customer_rrn_error"></span></label>
-                    <input type="text" id="customer_rrn" name="customer_rrn" placeholder="123456-1234567" maxlength="13" required>
+                    <input type="text" id="customer_rrn" name="customer_rrn" placeholder="123456-1234567" maxlength="14" required>
                 </div>
                 <div class="input_group required phone_input">
                     <label for="customer_phone">연락처 <span class="error-message" id="customer_phone_error"></span></label>
-                    <input type="tel" id="customer_phone" name="customer_phone" placeholder="010-1234-5678" maxlength="11" required>
+                    <input type="tel" id="customer_phone" name="customer_phone" placeholder="010-1234-5678" maxlength="13" required>
                 </div>
                 <div class="input_group">
                     <label for="customer_email">고객 이메일</label>
@@ -84,48 +80,47 @@
             <div class="customer_display_content" id="customer_display_content" style="display: none;">
             <!-- 고객 정보가 여기에 동적으로 표시됩니다 -->
             </div>
-                    
-    
-            <!-- 두 번째 row - 대출 정보 입력 -->
-            <div class="second_row" id="second_row" style="display: none;">
-                <div class="loan_info_header">
-                    <i class="bi bi-credit-card-fill header_icon"></i>
-                                    <span>대출 정보 입력</span>
-                </div>
+        </div>
+    </div>
 
-                <div class="loan_info_content">
-                    <div class="input_grid">
-                        <div class="input_group required">
-                            <label for="loan_amount">대출 신청 금액</label>
-                            <input type="text" id="loan_amount" name="loan_amount" placeholder="10,000,000" required>
-                        </div>
-                        <div class="input_group required">
-                            <label for="loan_purpose">대출 목적</label>
-                            <select id="loan_purpose" name="loan_purpose" required>
-                                <option value="">선택하세요</option>
-                                <option value="house">학자금/교육비</option>
-                                <option value="business">의료비</option>
-                                <option value="education">창업/사업자금</option>
-                                <option value="medical">개인용도</option>
-                                <option value="living">부채통합/대환</option>
-                            </select>
-                        </div>
-                        <div class="input_group required">
-                            <label for="loan_product">대출 상품</label>
-                            <select id="loan_product" name="loan_product" required>
-                                <option value="">대출 목적을 먼저 선택하세요</option>
-                            </select>
-                        </div>
-                        <div class="input_group required">
-                            <label for="loan_period">대출 기간 (개월)</label>
-                            <input type="number" id="loan_period" name="loan_period" placeholder="12" required>
-                        </div>
-                                    </div>
+    <!-- 두 번째 row - 대출 정보 입력 -->
+    <div class="second_row" id="second_row" style="display: none;">
+        <div class="loan_info_header">
+            <i class="bi bi-credit-card-fill header_icon"></i>
+            <span>대출 정보 입력</span>
+        </div>
+
+        <div class="loan_info_content">
+            <div class="input_grid">
+                <div class="input_group required">
+                    <label for="loan_amount">대출 신청 금액 <span class="error-message" id="loan_amount_error"></span></label>
+                    <input type="text" id="loan_amount" name="loan_amount" placeholder="10,000,000" required>
+                </div>
+                <div class="input_group required">
+                    <label for="loan_purpose">대출 목적 <span class="error-message" id="loan_purpose_error"></span></label>
+                    <select id="loan_purpose" name="loan_purpose" required>
+                        <option value="">선택하세요</option>
+                        <option value="house">학자금/교육비</option>
+                        <option value="business">의료비</option>
+                        <option value="education">창업/사업자금</option>
+                        <option value="medical">개인용도</option>
+                        <option value="living">부채통합/대환</option>
+                    </select>
+                </div>
+                <div class="input_group required">
+                    <label for="loan_product">대출 상품 <span class="error-message" id="loan_product_error"></span></label>
+                    <select id="loan_product" name="loan_product" required>
+                        <option value="">대출 목적을 먼저 선택하세요</option>
+                    </select>
+                </div>
+                <div class="input_group required">
+                    <label for="loan_period">대출 기간 (개월) <span class="error-message" id="loan_period_error"></span></label>
+                    <input type="number" id="loan_period" name="loan_period" placeholder="12" required>
                 </div>
             </div>
-            
-            <!-- 세 번째 row - 심사 요청 버튼 -->
-            <div class="third_row" id="third_row" style="display: none;">
+
+            <!-- 세 번째 row - 심사 요청 버튼 (second_row 내부로 이동) -->
+            <div class="third_row" id="third_row">
                 <div class="assessment_actions">
                     <button class="btn_assess" id="btn_assess">
                         <i class="bi bi-clipboard-check"></i>

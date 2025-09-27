@@ -446,7 +446,7 @@
         width: 100%;
         
         .assessment_actions {
-            display: -webkit-box;
+            display: flex;
             gap: ptr(8px);
             padding-top: ptr(20px);
             
