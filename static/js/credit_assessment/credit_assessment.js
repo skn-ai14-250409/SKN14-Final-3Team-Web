@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
         btnCheckCustomer.disabled = true;
         btnCheckCustomer.innerHTML = '<i class="bi bi-hourglass-split"></i><span>확인 중...</span>';
 
-        fetch('/kb_finaIssist/credit_assessment/api/check-customer/', {
+        fetch('/kb_bank/credit_assessment/api/check-customer/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -440,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loan_data: getLoanData(),
         };
 
-        fetch('/kb_finaIssist/credit_assessment/api/assess-credit/', {
+        fetch('/kb_bank/credit_assessment/api/assess-credit/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
