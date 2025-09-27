@@ -549,17 +549,17 @@ document.addEventListener('DOMContentLoaded', function () {
         let detailText, benefitText;
 
         if (score >= 850) {
-            detailText = "고객은 지속적인 신용거래 이력과 우수한 상환 습관을 보유하고 있으며, 최근 연체·부실 기록이 거의 없어 신용리스크가 극히 낮습니다. 내부 자동심사 기준을 충족하여 최소한의 서류 확인만으로도 신속한 한도 산정과 금리 적용이 가능하며, 대규모 공여의 경우에도 내부 추가 검증을 거쳐 우대조건을 제공할 수 있습니다. 전반적으로 대출 취급에 있어 예외적인 리스크가 없으므로 비대면 처리 및 우선 심사 대상으로 분류됩니다.";
-            benefitText = "<strong>대출 승인 가능성: 최상</strong> | <strong>적용 가능 금리: 업계 최저·우대금리</strong> | <strong>예상 한도: 최대 한도 승인 가능(심사조건 충족 시)</strong> | <strong>심사 처리: 즉시 자동 승인·우선 처리</strong> | <strong>필요 서류: 최소화(전자소득조회 등 자동 확인)</strong>";
+            detailText = "최상위 신용등급으로, 모든 금융 거래에서 최상의 조건을 제공받을 수 있습니다. 안정적인 신용 관리 상태를 보여줍니다.";
+            benefitText = "<strong>대출 승인 가능성: 최상</strong> | <strong>최저 금리 적용</strong> | <strong>최대 한도 승인 가능</strong>";
         } else if (score >= 700) {
-            detailText = "전반적인 신용활동과 상환능력이 양호하여 금융기관 관점에서 신뢰도가 높은 편입니다. 소액의 과거 연체가 있었더라도 회복된 이력이 있다면 우수 등급으로 분류되며, 대부분의 금융상품을 유리한 조건으로 이용할 수 있습니다. 다만 개인별 DTI(부채비율)나 최근 채무증가와 같은 개별 리스크 요인에 따라 한도나 금리가 조정될 수 있으므로, 고액 신청 시 추가 소득증빙을 요구하거나 조건부 한도가 제시될 수 있습니다.";
-            benefitText = "<strong>대출 승인 가능성: 매우 높음</strong> | <strong>우대 금리 적용 가능</strong> | <strong>예상 한도: 비교적 높은 한도 승인 예상</strong> | <strong>심사 처리: 대부분 자동 또는 조건부 자동 심사</strong> | <strong>권장 조치: DTI 개선 시 추가 혜택 및 한도 상향 가능</strong>";
+            detailText = "우수한 신용 상태로, 대부분의 금융 상품을 유리한 조건으로 이용할 수 있습니다. 꾸준한 관리를 통해 최상위 등급으로 상승 가능합니다.";
+            benefitText = "<strong>대출 승인 가능성: 매우 높음</strong> | <strong>우대 금리 적용 가능</strong> | <strong>높은 대출 한도 승인 예상</strong>";
         } else if (score >= 500) {
-            detailText = "신용 상태가 평균 수준으로 정상적인 금융거래는 가능하나 일부 상품이나 고액 대출에 대해서는 제약이 발생할 수 있습니다. 과거 연체 이력, 소득 불안정, 혹은 근속기간 미충족 등의 요인이 있으면 심사 시 가중치가 부여되어 추가 서류 제출이나 수동심사가 요구될 가능성이 큽니다. 신용 점수 향상을 위해 규칙적인 상환, 사용패턴 개선 및 부채 축소 노력이 권장됩니다.";
-            benefitText = "<strong>대출 승인 가능성: 보통</strong> | <strong>적용 금리: 표준 금리 적용</strong> | <strong>예상 한도: 심사 후 한도 결정(조건부 한도 적용 가능)</strong> | <strong>요구 서류: 추가 소득·재직증빙 필요할 수 있음</strong> | <strong>권장 조치: 부채통합 및 상환계획 수립 권고</strong>";
+            detailText = "보통 수준의 신용 상태입니다. 금융 거래는 가능하지만, 일부 조건에 제한이 있을 수 있습니다. 신용카드 사용 및 연체 관리를 통해 점수 향상이 필요합니다.";
+            benefitText = "<strong>대출 승인 가능성: 보통</strong> | <strong>일반 금리 적용</strong> | <strong>심사 후 한도 결정</strong>";
         } else {
-            detailText = "현재 신용점수는 낮은 수준으로 평가되며, 연체·부실 발생 가능성이 높아 즉시 대출 승인되기 어렵거나 매우 엄격한 조건(담보·보증인 제공, 고금리 적용 등)이 요구될 수 있습니다. 반복적 연체나 파산 이력이 있는 경우에는 자동거절 규정이 적용될 수 있으므로 우선적으로 채무 정리와 상환 계획 수립이 필요합니다. 필요시 금융 상담을 통해 채무조정 및 재무구조 개선 방안을 안내합니다.";
-            benefitText = "<strong>대출 승인 가능성: 낮음</strong> | <strong>적용 금리: 높은 금리 적용</strong> | <strong>예상 한도: 제한적 또는 담보·보증인 필요</strong> | <strong>심사 처리: 수동심사 및 추가심사 필요</strong> | <strong>권장 조치: 채무조정·상환플랜 수립 권고</strong>";
+            detailText = "신용 관리에 각별한 주의가 필요한 상태입니다. 연체 발생 가능성이 있으며, 금융 거래에 상당한 제약이 따를 수 있습니다. 부채 통합 및 상환 계획 수립이 시급합니다.";
+            benefitText = "<strong>대출 승인 가능성: 낮음</strong> | <strong>높은 금리 적용</strong> | <strong>대출 한도 제한적</strong>";
         }
 
         detailEl.textContent = detailText;
@@ -590,7 +590,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateRiskAnalysisDescription(chartData) {
-        const detailEl = document.querySelector('.risk_analysis_grid .risk_analysis_detail');
+        const detailEl = document.querySelector('.risk_analysis_detail');
         const mainDescEl = document.querySelector('.risk_analysis_discription .description_main');
         const detailDescEl = document.querySelector('.risk_analysis_discription .description_detail');
 
