@@ -21,6 +21,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // 로그아웃 함수
 function logout() {
     if (confirm('로그아웃 하시겠습니까?')) {
+        // 보고서 목록 초기화
+        if (window.reportsColumn) {
+            console.log('로그아웃 시 보고서 목록 초기화');
+            window.reportsColumn.clearReportsOnLogout();
+        }
+        
         window.location.href = '/kb_bank/logout/';
     }
 }
