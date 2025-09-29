@@ -1,7 +1,7 @@
 <!-- 세 번째 컬럼 - 심사 결과 표시 영역 -->
 <div class="third_column">
     <!-- 사용법 안내 (초기 표시) -->
-    <div id="usage_guide_container" style="display: flex;">
+    <div id="usage_guide_container">
         <div class="usage_guide">
             <div class="usage_guide_header">
                 <div class="usage_guide_icon">
@@ -58,6 +58,37 @@
                 <div class="tip_item">
                     <i class="bi bi-file-earmark-pdf"></i>
                     <span>생성된 보고서는 고객 상담 및 내부 검토 자료로 활용할 수 있습니다.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 로딩 화면 (초기 숨김) -->
+    <div class="assessment_loading" id="assessment_loading" style="display: none;">
+        <div class="loading_container">
+            <div class="loading_icon">
+                <div class="spinner"></div>
+            </div>
+            <div class="loading_content">
+                <h3 class="loading_title">여신심사 진행 중</h3>
+                <p class="loading_description">AI가 고객님의 신용도를 분석하고 있습니다...</p>
+                <div class="loading_steps">
+                    <div class="loading_step active">
+                        <i class="bi bi-check"></i>
+                        <span>고객 정보 확인</span>
+                    </div>
+                    <div class="loading_step active">
+                        <i class="bi bi-check"></i>
+                        <span>대출 정보 검증</span>
+                    </div>
+                    <div class="loading_step current">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        <span>AI 신용평가 진행</span>
+                    </div>
+                    <div class="loading_step">
+                        <i class="bi bi-circle"></i>
+                        <span>결과 분석 완료</span>
+                    </div>
                 </div>
             </div>
         </div>

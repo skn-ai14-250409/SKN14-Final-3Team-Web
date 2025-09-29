@@ -3,11 +3,13 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.db.models import Q
+from django.template.loader import render_to_string
 import json
 import logging
 import plotly.graph_objects as go
 import plotly.express as px
 import plotly.utils
+from datetime import datetime
 
 from f_customer.models import Customer, CustomerPerson
 from .models import LoanProduct
@@ -190,7 +192,7 @@ def create_risk_analysis_chart(customer_data, loan_data, prediction_result):
                 tickmode='array',
                 tickvals=[0, 72, 144, 216, 288],
                 ticktext=categories,
-                tickfont=dict(size=12),
+                tickfont=dict(size=11, color='rgba(0,0,0,0.8)'),
                 linecolor='black',
                 gridcolor='lightgray',
                 layer="above traces"
@@ -500,3 +502,110 @@ def generate_recommendation(prediction_result, customer_data, loan_data):
         'recommendations': recommendations,
         'warnings': warnings
     }
+
+@require_http_methods(["POST"])
+def generate_pdf_report(request):
+    """PDF 보고서 생성 API"""
+    try:
+        logger.info("PDF 보고서 생성 요청 시작")
+        
+        data = json.loads(request.body)
+        customer_name = data.get('customer_name', '')
+        third_column_html = data.get('third_column_html', '')
+        
+        logger.info(f"요청 데이터 - 고객명: {customer_name}, HTML 길이: {len(third_column_html) if third_column_html else 0}")
+        
+        if not customer_name or not third_column_html:
+            logger.warning("필수 데이터 누락")
+            return JsonResponse({
+                'success': False,
+                'message': '고객명과 심사 결과 데이터가 필요합니다.'
+            })
+        
+        # 현재 날짜 생성
+        report_date = datetime.now().strftime('%Y년 %m월 %d일')
+        logger.info(f"보고서 생성일: {report_date}")
+        
+        # 세션에서 사용자 정보 가져오기
+        logger.info(f"세션 키: {request.session.session_key}")
+        logger.info(f"세션 데이터: {dict(request.session)}")
+        
+        # 세션에서 사용자 정보 확인
+        user_id = request.session.get('user_id')
+        user_name = request.session.get('user_name')
+        employee_id = request.session.get('employee_id')
+        
+        logger.info(f"세션 사용자 ID: {user_id}")
+        logger.info(f"세션 사용자명: {user_name}")
+        logger.info(f"세션 사번: {employee_id}")
+        
+        if user_id and user_name:
+            # 세션에서 사용자 정보가 있으면 DB에서 상세 정보 조회
+            try:
+                from f_user.models import User
+                user = User.objects.get(seq_id=user_id)
+                logger.info(f"DB에서 사용자 조회 성공: {user.name}")
+                
+                # 부서와 직급 정보 가져오기
+                department_name = user.department.name if user.department else '여신심사부'
+                position_name = user.position.name if user.position else '과장'
+                phone = user.mobile if user.mobile else '02-1234-5678'
+                
+                officer_info = {
+                    'name': user.name,
+                    'department': department_name,
+                    'position': position_name,
+                    'phone': phone
+                }
+                logger.info("DB에서 사용자 정보를 성공적으로 가져왔습니다")
+                
+            except Exception as e:
+                logger.error(f"DB에서 사용자 정보 조회 실패: {str(e)}")
+                # DB 조회 실패 시 세션 정보만 사용
+                officer_info = {
+                    'name': user_name,
+                    'department': '여신심사부',
+                    'position': '과장',
+                    'phone': '02-1234-5678'
+                }
+                logger.info("세션 정보로 사용자 정보를 설정했습니다")
+        else:
+            # 세션에 사용자 정보가 없으면 기본값 사용
+            officer_info = {
+                'name': '시스템 관리자',
+                'department': '여신심사부',
+                'position': '과장',
+                'phone': '02-1234-5678'
+            }
+            logger.info("세션에 사용자 정보가 없어 기본값을 사용합니다")
+        
+        logger.info(f"담당자 정보: {officer_info}")
+        
+        # PDF 템플릿 렌더링
+        logger.info("PDF 템플릿 렌더링 시작")
+        pdf_html = render_to_string('credit_assessment/pdf_report.html', {
+            'customer_name': customer_name,
+            'report_date': report_date,
+            'content': third_column_html,
+            'officer_info': officer_info
+        })
+        
+        logger.info(f"PDF 템플릿 렌더링 완료, HTML 길이: {len(pdf_html)}")
+        
+        return JsonResponse({
+            'success': True,
+            'pdf_html': pdf_html
+        })
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON 디코딩 오류: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': '잘못된 요청 데이터입니다.'
+        })
+    except Exception as e:
+        logger.error(f"PDF 보고서 생성 중 오류 발생: {str(e)}", exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'message': f'PDF 보고서 생성 중 오류가 발생했습니다: {str(e)}'
+        })
