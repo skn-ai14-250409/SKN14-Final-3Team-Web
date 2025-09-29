@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import JsonResponse, FileResponse, Http404
+from django.http import JsonResponse, FileResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
@@ -10,6 +10,10 @@ import json
 import logging
 import os
 from datetime import datetime
+import boto3
+from botocore.exceptions import NoCredentialsError, ClientError
+import urllib.parse
+import config
 
 from .ai_service import AIService
 
@@ -399,40 +403,63 @@ def session_stats(request):
 
 @require_http_methods(["GET"])
 def serve_pdf(request, file_path):
-    """PDF 파일을 서빙하는 뷰"""
+    """S3에서 PDF 파일을 서빙하는 뷰"""
     try:
-        # Pinecone에서 저장된 파일 경로를 실제 로컬 경로로 변환
-        # 예: "법률/공통/여신금융협회_여신심사_선진화를_위한_가이드라인.pdf"
-        # -> "C:\Workspaces\SKN14-Final-3Team\SKN14-Final-3Team-Data\법률\공통\여신금융협회_여신심사_선진화를_위한_가이드라인.pdf"
-        
         # URL 디코딩
-        import urllib.parse
         decoded_file_path = urllib.parse.unquote(file_path)
         
-        # 로컬 데이터 디렉토리 경로
-        data_dir = r"C:\Workspaces\SKN14-Final-3Team\SKN14-Final-3Team-Data"
+        # S3 경로에 pdf/ 접두사 추가
+        s3_file_path = f"pdf/{decoded_file_path}"
         
-        # 전체 파일 경로 생성
-        full_file_path = os.path.join(data_dir, decoded_file_path)
-        
-        # 파일 존재 확인
-        if not os.path.exists(full_file_path):
-            logger.error(f"PDF 파일을 찾을 수 없습니다: {full_file_path}")
-            raise Http404("PDF 파일을 찾을 수 없습니다.")
-        
-        # 파일명 추출
-        filename = os.path.basename(full_file_path)
-        
-        # PDF 파일 응답
-        response = FileResponse(
-            open(full_file_path, 'rb'),
-            content_type='application/pdf',
-            filename=filename
+        # S3 클라이언트 생성
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id=config.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY,
+            region_name=config.AWS_S3_REGION_NAME
         )
-        response['Content-Disposition'] = f'inline; filename="{filename}"'
         
-        return response
+        bucket_name = config.AWS_STORAGE_BUCKET_NAME
+        if not bucket_name:
+            logger.error("AWS_STORAGE_BUCKET_NAME 환경변수가 설정되지 않았습니다.")
+            raise Http404("S3 설정이 올바르지 않습니다.")
         
+        # S3에서 파일 존재 확인
+        try:
+            s3_client.head_object(Bucket=bucket_name, Key=s3_file_path)
+        except ClientError as e:
+            if e.response['Error']['Code'] == '404':
+                logger.error(f"S3에서 PDF 파일을 찾을 수 없습니다: {s3_file_path}")
+                raise Http404("PDF 파일을 찾을 수 없습니다.")
+            else:
+                logger.error(f"S3 파일 확인 오류: {e}")
+                raise Http404("PDF 파일을 불러올 수 없습니다.")
+        
+        # S3에서 파일 다운로드
+        try:
+            response = s3_client.get_object(Bucket=bucket_name, Key=s3_file_path)
+            file_content = response['Body'].read()
+            
+            # 파일명 추출
+            filename = os.path.basename(decoded_file_path)
+            
+            # PDF 파일 응답
+            http_response = HttpResponse(
+                file_content,
+                content_type='application/pdf'
+            )
+            http_response['Content-Disposition'] = f'inline; filename="{filename}"'
+            http_response['Content-Length'] = len(file_content)
+            
+            return http_response
+            
+        except ClientError as e:
+            logger.error(f"S3 파일 다운로드 오류: {e}")
+            raise Http404("PDF 파일을 불러올 수 없습니다.")
+        
+    except NoCredentialsError:
+        logger.error("AWS 자격 증명이 올바르지 않습니다.")
+        raise Http404("S3 접근 권한이 없습니다.")
     except Exception as e:
         logger.error(f"PDF 파일 서빙 오류: {e}")
         raise Http404("PDF 파일을 불러올 수 없습니다.")

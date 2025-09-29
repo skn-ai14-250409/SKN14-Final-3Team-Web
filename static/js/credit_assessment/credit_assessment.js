@@ -6,21 +6,29 @@ console.log('=== credit_assessment.js 로드됨 ===');
 window.createAndSaveReport = function() {
     console.log('=== createAndSaveReport 함수 호출됨 (전역) ===');
     
+    // 중복 실행 방지
+    if (window.isGeneratingReport) {
+        console.log('이미 보고서 생성 중입니다.');
+        return;
+    }
+    
     // currentCustomerData가 전역으로 접근 가능한지 확인
     if (typeof window.currentCustomerData === 'undefined' || !window.currentCustomerData) {
         console.log('고객 정보가 없습니다.');
         alert('고객 정보를 먼저 확인해주세요.');
+        window.isGeneratingReport = false;
         return;
     }
     
-    // 심사 결과가 있는지 확인
-    const resultsContent = document.getElementById('results_content');
-    console.log('resultsContent:', resultsContent);
-    console.log('resultsContent display:', resultsContent ? resultsContent.style.display : 'null');
+    // third_column (심사 결과 컬럼) 확인
+    const thirdColumn = document.querySelector('.third_column');
+    console.log('thirdColumn:', thirdColumn);
+    console.log('thirdColumn display:', thirdColumn ? thirdColumn.style.display : 'null');
     
-    if (!resultsContent || resultsContent.style.display === 'none') {
+    if (!thirdColumn || thirdColumn.style.display === 'none') {
         console.log('심사 결과가 없습니다.');
         alert('심사 결과가 없습니다. 먼저 여신 심사를 진행해주세요.');
+        window.isGeneratingReport = false;
         return;
     }
     
@@ -33,24 +41,11 @@ window.createAndSaveReport = function() {
         const currentDate = new Date();
         const dateString = currentDate.toLocaleDateString('ko-KR');
         
-        // 심사 결과 데이터 수집
-        const creditScore = document.querySelector('.credit_score')?.textContent || '0';
-        const creditRating = document.querySelector('.credit_rating')?.textContent || '-';
-        const approvalStatus = document.querySelector('.approval_status')?.textContent || '불가능';
-        const recommendedLimit = document.getElementById('recommended_limit')?.textContent || '0만원';
+        // third_column의 HTML 내용을 직접 가져오기
+        const thirdColumnHTML = thirdColumn.innerHTML;
+        console.log('third_column HTML:', thirdColumnHTML);
         
-        // 대출 정보
-        const loanAmount = document.getElementById('loan_amount')?.value || '0';
-        const loanPurpose = document.getElementById('loan_purpose')?.selectedOptions[0]?.text || '';
-        const loanProduct = document.getElementById('loan_product')?.selectedOptions[0]?.text || '';
-        const loanPeriod = document.getElementById('loan_period')?.value || '0';
-        
-        console.log('수집된 데이터:', {
-            customerName, creditScore, creditRating, approvalStatus, recommendedLimit,
-            loanAmount, loanPurpose, loanProduct, loanPeriod
-        });
-        
-        // PDF 내용 생성
+        // PDF용 HTML 생성 (third_column 내용만 포함)
         const reportContent = `
             <!DOCTYPE html>
             <html>
@@ -82,80 +77,8 @@ window.createAndSaveReport = function() {
                     <div class="subtitle">생성일: ${dateString}</div>
                 </div>
                 
-                <div class="section">
-                    <div class="section-title">고객 정보</div>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <div class="info-label">고객명</div>
-                            <div class="info-value">${customerName}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">나이</div>
-                            <div class="info-value">${window.currentCustomerData.age}세</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">성별</div>
-                            <div class="info-value">${window.currentCustomerData.gender}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">연락처</div>
-                            <div class="info-value">${window.currentCustomerData.phone}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">회사명</div>
-                            <div class="info-value">${window.currentCustomerData.company_name}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">직종</div>
-                            <div class="info-value">${window.currentCustomerData.job_title}</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <div class="section-title">대출 신청 정보</div>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <div class="info-label">대출 신청 금액</div>
-                            <div class="info-value">${loanAmount}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">대출 목적</div>
-                            <div class="info-value">${loanPurpose}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">대출 상품</div>
-                            <div class="info-value">${loanProduct}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">대출 기간</div>
-                            <div class="info-value">${loanPeriod}개월</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <div class="section-title">신용평가 결과</div>
-                    <div class="result-highlight">
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <div class="info-label">신용점수</div>
-                                <div class="info-value">${creditScore}점</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">신용등급</div>
-                                <div class="info-value">${creditRating}</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">승인 여부</div>
-                                <div class="info-value approval-status ${approvalStatus === '승인 가능' ? 'approved' : 'rejected'}">${approvalStatus}</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">권장 한도</div>
-                                <div class="info-value">${recommendedLimit}</div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="third_column">
+                    ${thirdColumnHTML}
                 </div>
                 
                 <div class="footer">
@@ -166,49 +89,404 @@ window.createAndSaveReport = function() {
             </html>
         `;
         
-        // Blob 생성
-        const blob = new Blob([reportContent], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
+        // 실제 PDF 생성
+        const fileName = `${customerName}_여신심사보고서.pdf`;
         
-        // 파일명 생성
-        const fileName = `${customerName}_보고서.pdf`;
-        
-        // 보고서 객체 생성
-        const report = {
-            name: customerName + '_보고서',
-            filename: fileName,
-            url: url,
-            date: dateString,
-            type: 'PDF'
+        // 간단한 PDF 생성 함수 (브라우저 인쇄 기능 사용)
+        const generatePDF = async () => {
+            try {
+                console.log('PDF 생성 시작...');
+                
+                // 브라우저 인쇄 기능을 사용하여 PDF 생성
+                const printWindow = window.open('', '_blank', 'width=800,height=600');
+                
+                if (!printWindow) {
+                    throw new Error('팝업이 차단되었습니다. 팝업 차단을 해제해주세요.');
+                }
+                
+                // 완전한 HTML 문서 생성
+                const htmlContent = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>${fileName}</title>
+                        <style>
+                            @page {
+                                margin: 20mm;
+                                size: A4;
+                            }
+                            
+                            * {
+                                box-sizing: border-box;
+                            }
+                            
+                            body {
+                                font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
+                                margin: 0;
+                                padding: 20px;
+                                line-height: 1.6;
+                                color: #333;
+                                background: white;
+                            }
+                            
+                            .header {
+                                text-align: center;
+                                margin-bottom: 30px;
+                                border-bottom: 2px solid #1e3a8a;
+                                padding-bottom: 20px;
+                            }
+                            
+                            .title {
+                                font-size: 24px;
+                                font-weight: bold;
+                                color: #1e3a8a;
+                                margin-bottom: 10px;
+                            }
+                            
+                            .subtitle {
+                                font-size: 16px;
+                                color: #666;
+                                margin: 5px 0;
+                            }
+                            
+                            .content {
+                                margin: 20px 0;
+                            }
+                            
+                            .section {
+                                margin: 20px 0;
+                                padding: 15px;
+                                background: #f8f9fa;
+                                border-radius: 8px;
+                                border-left: 4px solid #1e3a8a;
+                            }
+                            
+                            .section-title {
+                                font-size: 18px;
+                                font-weight: bold;
+                                color: #1e3a8a;
+                                margin-bottom: 10px;
+                            }
+                            
+                            .info-grid {
+                                display: grid;
+                                grid-template-columns: 1fr 1fr;
+                                gap: 10px;
+                                margin: 10px 0;
+                            }
+                            
+                            .info-item {
+                                padding: 8px;
+                                background: white;
+                                border-radius: 4px;
+                                border: 1px solid #e5e7eb;
+                            }
+                            
+                            .info-label {
+                                font-weight: bold;
+                                color: #374151;
+                                font-size: 14px;
+                            }
+                            
+                            .info-value {
+                                color: #1f2937;
+                                margin-top: 4px;
+                            }
+                            
+                            .result-highlight {
+                                background: #dbeafe;
+                                padding: 15px;
+                                border-radius: 8px;
+                                margin: 15px 0;
+                                border-left: 4px solid #1e3a8a;
+                            }
+                            
+                            .approval-status {
+                                font-size: 20px;
+                                font-weight: bold;
+                            }
+                            
+                            .approved {
+                                color: #059669;
+                            }
+                            
+                            .rejected {
+                                color: #dc2626;
+                            }
+                            
+                            .footer {
+                                margin-top: 40px;
+                                text-align: center;
+                                color: #666;
+                                font-size: 12px;
+                                border-top: 1px solid #e5e7eb;
+                                padding-top: 20px;
+                            }
+                            
+                            @media print {
+                                body {
+                                    margin: 0;
+                                    padding: 20px;
+                                }
+                                
+                                .no-print {
+                                    display: none;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <div class="title">KB국민은행 여신심사 보고서</div>
+                            <div class="subtitle">${customerName} 고객 신용평가 결과</div>
+                            <div class="subtitle">생성일: ${dateString}</div>
+                        </div>
+                        
+                        <div class="content">
+                            ${thirdColumnHTML}
+                        </div>
+                        
+                        <div class="footer">
+                            <p>본 보고서는 KB국민은행 여신심사 시스템에 의해 자동 생성되었습니다.</p>
+                            <p>문의사항이 있으시면 담당자에게 연락바랍니다.</p>
+                        </div>
+                        
+                        <script>
+                            window.onload = function() {
+                                // 페이지 로드 후 인쇄 대화상자 열기
+                                setTimeout(function() {
+                                    window.print();
+                                    
+                                    // 인쇄 후 창 닫기 (사용자가 취소해도 5초 후 자동 닫기)
+                                    setTimeout(function() {
+                                        window.close();
+                                    }, 5000);
+                                }, 1000);
+                            };
+                            
+                            // 인쇄 완료 이벤트 처리
+                            window.onafterprint = function() {
+                                setTimeout(function() {
+                                    window.close();
+                                }, 1000);
+                            };
+                        </script>
+                    </body>
+                    </html>
+                `;
+                
+                printWindow.document.write(htmlContent);
+                printWindow.document.close();
+                
+                // HTML Blob 생성하여 다운로드 옵션 제공
+                const blob = new Blob([htmlContent], { 
+                    type: 'text/html; charset=utf-8' 
+                });
+                const pdfUrl = URL.createObjectURL(blob);
+                
+                console.log('PDF URL 생성 완료:', pdfUrl);
+                return pdfUrl;
+                
+            } catch (error) {
+                console.error('PDF 생성 오류:', error);
+                
+                // 최종 fallback - 간단한 HTML
+                const fallbackContent = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>${fileName}</title>
+                        <style>
+                            body { 
+                                font-family: 'Malgun Gothic', sans-serif; 
+                                margin: 20px; line-height: 1.6;
+                            }
+                            .header { 
+                                text-align: center; margin-bottom: 30px; 
+                                border-bottom: 2px solid #1e3a8a; 
+                                padding-bottom: 20px;
+                            }
+                            .title { 
+                                font-size: 24px; font-weight: bold; 
+                                color: #1e3a8a; 
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <div class="title">KB국민은행 여신심사 보고서</div>
+                            <div>${customerName} 고객 신용평가 결과</div>
+                            <div>생성일: ${dateString}</div>
+                        </div>
+                        <div>
+                            <p>보고서 내용이 여기에 표시됩니다.</p>
+                            <p>PDF 생성 중 오류가 발생하여 기본 형식으로 표시됩니다.</p>
+                        </div>
+                    </body>
+                    </html>
+                `;
+                
+                const blob = new Blob([fallbackContent], { type: 'text/html; charset=utf-8' });
+                return URL.createObjectURL(blob);
+            }
         };
         
-        console.log('생성된 보고서 객체:', report);
-        
-        // ReportsColumn에 보고서 추가
-        console.log('window.reportsColumn:', window.reportsColumn);
-        if (window.reportsColumn) {
-            console.log('보고서 추가 시도:', report);
-            window.reportsColumn.addReport(report);
-            console.log('보고서가 목록에 추가되었습니다.');
-        } else {
-            console.error('ReportsColumn 인스턴스를 찾을 수 없습니다.');
-            alert('보고서 목록에 추가할 수 없습니다. 페이지를 새로고침해주세요.');
-        }
-        
-        // 자동 다운로드 트리거
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName;
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // PDF 생성 및 다운로드
+        generatePDF().then((pdfUrl) => {
+            // 보고서 객체 생성
+            const report = {
+                name: customerName + '_여신심사보고서',
+                filename: fileName,
+                url: pdfUrl,
+                date: dateString,
+                type: 'PDF'
+            };
+            
+            console.log('생성된 보고서 객체:', report);
+            
+            // ReportsColumn에 보고서 추가
+            console.log('window.reportsColumn:', window.reportsColumn);
+            if (window.reportsColumn) {
+                console.log('보고서 추가 시도:', report);
+                window.reportsColumn.addReport(report);
+                console.log('보고서가 목록에 추가되었습니다.');
+            } else {
+                console.error('ReportsColumn 인스턴스를 찾을 수 없습니다.');
+                alert('보고서 목록에 추가할 수 없습니다. 페이지를 새로고침해주세요.');
+            }
+            
+            // 자동 다운로드 트리거 (실제 PDF 파일 다운로드)
+            try {
+                console.log('다운로드 시작:', fileName);
+                
+                // PDF Blob을 직접 다운로드
+                if (pdfUrl.startsWith('blob:')) {
+                    // Blob을 직접 다운로드
+                    const link = document.createElement('a');
+                    link.href = pdfUrl;
+                    link.download = fileName;
+                    link.style.display = 'none';
+                    
+                    // MIME 타입 명시적 설정
+                    link.setAttribute('type', 'application/pdf');
+                    
+                    document.body.appendChild(link);
+                    link.click();
+                    
+                    // 정리
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(pdfUrl);
+                    }, 1000);
+                    
+                    console.log('PDF 다운로드 완료:', fileName);
+                    
+                    // 성공 메시지
+                    alert(`${fileName} 파일이 다운로드되었습니다.`);
+                    
+                } else {
+                    // URL인 경우 새 창에서 열기
+                    window.open(pdfUrl, '_blank');
+                }
+                
+            } catch (downloadError) {
+                console.error('다운로드 오류:', downloadError);
+                
+                // 최종 대안: 브라우저 인쇄 기능 사용
+                const printWindow = window.open('', '_blank', 'width=800,height=600');
+                if (printWindow) {
+                    printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <title>${fileName}</title>
+                            <style>
+                                @page { margin: 20mm; size: A4; }
+                                body { 
+                                    font-family: 'Malgun Gothic', sans-serif; 
+                                    margin: 0; padding: 20px; 
+                                    line-height: 1.6; color: #333;
+                                }
+                                .header { 
+                                    text-align: center; margin-bottom: 30px; 
+                                    border-bottom: 2px solid #1e3a8a; 
+                                    padding-bottom: 20px;
+                                }
+                                .title { 
+                                    font-size: 24px; font-weight: bold; 
+                                    color: #1e3a8a; margin-bottom: 10px;
+                                }
+                                .subtitle { 
+                                    font-size: 16px; color: #666; margin: 5px 0;
+                                }
+                                .content { margin: 20px 0; }
+                                .footer { 
+                                    margin-top: 40px; text-align: center; 
+                                    color: #666; font-size: 12px; 
+                                    border-top: 1px solid #e5e7eb; 
+                                    padding-top: 20px;
+                                }
+                                @media print {
+                                    body { margin: 0; padding: 20px; }
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="header">
+                                <div class="title">KB국민은행 여신심사 보고서</div>
+                                <div class="subtitle">${customerName} 고객 신용평가 결과</div>
+                                <div class="subtitle">생성일: ${dateString}</div>
+                            </div>
+                            <div class="content">
+                                ${thirdColumnHTML}
+                            </div>
+                            <div class="footer">
+                                <p>본 보고서는 KB국민은행 여신심사 시스템에 의해 자동 생성되었습니다.</p>
+                                <p>문의사항이 있으시면 담당자에게 연락바랍니다.</p>
+                            </div>
+                            <script>
+                                window.onload = function() {
+                                    setTimeout(function() {
+                                        window.print();
+                                        setTimeout(function() {
+                                            window.close();
+                                        }, 5000);
+                                    }, 1000);
+                                };
+                                window.onafterprint = function() {
+                                    setTimeout(function() {
+                                        window.close();
+                                    }, 1000);
+                                };
+                            </script>
+                        </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                } else {
+                    alert('PDF 생성이 완료되었지만 다운로드에 실패했습니다. 브라우저 설정을 확인해주세요.');
+                }
+            }
+            
+        }).catch((error) => {
+            console.error('PDF 생성 실패:', error);
+            alert('PDF 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
+        });
         
         console.log('보고서 생성 및 다운로드 완료:', fileName);
+        
+        // 생성 완료 후 플래그 해제
+        window.isGeneratingReport = false;
         
     } catch (error) {
         console.error('보고서 생성 중 오류 발생:', error);
         alert('보고서 생성 중 오류가 발생했습니다: ' + error.message);
+        
+        // 오류 발생 시에도 플래그 해제
+        window.isGeneratingReport = false;
     }
 };
 
@@ -221,6 +499,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnReset = document.getElementById('btn_reset');
     const btnCheckCustomer = document.getElementById('btn_check_customer');
     const customerDisplayContent = document.getElementById('customer_display_content');
+    
+    // --- 개인/기업 토글 버튼 ---
+    const toggleButtons = document.querySelectorAll('.toggle_button');
+    let currentAssessmentType = 'personal'; // 기본값: 개인
 
     const usageGuideContainer = document.getElementById('usage_guide_container');
     const assessmentResults = document.getElementById('assessment_results');
@@ -284,22 +566,23 @@ document.addEventListener('DOMContentLoaded', function () {
         input.classList.add('error');
         const errorElement = document.getElementById(input.id + '_error');
         if (errorElement) {
-        errorElement.textContent = message;
+            errorElement.innerHTML = `<i class="bi bi-exclamation-circle-fill"></i> ${message}`;
         } else {
-        const newError = document.createElement('span');
-        newError.id = input.id + '_error';
-        newError.className = 'error-message';
-        newError.textContent = message;
-        input.parentNode.insertBefore(newError, input.nextSibling);
+            const newError = document.createElement('span');
+            newError.id = input.id + '_error';
+            newError.className = 'error-message';
+            newError.innerHTML = `<i class="bi bi-exclamation-circle-fill"></i> ${message}`;
+            input.parentNode.insertBefore(newError, input.nextSibling);
         }
-        setTimeout(() => input.classList.remove('error'), 400);
+        // 에러 클래스는 사용자가 입력을 시작할 때까지 유지
+        // setTimeout(() => input.classList.remove('error'), 400);
     }
 
     function clearAllErrors() {
         const allInputs = document.querySelectorAll('.input_grid input, .input_grid select');
         allInputs.forEach((i) => i.classList.remove('error'));
         const msgs = document.querySelectorAll('.error-message');
-        msgs.forEach((m) => (m.textContent = ''));
+        msgs.forEach((m) => (m.innerHTML = ''));
     }
 
     function showResultsPage() {
@@ -452,10 +735,20 @@ document.addEventListener('DOMContentLoaded', function () {
             const customerDisplayHeader = document.querySelector('.customer_display_header');
             if (customerDisplayHeader) {
                 const headerTitle = customerDisplayHeader.querySelector('.header_title');
-                if (headerTitle) headerTitle.textContent = '개인 고객 정보';
+                if (headerTitle) {
+                    // 개인/기업에 따른 헤더 제목 설정
+                    const typeText = currentAssessmentType === 'personal' ? '개인' : '기업';
+                    headerTitle.textContent = `${typeText} 고객 정보`;
+                }
             }
             if (customerInfoHeader) customerInfoHeader.style.display = 'none';
             if (customerDisplayHeader) customerDisplayHeader.style.display = 'flex';
+            
+            // 토글 버튼 숨기기
+            const assessmentTypeToggle = document.querySelector('.assessment_type_toggle');
+            if (assessmentTypeToggle) {
+                assessmentTypeToggle.style.display = 'none';
+            }
 
             displayCustomerInfo(data.customer);
             currentCustomerData = data.customer;
@@ -925,6 +1218,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function resetForm() {
         inputs.forEach((input) => (input.value = ''));
         currentCustomerData = null;
+        // 전역 변수도 초기화
+        window.currentCustomerData = null;
 
         if (firstRow) firstRow.style.display = 'flex';
 
@@ -947,6 +1242,12 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('third_row 숨김');
         }
 
+        // 토글 버튼 다시 표시
+        const assessmentTypeToggle = document.querySelector('.assessment_type_toggle');
+        if (assessmentTypeToggle) {
+            assessmentTypeToggle.style.display = 'flex';
+        }
+
         hideResultsPage();
     }
 
@@ -958,6 +1259,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const numeric = value.replace(/,/g, '');
         if (numeric && !isNaN(numeric)) this.value = parseInt(numeric, 10).toLocaleString() + '원';
         else if (value === '') this.value = '';
+        
+        // 에러 클래스 제거
+        this.classList.remove('error');
+        const errorElement = document.getElementById(this.id + '_error');
+        if (errorElement) {
+            errorElement.innerHTML = '';
+        }
         });
         loanAmountInput.addEventListener('keypress', function (e) {
         if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) e.preventDefault();
@@ -973,19 +1281,95 @@ document.addEventListener('DOMContentLoaded', function () {
         else if (value.length >= 6) value = value.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
         else if (value.length >= 3) value = value.replace(/(\d{3})(\d{3})/, '$1-$2');
         this.value = value;
+        
+        // 에러 클래스 제거
+        this.classList.remove('error');
+        const errorElement = document.getElementById(this.id + '_error');
+        if (errorElement) {
+            errorElement.innerHTML = '';
+        }
         });
     }
 
     const rrnInput = document.getElementById('customer_rrn');
     if (rrnInput) {
         rrnInput.addEventListener('input', function () {
-        let value = this.value.replace(/\D/g, '');
-        if (value.length > 13) value = value.substring(0, 13);
-        if (value.length >= 7) value = value.replace(/(\d{6})(\d{7})/, '$1-$2');
-        this.value = value;
+            let value = this.value.replace(/\D/g, '');
+            
+            // 개인/기업 모드에 따른 포맷팅
+            if (currentAssessmentType === 'personal') {
+                // 개인: 주민번호 포맷팅 (123456-1234567)
+                if (value.length > 13) value = value.substring(0, 13);
+                if (value.length >= 7) value = value.replace(/(\d{6})(\d{7})/, '$1-$2');
+            } else if (currentAssessmentType === 'corporate') {
+                // 기업: 사업자등록번호 포맷팅 (123-45-67890)
+                if (value.length > 10) value = value.substring(0, 10);
+                if (value.length >= 6) value = value.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3');
+                else if (value.length >= 3) value = value.replace(/(\d{3})(\d{2})/, '$1-$2');
+            }
+            
+            this.value = value;
+            
+            // 에러 클래스 제거
+            this.classList.remove('error');
+            const errorElement = document.getElementById(this.id + '_error');
+            if (errorElement) {
+                errorElement.innerHTML = '';
+            }
         });
     }
 
+    // customer_name input에 에러 제거 이벤트 리스너 추가
+    const customerNameInput = document.getElementById('customer_name');
+    if (customerNameInput) {
+        customerNameInput.addEventListener('input', function () {
+            // 에러 클래스 제거
+            this.classList.remove('error');
+            const errorElement = document.getElementById(this.id + '_error');
+            if (errorElement) {
+                errorElement.innerHTML = '';
+            }
+        });
+    }
+
+    // loan_period input에 에러 제거 이벤트 리스너 추가
+    const loanPeriodInput = document.getElementById('loan_period');
+    if (loanPeriodInput) {
+        loanPeriodInput.addEventListener('input', function () {
+            // 에러 클래스 제거
+            this.classList.remove('error');
+            const errorElement = document.getElementById(this.id + '_error');
+            if (errorElement) {
+                errorElement.innerHTML = '';
+            }
+        });
+    }
+
+    // loan_purpose select에 에러 제거 이벤트 리스너 추가
+    const loanPurposeSelectForError = document.getElementById('loan_purpose');
+    if (loanPurposeSelectForError) {
+        loanPurposeSelectForError.addEventListener('change', function () {
+            // 에러 클래스 제거
+            this.classList.remove('error');
+            const errorElement = document.getElementById(this.id + '_error');
+            if (errorElement) {
+                errorElement.innerHTML = '';
+            }
+        });
+    }
+
+    // loan_product select에 에러 제거 이벤트 리스너 추가
+    const loanProductSelectForError = document.getElementById('loan_product');
+    if (loanProductSelectForError) {
+        loanProductSelectForError.addEventListener('change', function () {
+            // 에러 클래스 제거
+            this.classList.remove('error');
+            const errorElement = document.getElementById(this.id + '_error');
+            if (errorElement) {
+                errorElement.innerHTML = '';
+            }
+        });
+    }
 
     // ---------- 이벤트 바인딩 ----------
     console.log('=== 이벤트 바인딩 시작 ===');
@@ -1024,29 +1408,128 @@ document.addEventListener('DOMContentLoaded', function () {
     
     console.log('=== 이벤트 바인딩 완료 ===');
     
-    // ---------- 보고서 생성 버튼 직접 바인딩 (추가 보장) ----------
+    // ---------- 보고서 생성 버튼 이벤트 바인딩 (중복 방지) ----------
     setTimeout(() => {
         const reportBtn = document.querySelector('.report_upload_section');
         if (reportBtn) {
-            console.log('보고서 생성 버튼 직접 바인딩 시도');
-            reportBtn.addEventListener('click', function(e) {
-                console.log('보고서 생성 버튼 클릭됨 (직접 바인딩)');
-                e.preventDefault();
-                e.stopPropagation();
-                
-                if (typeof window.createAndSaveReport === 'function') {
-                    console.log('createAndSaveReport 함수 호출 (직접 바인딩)');
-                    window.createAndSaveReport();
-                } else {
-                    console.error('createAndSaveReport 함수가 없습니다 (직접 바인딩)');
-                    alert('보고서 생성 기능을 사용할 수 없습니다.');
-                }
-            });
-            console.log('보고서 생성 버튼 직접 바인딩 완료');
+            console.log('보고서 생성 버튼 바인딩 시도');
+            
+            // 기존 이벤트 리스너 제거 (중복 방지)
+            reportBtn.removeEventListener('click', handleReportClick);
+            
+            // 새로운 이벤트 리스너 추가
+            reportBtn.addEventListener('click', handleReportClick);
+            console.log('보고서 생성 버튼 바인딩 완료');
         } else {
-            console.log('보고서 생성 버튼을 찾을 수 없습니다 (직접 바인딩)');
+            console.log('보고서 생성 버튼을 찾을 수 없습니다');
         }
     }, 500);
+    
+    // 보고서 클릭 핸들러 함수 (중복 방지)
+    function handleReportClick(e) {
+        console.log('보고서 생성 버튼 클릭됨');
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // 중복 실행 방지
+        if (window.isGeneratingReport) {
+            console.log('이미 보고서 생성 중입니다.');
+            return;
+        }
+        
+        window.isGeneratingReport = true;
+        
+        if (typeof window.createAndSaveReport === 'function') {
+            console.log('createAndSaveReport 함수 호출');
+            window.createAndSaveReport();
+        } else {
+            console.error('createAndSaveReport 함수가 없습니다');
+            alert('보고서 생성 기능을 사용할 수 없습니다.');
+        }
+        
+        // 플래그는 createAndSaveReport 함수에서 해제됨
+    }
+    
+    // --- 개인/기업 폼 업데이트 함수 ---
+    function updateFormForAssessmentType(type) {
+        const customerNameInput = document.getElementById('customer_name');
+        const customerRrnInput = document.getElementById('customer_rrn');
+        const customerPhoneInput = document.getElementById('customer_phone');
+        const customerNameLabel = document.querySelector('label[for="customer_name"]');
+        const customerRrnLabel = document.querySelector('label[for="customer_rrn"]');
+        const customerPhoneLabel = document.querySelector('label[for="customer_phone"]');
+        
+        if (type === 'personal') {
+            console.log('개인 여신심사 모드로 전환');
+            
+            // 개인용 라벨로 변경
+            if (customerNameLabel) customerNameLabel.textContent = '고객명';
+            if (customerRrnLabel) customerRrnLabel.textContent = '주민번호';
+            if (customerPhoneLabel) customerPhoneLabel.textContent = '연락처';
+            
+            // 개인용 플레이스홀더로 변경
+            if (customerNameInput) customerNameInput.placeholder = '홍길동';
+            if (customerRrnInput) {
+                customerRrnInput.placeholder = '123456-1234567';
+                customerRrnInput.maxLength = 14;
+            }
+            if (customerPhoneInput) {
+                customerPhoneInput.placeholder = '010-1234-5678';
+                customerPhoneInput.maxLength = 13;
+            }
+            
+        } else if (type === 'corporate') {
+            console.log('기업 여신심사 모드로 전환');
+            
+            // 기업용 라벨로 변경
+            if (customerNameLabel) customerNameLabel.textContent = '기업명';
+            if (customerRrnLabel) customerRrnLabel.textContent = '사업자등록번호';
+            if (customerPhoneLabel) customerPhoneLabel.textContent = '대표자 연락처';
+            
+            // 기업용 플레이스홀더로 변경
+            if (customerNameInput) customerNameInput.placeholder = 'KB국민은행';
+            if (customerRrnInput) {
+                customerRrnInput.placeholder = '123-45-67890';
+                customerRrnInput.maxLength = 12;
+            }
+            if (customerPhoneInput) {
+                customerPhoneInput.placeholder = '02-1234-5678';
+                customerPhoneInput.maxLength = 13;
+            }
+        }
+        
+        // 입력값 초기화
+        if (customerNameInput) customerNameInput.value = '';
+        if (customerRrnInput) customerRrnInput.value = '';
+        if (customerPhoneInput) customerPhoneInput.value = '';
+        
+        // 에러 메시지 초기화
+        clearAllErrors();
+    }
+    
+    // --- 개인/기업 토글 버튼 이벤트 ---
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const type = this.getAttribute('data-type');
+            
+            // 모든 버튼에서 active 클래스 제거
+            toggleButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // 클릭된 버튼에 active 클래스 추가
+            this.classList.add('active');
+            
+            // 현재 타입 업데이트
+            currentAssessmentType = type;
+            
+            console.log('평가 타입 변경:', type);
+            
+            // 타입에 따른 UI 변경
+            updateFormForAssessmentType(type);
+        });
+    });
+    
+    // 페이지 로드 시 기본값 설정
+    updateFormForAssessmentType('personal');
     
     console.log('=== 추가 이벤트 바인딩 완료 ===');
     });

@@ -44,9 +44,54 @@
         gap: ptr(10px);
          
         .credit_assessment_title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-size: ptr(14px);
             font-weight: 600;
             color: $kb-dark;
+            
+            .assessment_type_toggle {
+                display: flex;
+                background: $kb-background-gray;
+                border-radius: ptr(8px);
+                padding: ptr(1px);
+                gap: ptr(1px);
+                
+                .toggle_button {
+                    display: flex;
+                    align-items: center;
+                    gap: ptr(1px);
+                    padding: ptr(3px) ptr(8px);
+                    border: none;
+                    background: transparent;
+                    border-radius: ptr(6px);
+                    font-size: ptr(9px);
+                    font-weight: 500;
+                    color: $kb-text-light;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    min-width: ptr(32px);
+                    
+                    i {
+                        font-size: ptr(8px);
+                    }
+                    
+                    span {
+                        font-size: ptr(8px);
+                    }
+                    
+                    &:hover {
+                        background: rgba($kb-dark, 0.1);
+                        color: $kb-text-dark;
+                    }
+                    
+                    &.active {
+                        background: $kb-dark;
+                        color: $kb-text-white;
+                    }
+                }
+            }
         }
         
         .customer_info_header {
@@ -169,8 +214,7 @@
                     font-size: ptr(11px);
                     font-weight: 600;
                     color: $kb-text-light;
-                    min-width: ptr(60px);
-                    margin-right: ptr(8px);
+                    min-width: ptr(50px);
                 }
                 
                 .info_value {
@@ -237,9 +281,15 @@
                         
                         &.error {
                             border-color: $danger;
-                            box-shadow: 0 0 0 0.1rem $shadows;
-                            animation: shake 0.8s ease-in-out;
+                            box-shadow: 0 0 0 0.1rem rgba($danger, 0.25);
+                            animation: shake 0.6s ease-in-out;
                         }
+                    }
+                    
+                    @keyframes shake {
+                        0%, 100% { transform: translateX(0); }
+                        10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+                        20%, 40%, 60%, 80% { transform: translateX(2px); }
                     }
                     
                     .error-message {
@@ -247,8 +297,19 @@
                         font-size: ptr(10px);
                         font-weight: 400;
                         margin-left: ptr(4px);
-                        display: inline;
-                        white-space: nowrap;
+                        display: none;
+                        margin-top: ptr(4px);
+                        line-height: 1.2;
+                        
+                        i {
+                            color: $danger;
+                            font-size: ptr(10px);
+                            margin-right: ptr(4px);
+                        }
+                        
+                        &:not(:empty) {
+                            display: block;
+                        }
                     }
                     
                     &.rrn_input input,
@@ -416,6 +477,32 @@
                             box-shadow: 0 0 0 ptr(2px) rgba(255, 188, 0, 0.25);
                             background-color: white;
                             outline: none;
+                        }
+                        
+                        &.error {
+                            border-color: $danger;
+                            box-shadow: 0 0 0 0.1rem rgba($danger, 0.25);
+                            animation: shake 0.6s ease-in-out;
+                        }
+                    }
+                    
+                    .error-message {
+                        color: $danger;
+                        font-size: ptr(10px);
+                        font-weight: 400;
+                        margin-left: ptr(4px);
+                        display: none;
+                        margin-top: ptr(4px);
+                        line-height: 1.2;
+                        
+                        i {
+                            color: $danger;
+                            font-size: ptr(10px);
+                            margin-right: ptr(4px);
+                        }
+                        
+                        &:not(:empty) {
+                            display: block;
                         }
                     }
                     

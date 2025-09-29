@@ -595,9 +595,12 @@
     width: 100%;
     height: 100%;
     padding: ptr(20px) ptr(15px);
+    top: 0;
+    left: 0;
+    z-index: 10;
     
     .usage_guide {
-        max-width: ptr(450px);
+        min-width: ptr(500px);
         text-align: center;
         
         .usage_guide_header {
@@ -623,6 +626,7 @@
                 font-weight: 600;
                 color: $kb-dark;
                 margin: 0;
+                padding-bottom: ptr(20px);
             }
         }
         
@@ -642,9 +646,9 @@
                 
                 .step_number {
                     @include flex-center;
-                    width: ptr(24px);
-                    height: ptr(24px);
-                    background: $kb-yellow;
+                    width: ptr(15px);
+                    height: ptr(15px);
+                    background: lighten($kb-yellow, 30%);
                     color: $kb-dark;
                     border-radius: 50%;
                     font-size: ptr(11px);
@@ -671,5 +675,55 @@
                 }
             }
         }
+        
+        .usage_guide_tips {
+            border-top: 1px solid rgba($kb-border, 0.5);
+            padding-top: ptr(25px);
+            
+            .tip_item {
+                display: flex;
+                align-items: center;
+                gap: ptr(8px);
+                margin-bottom: ptr(8px);
+                font-size: ptr(9px);
+                color: $kb-text-dark;
+                justify-content: flex-end;
+                
+                &:last-child {
+                    margin-bottom: 0;
+                }
+                
+                i {
+                    color: $kb-yellow;
+                    font-size: ptr(11px);
+                    flex-shrink: 0;
+                }
+                
+                span {
+                    line-height: 1.3;
+                }
+            }
+        }
+    }
+}
+
+// Plotly 차트 스타일 개선
+.polarsublayer, .draglayer {
+    font-size: ptr(10px) !important;
+    color: rgba(0, 0, 0, 0.6) !important;
+    
+    text {
+        font-size: ptr(10px) !important;
+        fill: rgba(0, 0, 0, 0.6) !important;
+    }
+    
+    .legend {
+        font-size: ptr(9px) !important;
+        color: rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    .xtick, .ytick {
+        font-size: ptr(8px) !important;
+        color: rgba(0, 0, 0, 0.5) !important;
     }
 }
