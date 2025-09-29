@@ -2,8 +2,8 @@
  * PDF 모달 관련 JavaScript 기능
  */
 
-// PDF 모달 열기 함수
-function openPdfPopup(filePath, pdfTitle) {
+// PDF 모달 열기 함수 (전역 함수로 노출)
+window.openPdfPopup = function(filePath, pdfTitle) {
     const modal = document.getElementById('pdfModal');
     const modalTitle = document.getElementById('pdfModalTitle');
     const modalViewer = document.getElementById('pdfModalViewer');
@@ -26,9 +26,17 @@ function openPdfPopup(filePath, pdfTitle) {
     modalError.style.display = 'none';
     modalViewer.style.display = 'none';
     
-    // PDF URL 생성 (URL 인코딩)
-    const encodedPath = encodeURIComponent(filePath);
-    const pdfUrl = `/kb_bank/chatbot/pdf/${encodedPath}`;
+    // PDF URL 처리 (Blob URL인지 일반 파일 경로인지 확인)
+    let pdfUrl;
+    
+    if (filePath.startsWith('blob:')) {
+        // Blob URL인 경우 직접 사용
+        pdfUrl = filePath;
+    } else {
+        // 일반 파일 경로인 경우 서버 URL로 변환
+        const encodedPath = encodeURIComponent(filePath);
+        pdfUrl = `/kb_bank/chatbot/pdf/${encodedPath}`;
+    }
     
     // iframe에 PDF 로드
     modalViewer.src = pdfUrl;
@@ -45,8 +53,69 @@ function openPdfPopup(filePath, pdfTitle) {
         modalError.style.display = 'block';
     };
     
+    // Blob URL인 경우 추가 처리
+    if (filePath.startsWith('blob:')) {
+        // Blob URL의 경우 iframe이 로드되기까지 약간의 시간이 필요할 수 있음
+        setTimeout(() => {
+            if (modalViewer.contentDocument && modalViewer.contentDocument.readyState === 'complete') {
+                modalLoading.style.display = 'none';
+                modalViewer.style.display = 'block';
+            }
+        }, 500);
+    }
+    
     // body 스크롤 방지
     document.body.style.overflow = 'hidden';
+}
+
+// PDF 다운로드 함수 (다운로드 경로 설정)
+function downloadPdf(filePath, fileName) {
+    console.log(`다운로드 시도: ${fileName}, 경로: ${filePath}`);
+    
+    if (filePath.startsWith('blob:')) {
+        // Blob URL인 경우 fetch를 사용하여 데이터 가져오기
+        fetch(filePath)
+            .then(response => response.blob())
+            .then(blob => {
+                // 새로운 Blob URL 생성
+                const newBlobUrl = URL.createObjectURL(blob);
+                
+                // 다운로드 링크 생성
+                const downloadLink = document.createElement('a');
+                downloadLink.href = newBlobUrl;
+                downloadLink.download = fileName || 'document.pdf';
+                
+                // 다운로드 실행
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                
+                // 메모리 정리
+                setTimeout(() => {
+                    URL.revokeObjectURL(newBlobUrl);
+                }, 1000);
+                
+                console.log(`PDF 다운로드 완료: ${fileName}`);
+                console.log(`다운로드 경로: C:\\Users\\Playdata2\\Downloads (브라우저 기본 다운로드 폴더)`);
+            })
+            .catch(error => {
+                console.error('다운로드 중 오류 발생:', error);
+                alert('다운로드 중 오류가 발생했습니다.');
+            });
+    } else {
+        // 일반 파일 경로인 경우
+        const downloadLink = document.createElement('a');
+        downloadLink.href = filePath;
+        downloadLink.download = fileName || 'document.pdf';
+        
+        // 다운로드 실행
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        
+        console.log(`PDF 다운로드 완료: ${fileName}`);
+        console.log(`다운로드 경로: C:\\Users\\Playdata2\\Downloads (브라우저 기본 다운로드 폴더)`);
+    }
 }
 
 // PDF 모달 닫기 함수
@@ -157,3 +226,4 @@ document.addEventListener('DOMContentLoaded', function() {
 window.openPdfPopup = openPdfPopup;
 window.closePdfModal = closePdfModal;
 window.initPdfModal = initPdfModal;
+window.downloadPdf = downloadPdf;
