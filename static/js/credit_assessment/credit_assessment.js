@@ -2,6 +2,218 @@
 
 console.log('=== credit_assessment.js 로드됨 ===');
 
+// ---------- 전역 보고서 생성 함수 (스크립트 로딩 순서 문제 해결) ----------
+window.createAndSaveReport = function() {
+    console.log('=== createAndSaveReport 함수 호출됨 (전역) ===');
+    
+    // currentCustomerData가 전역으로 접근 가능한지 확인
+    if (typeof window.currentCustomerData === 'undefined' || !window.currentCustomerData) {
+        console.log('고객 정보가 없습니다.');
+        alert('고객 정보를 먼저 확인해주세요.');
+        return;
+    }
+    
+    // 심사 결과가 있는지 확인
+    const resultsContent = document.getElementById('results_content');
+    console.log('resultsContent:', resultsContent);
+    console.log('resultsContent display:', resultsContent ? resultsContent.style.display : 'null');
+    
+    if (!resultsContent || resultsContent.style.display === 'none') {
+        console.log('심사 결과가 없습니다.');
+        alert('심사 결과가 없습니다. 먼저 여신 심사를 진행해주세요.');
+        return;
+    }
+    
+    try {
+        // 고객명 추출
+        const customerName = window.currentCustomerData.full_name || '고객';
+        console.log('고객명:', customerName);
+        
+        // 현재 날짜
+        const currentDate = new Date();
+        const dateString = currentDate.toLocaleDateString('ko-KR');
+        
+        // 심사 결과 데이터 수집
+        const creditScore = document.querySelector('.credit_score')?.textContent || '0';
+        const creditRating = document.querySelector('.credit_rating')?.textContent || '-';
+        const approvalStatus = document.querySelector('.approval_status')?.textContent || '불가능';
+        const recommendedLimit = document.getElementById('recommended_limit')?.textContent || '0만원';
+        
+        // 대출 정보
+        const loanAmount = document.getElementById('loan_amount')?.value || '0';
+        const loanPurpose = document.getElementById('loan_purpose')?.selectedOptions[0]?.text || '';
+        const loanProduct = document.getElementById('loan_product')?.selectedOptions[0]?.text || '';
+        const loanPeriod = document.getElementById('loan_period')?.value || '0';
+        
+        console.log('수집된 데이터:', {
+            customerName, creditScore, creditRating, approvalStatus, recommendedLimit,
+            loanAmount, loanPurpose, loanProduct, loanPeriod
+        });
+        
+        // PDF 내용 생성
+        const reportContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>${customerName}_보고서</title>
+                <style>
+                    body { font-family: 'Malgun Gothic', sans-serif; margin: 20px; }
+                    .header { text-align: center; margin-bottom: 30px; }
+                    .title { font-size: 24px; font-weight: bold; color: #1e3a8a; }
+                    .subtitle { font-size: 16px; color: #666; margin-top: 10px; }
+                    .section { margin: 20px 0; }
+                    .section-title { font-size: 18px; font-weight: bold; color: #1e3a8a; margin-bottom: 10px; }
+                    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+                    .info-item { padding: 8px; background: #f8fafc; border-radius: 4px; }
+                    .info-label { font-weight: bold; color: #374151; }
+                    .info-value { color: #1f2937; }
+                    .result-highlight { background: #dbeafe; padding: 15px; border-radius: 8px; margin: 15px 0; }
+                    .approval-status { font-size: 20px; font-weight: bold; }
+                    .approved { color: #059669; }
+                    .rejected { color: #dc2626; }
+                    .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="title">KB국민은행 여신심사 보고서</div>
+                    <div class="subtitle">${customerName} 고객 신용평가 결과</div>
+                    <div class="subtitle">생성일: ${dateString}</div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">고객 정보</div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">고객명</div>
+                            <div class="info-value">${customerName}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">나이</div>
+                            <div class="info-value">${window.currentCustomerData.age}세</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">성별</div>
+                            <div class="info-value">${window.currentCustomerData.gender}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">연락처</div>
+                            <div class="info-value">${window.currentCustomerData.phone}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">회사명</div>
+                            <div class="info-value">${window.currentCustomerData.company_name}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">직종</div>
+                            <div class="info-value">${window.currentCustomerData.job_title}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">대출 신청 정보</div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">대출 신청 금액</div>
+                            <div class="info-value">${loanAmount}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">대출 목적</div>
+                            <div class="info-value">${loanPurpose}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">대출 상품</div>
+                            <div class="info-value">${loanProduct}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">대출 기간</div>
+                            <div class="info-value">${loanPeriod}개월</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">신용평가 결과</div>
+                    <div class="result-highlight">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">신용점수</div>
+                                <div class="info-value">${creditScore}점</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">신용등급</div>
+                                <div class="info-value">${creditRating}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">승인 여부</div>
+                                <div class="info-value approval-status ${approvalStatus === '승인 가능' ? 'approved' : 'rejected'}">${approvalStatus}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">권장 한도</div>
+                                <div class="info-value">${recommendedLimit}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer">
+                    <p>본 보고서는 KB국민은행 여신심사 시스템에 의해 자동 생성되었습니다.</p>
+                    <p>문의사항이 있으시면 담당자에게 연락바랍니다.</p>
+                </div>
+            </body>
+            </html>
+        `;
+        
+        // Blob 생성
+        const blob = new Blob([reportContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        
+        // 파일명 생성
+        const fileName = `${customerName}_보고서.pdf`;
+        
+        // 보고서 객체 생성
+        const report = {
+            name: customerName + '_보고서',
+            filename: fileName,
+            url: url,
+            date: dateString,
+            type: 'PDF'
+        };
+        
+        console.log('생성된 보고서 객체:', report);
+        
+        // ReportsColumn에 보고서 추가
+        console.log('window.reportsColumn:', window.reportsColumn);
+        if (window.reportsColumn) {
+            console.log('보고서 추가 시도:', report);
+            window.reportsColumn.addReport(report);
+            console.log('보고서가 목록에 추가되었습니다.');
+        } else {
+            console.error('ReportsColumn 인스턴스를 찾을 수 없습니다.');
+            alert('보고서 목록에 추가할 수 없습니다. 페이지를 새로고침해주세요.');
+        }
+        
+        // 자동 다운로드 트리거
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log('보고서 생성 및 다운로드 완료:', fileName);
+        
+    } catch (error) {
+        console.error('보고서 생성 중 오류 발생:', error);
+        alert('보고서 생성 중 오류가 발생했습니다: ' + error.message);
+    }
+};
+
+console.log('=== createAndSaveReport 함수 정의 완료 (전역) ===');
+
 document.addEventListener('DOMContentLoaded', function () {
     console.log('=== DOMContentLoaded 이벤트 발생 ===');
     // --- 공통 DOM ---
@@ -247,6 +459,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             displayCustomerInfo(data.customer);
             currentCustomerData = data.customer;
+            // 전역 접근을 위해 window 객체에도 저장
+            window.currentCustomerData = data.customer;
 
             // 좌측 입력영역 토글
             const inputGrid = document.querySelector('.input_grid');
@@ -809,4 +1023,30 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     console.log('=== 이벤트 바인딩 완료 ===');
+    
+    // ---------- 보고서 생성 버튼 직접 바인딩 (추가 보장) ----------
+    setTimeout(() => {
+        const reportBtn = document.querySelector('.report_upload_section');
+        if (reportBtn) {
+            console.log('보고서 생성 버튼 직접 바인딩 시도');
+            reportBtn.addEventListener('click', function(e) {
+                console.log('보고서 생성 버튼 클릭됨 (직접 바인딩)');
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (typeof window.createAndSaveReport === 'function') {
+                    console.log('createAndSaveReport 함수 호출 (직접 바인딩)');
+                    window.createAndSaveReport();
+                } else {
+                    console.error('createAndSaveReport 함수가 없습니다 (직접 바인딩)');
+                    alert('보고서 생성 기능을 사용할 수 없습니다.');
+                }
+            });
+            console.log('보고서 생성 버튼 직접 바인딩 완료');
+        } else {
+            console.log('보고서 생성 버튼을 찾을 수 없습니다 (직접 바인딩)');
+        }
+    }, 500);
+    
+    console.log('=== 추가 이벤트 바인딩 완료 ===');
     });
