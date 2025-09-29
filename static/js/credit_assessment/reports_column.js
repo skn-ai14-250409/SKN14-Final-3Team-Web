@@ -4,13 +4,82 @@ document.addEventListener('DOMContentLoaded', function () {
             this.listContainer = document.getElementById('unified_reports_list');
             this.countElement = document.getElementById('report_count');
             this.noReportsMessage = document.getElementById('no_reports_message');
-            this.reports = [];
+            this.reports = this.loadReportsFromStorage();
             this.init();
         }
 
         init() {
+            // 세션 ID 설정 (로그인 시마다 새로운 세션 ID 생성)
+            this.setSessionId();
             this.updateUI();
             this.bindEvents();
+        }
+
+        // 세션 ID 설정
+        setSessionId() {
+            try {
+                let sessionId = sessionStorage.getItem('session_id');
+                if (!sessionId) {
+                    // 새로운 세션 ID 생성 (타임스탬프 + 랜덤)
+                    sessionId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+                    sessionStorage.setItem('session_id', sessionId);
+                }
+                localStorage.setItem('credit_assessment_session_id', sessionId);
+                console.log('세션 ID 설정:', sessionId);
+            } catch (error) {
+                console.error('세션 ID 설정 실패:', error);
+            }
+        }
+
+        // 로컬 스토리지에서 보고서 목록 로드
+        loadReportsFromStorage() {
+            try {
+                // 세션 스토리지에서 현재 세션 ID 확인
+                const currentSessionId = sessionStorage.getItem('session_id');
+                const storedSessionId = localStorage.getItem('credit_assessment_session_id');
+                
+                // 세션이 변경된 경우 보고서 목록 초기화
+                if (currentSessionId && storedSessionId && currentSessionId !== storedSessionId) {
+                    console.log('세션이 변경되어 보고서 목록을 초기화합니다.');
+                    localStorage.removeItem('credit_assessment_reports');
+                    localStorage.setItem('credit_assessment_session_id', currentSessionId);
+                    return [];
+                }
+                
+                const stored = localStorage.getItem('credit_assessment_reports');
+                if (stored) {
+                    const reports = JSON.parse(stored);
+                    console.log(`로컬 스토리지에서 ${reports.length}개의 보고서를 로드했습니다.`);
+                    return reports;
+                }
+            } catch (error) {
+                console.error('로컬 스토리지에서 보고서 로드 실패:', error);
+            }
+            return [];
+        }
+
+        // 로컬 스토리지에 보고서 목록 저장
+        saveReportsToStorage() {
+            try {
+                localStorage.setItem('credit_assessment_reports', JSON.stringify(this.reports));
+                console.log(`로컬 스토리지에 ${this.reports.length}개의 보고서를 저장했습니다.`);
+            } catch (error) {
+                console.error('로컬 스토리지에 보고서 저장 실패:', error);
+            }
+        }
+
+        // 로그아웃 시 보고서 목록 초기화
+        clearReportsOnLogout() {
+            try {
+                localStorage.removeItem('credit_assessment_reports');
+                localStorage.removeItem('credit_assessment_session_id');
+                sessionStorage.removeItem('session_id');
+                this.reports = [];
+                this.updateUI();
+                console.log('로그아웃으로 인해 보고서 목록이 초기화되었습니다.');
+            } catch (error) {
+                console.error('보고서 목록 초기화 실패:', error);
+            }
         }
 
         bindEvents() {
@@ -54,6 +123,10 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('현재 보고서 개수:', this.reports.length);
             this.reports.unshift(report); // Add new report to the top of the list
             console.log('보고서 추가 후 개수:', this.reports.length);
+            
+            // 로컬 스토리지에 저장
+            this.saveReportsToStorage();
+            
             this.updateUI();
             console.log('UI 업데이트 완료');
         }
@@ -64,6 +137,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 URL.revokeObjectURL(report.url); // Prevent memory leaks
             }
             this.reports.splice(index, 1);
+            
+            // 로컬 스토리지에 저장
+            this.saveReportsToStorage();
+            
             this.updateUI();
         }
 
@@ -209,4 +286,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Expose to global scope to be accessible from other JS files
     window.reportsColumn = new ReportsColumn();
+    
+    // 로그아웃 버튼 이벤트 추가
+    document.addEventListener('click', function(e) {
+        // 로그아웃 버튼 클릭 감지 (다양한 선택자로 확인)
+        if (e.target.matches('.logout-btn, .btn-logout, [href*="logout"], [onclick*="logout"]') || 
+            e.target.closest('.logout-btn, .btn-logout, [href*="logout"], [onclick*="logout"]')) {
+            console.log('로그아웃 버튼 클릭 감지');
+            if (window.reportsColumn) {
+                window.reportsColumn.clearReportsOnLogout();
+            }
+        }
+    });
+
+    // 페이지 언로드 시 보고서 목록 초기화 (로그아웃 시에도 작동)
+    window.addEventListener('beforeunload', function() {
+        // 로그아웃 페이지로 이동하는 경우에만 초기화
+        if (window.location.href.includes('/logout/')) {
+            console.log('로그아웃으로 인한 페이지 언로드 - 보고서 목록 초기화');
+            if (window.reportsColumn) {
+                window.reportsColumn.clearReportsOnLogout();
+            }
+        }
+    });
+
+    // 로그아웃 함수 오버라이드 (header.js의 로그아웃 함수를 오버라이드)
+    if (typeof window.logout === 'function') {
+        const originalLogout = window.logout;
+        window.logout = function() {
+            console.log('로그아웃 함수 호출 - 보고서 목록 초기화');
+            if (window.reportsColumn) {
+                window.reportsColumn.clearReportsOnLogout();
+            }
+            return originalLogout.apply(this, arguments);
+        };
+    }
 });

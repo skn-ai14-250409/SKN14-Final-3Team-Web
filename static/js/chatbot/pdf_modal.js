@@ -68,39 +68,21 @@ window.openPdfPopup = function(filePath, pdfTitle) {
     document.body.style.overflow = 'hidden';
 }
 
-// PDF 다운로드 함수 (다운로드 경로 설정)
-function downloadPdf(filePath, fileName) {
-    console.log(`다운로드 시도: ${fileName}, 경로: ${filePath}`);
+// PDF 다운로드 함수 (HTML을 PDF로 변환하여 다운로드)
+window.downloadPdf = function(filePath, fileName) {
+    console.log(`PDF 다운로드 시도: ${fileName}, 경로: ${filePath}`);
     
     if (filePath.startsWith('blob:')) {
-        // Blob URL인 경우 fetch를 사용하여 데이터 가져오기
+        // Blob URL인 경우 HTML 내용을 가져와서 PDF로 변환
         fetch(filePath)
-            .then(response => response.blob())
-            .then(blob => {
-                // 새로운 Blob URL 생성
-                const newBlobUrl = URL.createObjectURL(blob);
-                
-                // 다운로드 링크 생성
-                const downloadLink = document.createElement('a');
-                downloadLink.href = newBlobUrl;
-                downloadLink.download = fileName || 'document.pdf';
-                
-                // 다운로드 실행
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-                
-                // 메모리 정리
-                setTimeout(() => {
-                    URL.revokeObjectURL(newBlobUrl);
-                }, 1000);
-                
-                console.log(`PDF 다운로드 완료: ${fileName}`);
-                console.log(`다운로드 경로: C:\\Users\\Playdata2\\Downloads (브라우저 기본 다운로드 폴더)`);
+            .then(response => response.text())
+            .then(htmlContent => {
+                // HTML을 PDF로 변환하는 함수 호출
+                convertHtmlToPdf(htmlContent, fileName);
             })
             .catch(error => {
-                console.error('다운로드 중 오류 발생:', error);
-                alert('다운로드 중 오류가 발생했습니다.');
+                console.error('HTML 내용 가져오기 오류:', error);
+                alert('PDF 다운로드 중 오류가 발생했습니다.');
             });
     } else {
         // 일반 파일 경로인 경우
@@ -114,8 +96,128 @@ function downloadPdf(filePath, fileName) {
         document.body.removeChild(downloadLink);
         
         console.log(`PDF 다운로드 완료: ${fileName}`);
-        console.log(`다운로드 경로: C:\\Users\\Playdata2\\Downloads (브라우저 기본 다운로드 폴더)`);
     }
+}
+
+// HTML을 PDF로 변환하는 함수
+function convertHtmlToPdf(htmlContent, fileName) {
+    try {
+        // 라이브러리 로딩 확인 (더 정확한 체크)
+        if (typeof html2canvas === 'undefined' || typeof window.jsPDF === 'undefined') {
+            console.warn('PDF 변환 라이브러리가 로드되지 않았습니다. HTML 파일로 다운로드합니다.');
+            console.log('html2canvas:', typeof html2canvas);
+            console.log('jsPDF:', typeof window.jsPDF);
+            downloadAsHtml(htmlContent, fileName);
+            return;
+        }
+        
+        // 임시 div 생성하여 HTML 렌더링
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlContent;
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.left = '-9999px';
+        tempDiv.style.top = '-9999px';
+        tempDiv.style.width = '210mm'; // A4 너비
+        tempDiv.style.backgroundColor = 'white';
+        document.body.appendChild(tempDiv);
+        
+        // html2canvas로 캔버스 생성
+        html2canvas(tempDiv, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff'
+        }).then(canvas => {
+            // 임시 div 제거
+            document.body.removeChild(tempDiv);
+            
+            // jsPDF로 PDF 생성
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new window.jsPDF('p', 'mm', 'a4');
+            
+            const imgWidth = 210; // A4 너비
+            const pageHeight = 295; // A4 높이
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            
+            let position = 0;
+            
+            // 첫 페이지 추가
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+            
+            // 여러 페이지가 필요한 경우
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+            
+            // PDF 다운로드
+            const pdfFileName = fileName.replace('.html', '.pdf');
+            pdf.save(pdfFileName);
+            
+            console.log(`PDF 다운로드 완료: ${pdfFileName}`);
+            console.log(`다운로드 경로: 브라우저 기본 다운로드 폴더`);
+            
+        }).catch(error => {
+            console.error('PDF 변환 오류:', error);
+            document.body.removeChild(tempDiv);
+            // PDF 변환 실패 시 HTML로 다운로드
+            downloadAsHtml(htmlContent, fileName);
+        });
+        
+    } catch (error) {
+        console.error('PDF 변환 중 오류:', error);
+        // PDF 변환 실패 시 HTML로 다운로드
+        downloadAsHtml(htmlContent, fileName);
+    }
+}
+
+// HTML 파일로 다운로드하는 함수 (fallback) - 자동 인쇄 다이얼로그 열기
+function downloadAsHtml(htmlContent, fileName) {
+    // HTML에 인쇄 스타일 추가
+    const printStyles = `
+        <style>
+            @media print {
+                body { margin: 0; padding: 0; }
+                .no-print { display: none !important; }
+                @page { margin: 0.5in; size: A4; }
+            }
+        </style>
+    `;
+    
+    // 인쇄용 HTML 생성
+    const printHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>${fileName}</title>
+            ${printStyles}
+        </head>
+        <body>
+            ${htmlContent}
+            <script>
+                // 페이지 로드 후 자동으로 인쇄 다이얼로그 열기
+                window.onload = function() {
+                    setTimeout(function() {
+                        window.print();
+                    }, 500);
+                };
+            </script>
+        </body>
+        </html>
+    `;
+    
+    // 새 창에서 HTML 열기
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printHtml);
+    printWindow.document.close();
+    
+    console.log(`HTML 파일을 새 창에서 열고 자동 인쇄 다이얼로그를 표시합니다: ${fileName}`);
+    console.log(`인쇄 다이얼로그에서 "PDF로 저장" 또는 "Microsoft Print to PDF"를 선택하세요.`);
 }
 
 // PDF 모달 닫기 함수

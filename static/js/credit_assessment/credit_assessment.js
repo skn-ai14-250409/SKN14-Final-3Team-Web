@@ -1,6 +1,83 @@
 // 전역 변수
 window.isGeneratingReport = false;
 
+// 심사 결과 컬럼 초기화 함수
+window.clearAssessmentResults = function() {
+    console.log('=== 심사 결과 컬럼 초기화 시작 ===');
+    
+    const thirdColumn = document.querySelector('.third_column');
+    if (thirdColumn) {
+        // third_column 안의 심사 결과만 제거하고 usage_guide_container는 그대로 유지
+        const assessmentResults = thirdColumn.querySelectorAll('.assessment_result, .assessment_summary, .assessment_chart, .assessment_results');
+        assessmentResults.forEach(result => {
+            result.remove();
+        });
+        
+        // usage_guide_container가 없다면 원래 HTML로 복원
+        const usageGuideContainer = thirdColumn.querySelector('#usage_guide_container');
+        if (!usageGuideContainer) {
+            // 원래 HTML 구조로 복원
+            thirdColumn.innerHTML = `
+                <div id="usage_guide_container">
+                    <div class="usage_guide">
+                        <div class="usage_guide_header">
+                            <div class="usage_guide_icon">
+                                <i class="bi bi-lightbulb"></i>
+                            </div>
+                            <h3 class="usage_guide_title">KB FinAIssist 여신심사 사용법</h3>
+                        </div>
+                        <div class="usage_guide_content">
+                            <div class="usage_guide_step">
+                                <div class="step_number">1</div>
+                                <div class="step_content">
+                                    <h4>고객 정보 확인</h4>
+                                    <p>고객명, 주민번호, 연락처를 입력하여 고객 정보를 확인합니다.</p>
+                                </div>
+                            </div>
+                            <div class="usage_guide_step">
+                                <div class="step_number">2</div>
+                                <div class="step_content">
+                                    <h4>대출 정보 입력</h4>
+                                    <p>대출 금액, 목적, 상품, 기간을 입력합니다.</p>
+                                </div>
+                            </div>
+                            <div class="usage_guide_step">
+                                <div class="step_number">3</div>
+                                <div class="step_content">
+                                    <h4>여신 심사 요청</h4>
+                                    <p>모든 정보 입력 후 여신 심사를 요청합니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        console.log('심사 결과 컬럼 초기화 완료');
+    }
+    
+    // usage_guide_container 스타일 초기화 (인라인 스타일 제거)
+    const usageGuideContainer = document.getElementById('usage_guide_container');
+    if (usageGuideContainer) {
+        usageGuideContainer.style.display = '';
+        console.log('usage_guide_container 스타일 초기화됨');
+    } else {
+        console.log('usage_guide_container 요소를 찾을 수 없음');
+        // third_column에서 다시 찾아보기
+        const thirdColumn = document.querySelector('.third_column');
+        if (thirdColumn) {
+            const existingUsageGuide = thirdColumn.querySelector('#usage_guide_container');
+            if (existingUsageGuide) {
+                existingUsageGuide.style.display = '';
+                console.log('third_column에서 usage_guide_container 찾아서 스타일 초기화됨');
+            }
+        }
+    }
+    
+    console.log('=== 심사 결과 컬럼 초기화 완료 ===');
+};
+
 // createAndSaveReport 함수 (전역 함수로 노출)
 window.createAndSaveReport = async function() {
     try {
