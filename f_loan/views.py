@@ -11,7 +11,7 @@ import plotly.express as px
 import plotly.utils
 from datetime import datetime
 
-from f_customer.models import Customer, CustomerPerson
+from f_customer.models import Customer, CustomerPerson, CustomerCorporate
 from .models import LoanProduct
 from .ml import inference # ML 모듈 임포트
 
@@ -215,22 +215,18 @@ def credit_assessment_view(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def check_customer(request):
-    """고객 정보 확인 API - 개인 고객 전용"""
+    """개인 고객 정보 확인 API"""
     try:
         data = json.loads(request.body)
         customer_name = data.get('customer_name', '').strip()
         customer_rrn = data.get('customer_rrn', '').strip()
         customer_phone = data.get('customer_phone', '').strip()
         
-        logger.info(f"고객 정보 조회 요청: 이름={customer_name}, 주민번호={customer_rrn}, 연락처={customer_phone}")
+        logger.info(f"개인 고객 정보 조회 요청: 이름={customer_name}, 주민번호={customer_rrn}, 연락처={customer_phone}")
 
         if not customer_name or not customer_rrn or not customer_phone:
-            return JsonResponse({
-                'success': False,
-                'message': '고객명, 주민번호, 연락처는 필수 입력 항목입니다.'
-            })
+            return JsonResponse({'success': False, 'message': '고객명, 주민번호, 연락처는 필수 입력 항목입니다.'})
 
-        # 이름 파싱 (DB에는 성/이름이 분리되어 저장)
         cleaned_customer_name = customer_name.replace(' ', '')
         if len(cleaned_customer_name) > 1:
             # NOTE: DB에는 성이 first_name, 이름이 last_name으로 저장되어 있음
@@ -241,8 +237,6 @@ def check_customer(request):
             return JsonResponse({'success': False, 'customer_found': False, 'message': '올바른 고객명을 입력해주세요.'})
 
         try:
-            # 이름, 주민번호, 연락처로 CustomerPerson 조회
-            # select_related를 사용하여 Customer와 CustomerPerson을 함께 조회 (더 안정적이고 효율적)
             customer = Customer.objects.select_related('person').get(
                 person__first_name=parsed_first_name,
                 person__last_name=parsed_last_name,
@@ -250,13 +244,12 @@ def check_customer(request):
                 person__mobile=customer_phone.replace('-', '')
             )
             person = customer.person
-            logger.info(f"고객 정보 발견: {person.first_name}{person.last_name}")
+            logger.info(f"✅ [DB] 개인 고객 정보 발견: {person.first_name}{person.last_name} (ID: {customer.seq_id})")
         except (Customer.DoesNotExist, CustomerPerson.DoesNotExist):
-            logger.info(f"일치하는 고객 정보를 찾을 수 없습니다: 이름={customer_name}, 주민번호={customer_rrn}, 연락처={customer_phone}")
+            logger.warning(f"❌ [DB] 일치하는 개인 고객 정보 없음: 이름={customer_name}, 주민번호={customer_rrn}")
             return JsonResponse({'success': False, 'customer_found': False, 'message': '일치하는 고객 정보가 없습니다.'})
 
-        # 나이 계산 로직 추가
-        from datetime import date
+        from datetime import date # 나이 계산
         today = date.today()
         birth_year_prefix = '19'
         if person.rrn[6] in ['3', '4', '7', '8']:
@@ -264,7 +257,6 @@ def check_customer(request):
         birth_year = int(birth_year_prefix + person.rrn[:2])
         age = today.year - birth_year - ((today.month, today.day) < (int(person.rrn[2:4]), int(person.rrn[4:6])))
 
-        # --- 응답 데이터 구성 ---
         customer_data = {
             'id': customer.seq_id,
             'full_name': f"{person.first_name}{person.last_name}",
@@ -296,6 +288,85 @@ def check_customer(request):
         return JsonResponse({
             'success': False,
             'message': '고객 정보 조회 중 오류가 발생했습니다.'
+        })
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def check_corporate_customer(request):
+    """기업 고객 정보 확인 API"""
+    try:
+        data = json.loads(request.body)
+        legal_name = data.get('legal_name', '').strip()
+        biz_reg_no_masked = data.get('biz_reg_no_masked', '').strip()
+        mobile = data.get('mobile', '').strip()
+
+        logger.info(f"기업 고객 정보 조회 요청: 법인명(대표자명)={legal_name}, 사업자번호={biz_reg_no_masked}, 대표연락처={mobile}")
+
+        if not legal_name or not biz_reg_no_masked or not mobile:
+            return JsonResponse({'success': False, 'message': '대표자명, 사업자등록번호, 대표 연락처는 필수 입력 항목입니다.'})
+
+        try:
+            # 1. 입력값 정제
+            import re
+            def clean_company_name(name):
+                # (주), (유) 등과 공백, 특수문자 제거
+                return re.sub(r'[\s\(\)（）주유사재법]', '', name, flags=re.IGNORECASE)
+
+            clean_biz_reg_no = biz_reg_no_masked.replace('-', '')
+
+            # 2. DB에서 조회 (사업자번호 또는 정제된 법인명으로)
+            # 사업자번호가 고유하므로 우선적으로 조회
+            corp = CustomerCorporate.objects.filter(biz_reg_no_masked=clean_biz_reg_no).first()
+
+            if not corp:
+                # 사업자번호로 못찾으면, 정제된 법인명으로 재시도
+                # 이 방식은 동명이 회사가 있을 수 있어 완벽하지 않지만, 조회 성공률을 높임
+                # DB의 모든 legal_name을 가져와서 파이썬에서 정제 후 비교
+                clean_legal_name = clean_company_name(legal_name)
+                all_corps = CustomerCorporate.objects.all()
+                corp = next((c for c in all_corps if clean_company_name(c.legal_name) == clean_legal_name), None)
+
+            if not corp:
+                raise CustomerCorporate.DoesNotExist
+
+            customer = corp.customer
+            logger.info(f"✅ [DB] 기업 고객 정보 발견: {corp.customer.display_name} (ID: {customer.seq_id})")
+
+            customer_data = {
+                'id': customer.seq_id,
+                'full_name': corp.customer.display_name,
+                'ceo_name': corp.legal_name, # 조회된 legal_name을 ceo_name으로 매핑
+                'brn': f"{corp.biz_reg_no_masked[:3]}-{corp.biz_reg_no_masked[3:5]}-{corp.biz_reg_no_masked[5:]}" if corp.biz_reg_no_masked else '정보 없음',
+                'phone': f"{corp.mobile[:3]}-{corp.mobile[3:7]}-{corp.mobile[7:]}" if corp.mobile and len(corp.mobile) == 11 else corp.mobile or '정보 없음',
+                'email': getattr(corp, 'email', '') or '', # email 필드가 없을 수 있으므로 getattr 사용
+                'industry_type': corp.industry_code.name if corp.industry_code else '정보 없음',
+                'company_name': corp.customer.display_name,
+                'job_title': '대표',
+                'total_assets': corp.total_assets,
+                'total_liabilities': corp.total_liabilities,
+                'net_income': corp.net_income,
+                'ebit': corp.ebit,
+                'net_sales': corp.net_sales,
+                'retained_earnings': corp.retained_earnings,
+                'current_assets': corp.current_assets,
+                'current_liabilities': corp.total_current_liabilities,
+            }
+            return JsonResponse({'success': True, 'customer_found': True, 'customer': customer_data})
+
+        except CustomerCorporate.DoesNotExist:
+            logger.warning(f"❌ [DB] 일치하는 기업 고객 정보 없음: 법인명(대표자명)={legal_name}, 사업자번호={biz_reg_no_masked}")
+            return JsonResponse({'success': False, 'customer_found': False, 'message': '일치하는 기업 고객 정보가 없습니다.'})
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': '잘못된 요청 데이터입니다.'
+        })
+    except Exception as e:
+        logger.error(f"기업 고객 정보 조회 중 오류 발생: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': '기업 고객 정보 조회 중 오류가 발생했습니다.'
         })
 
 @csrf_exempt
@@ -351,60 +422,95 @@ def get_loan_products(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-def assess_credit(request):
-    """ML 모델을 사용한 신용평가 API"""
+def assess_personal_credit(request):
+    """개인 고객 신용평가 API"""
     try:
         data = json.loads(request.body)
         customer_data = data.get('customer_data', {})
         loan_data = data.get('loan_data', {})
         
-        logger.info(f"신용평가 요청: {customer_data.get('full_name', 'Unknown')}")
+        logger.info(f"개인 신용평가 요청: {customer_data.get('full_name', 'Unknown')}")
         
         # ML 모델로 신용점수 예측
-        prediction_result = inference.predict_credit_score(customer_data, loan_data)
+        prediction_result = inference.predict_credit_score(customer_data, loan_data, customer_type='personal')
         
-        # --- ML 모델 안정화를 위해 차트 및 분석 데이터를 상수로 고정 ---
-        # ML 모델의 예측 결과만 사용하고, 나머지는 고정값으로 설정하여 오류 방지
         credit_score = prediction_result.get('credit_score', 750)
-        credit_score_chart = create_credit_score_chart(credit_score) # 점수 표시 차트는 유지
+        
+        # 개인용 차트 및 분석 데이터 생성
+        credit_score_chart = create_credit_score_chart(credit_score)
         financial_indicators = {'부채비율': 50, '소득 안정성': 70, '상환능력': 80, '신용이력': 90, '현금보유비율': 60, '자산증가율': 75}
         progress_chart = create_progress_chart(financial_indicators)
-        risk_analysis_chart = create_risk_analysis_chart(customer_data, loan_data, prediction_result) # 이것도 유지
-        risk_matrix = generate_risk_matrix(credit_score) # 리스크 매트릭스 유지
-        ai_report = generate_recommendation(prediction_result, customer_data, loan_data) # AI 리포트 유지
+        risk_analysis_chart = create_risk_analysis_chart(customer_data, loan_data, prediction_result)
+        risk_matrix = generate_risk_matrix(credit_score)
+        ai_report = generate_recommendation(prediction_result, customer_data, loan_data)
         
         response_data = {
             'success': True,
             'assessment_result': {
-                # ML 모델 예측 결과
                 'approval_status': prediction_result['approval_status'],
                 'credit_score': prediction_result['credit_score'],
                 'credit_rating': prediction_result['credit_rating'],
                 'recommended_limit': prediction_result['recommended_limit'],
-                
-                # 고정된 데이터
                 'credit_score_chart': credit_score_chart,
                 'progress_chart': progress_chart,
                 'risk_analysis_chart': risk_analysis_chart,
                 'financial_indicators': financial_indicators,
                 'risk_matrix': risk_matrix,
-                'ai_report': ai_report
+                'ai_report': ai_report,
+                'diagnostics': prediction_result.get('diagnostics', {})
             }
         }
+        return JsonResponse(response_data)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': '잘못된 요청 데이터입니다.'})
+    except Exception as e:
+        logger.error(f"개인 신용평가 중 오류 발생: {str(e)}")
+        return JsonResponse({'success': False, 'message': '개인 신용평가 중 오류가 발생했습니다.'})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def assess_corporate_credit(request):
+    """기업 고객 신용평가 API"""
+    try:
+        data = json.loads(request.body)
+        customer_data = data.get('customer_data', {})
+        loan_data = data.get('loan_data', {})
+        
+        logger.info(f"기업 신용평가 요청: {customer_data.get('full_name', 'Unknown')}")
+        
+        # ML 모델로 신용점수 예측
+        prediction_result = inference.predict_credit_score(customer_data, loan_data, customer_type='corporate')
+        
+        credit_score = prediction_result.get('credit_score', 750)
+        
+        # 기업용 차트 및 분석 데이터 생성 (JS에서 대부분 처리하므로 필요한 최소 데이터만 전달)
+        # ECharts를 JS에서 사용하므로, Plotly 차트 데이터는 생성하지 않음
+        credit_score_chart = create_credit_score_chart(credit_score)
+        
+        response_data = {
+            'success': True,
+            'assessment_result': {
+                'approval_status': prediction_result['approval_status'],
+                'credit_score': prediction_result['credit_score'],
+                'credit_score_chart': credit_score_chart, # JS fallback을 위해 추가
+                'credit_rating': prediction_result['credit_rating'],
+                'recommended_limit': prediction_result['recommended_limit'],
+                'diagnostics': prediction_result.get('diagnostics', {})
+            }
+        }
+        
+        # JS에서 Plotly fallback을 위해 개인용 차트 데이터를 추가로 전달할 수 있음
+        # 이 부분은 ECharts 사용이 보장된다면 제거 가능
+        response_data['assessment_result']['risk_analysis_chart'] = create_risk_analysis_chart(customer_data, loan_data, prediction_result)
         
         return JsonResponse(response_data)
         
     except json.JSONDecodeError:
-        return JsonResponse({
-            'success': False,
-            'message': '잘못된 요청 데이터입니다.'
-        })
+        return JsonResponse({'success': False, 'message': '잘못된 요청 데이터입니다.'})
     except Exception as e:
-        logger.error(f"신용평가 중 오류 발생: {str(e)}")
-        return JsonResponse({
-            'success': False,
-            'message': '신용평가 중 오류가 발생했습니다.'
-        })
+        logger.error(f"기업 신용평가 중 오류 발생: {str(e)}")
+        return JsonResponse({'success': False, 'message': '기업 신용평가 중 오류가 발생했습니다.'})
 
 def generate_risk_matrix(credit_score):
     """신용점수 기반 리스크 매트릭스 생성"""
