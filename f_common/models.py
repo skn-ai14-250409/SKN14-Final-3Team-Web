@@ -35,11 +35,11 @@ class CIndustryCode(models.Model):
 
 class CEducationLevel(models.Model):
     class Education(models.TextChoices):
-        High_School = "HIGH_SCHOOL"
-        Associate = "ASSOCIATE"
-        Bachelor = "BACHELOR"
-        Master = "MASTER"
-        Doctorate = "DOCTORATE"
+        High_School = "HIGH_SCHOOL", "고등학교 졸업"
+        Associate = "ASSOCIATE", "전문학사"
+        Bachelor = "BACHELOR", "학사"
+        Master = "MASTER", "석사"
+        Doctorate = "DOCTORATE", "박사"
     
     seq_id = models.BigAutoField(primary_key=True)
     code = models.CharField(max_length=64, unique=True)
@@ -55,10 +55,10 @@ class CEducationLevel(models.Model):
 
 class CHousingStatus(models.Model):
     class Housing(models.TextChoices):
-        Rent = "RENT"
-        Mortgage = "MORTGAGE"
-        Own = "OWN"
-        Other = "OTHER"
+        Rent = "RENT", "월세/전세"
+        Mortgage = "MORTGAGE", "자가(대출)"
+        Own = "OWN", "자가"
+        Other = "OTHER", "기타"
     
 
     seq_id = models.BigAutoField(primary_key=True)

@@ -49,8 +49,25 @@ function displayCustomerInfo(customer) {
     const customerDisplayContent = document.getElementById('customer_display_content');
     if (!customerDisplayContent) return;
     
+    // 최종 학력 및 주택 상태 한글 매핑 (하드코딩)
+    const educationMap = {
+        "HIGH_SCHOOL": "고등학교 졸업",
+        "ASSOCIATE": "전문학사",
+        "BACHELOR": "학사",
+        "MASTER": "석사",
+        "DOCTORATE": "박사"
+    };
+    const housingMap = {
+        "RENT": "월세/전세",
+        "MORTGAGE": "자가(대출)",
+        "OWN": "자가",
+        "OTHER": "기타"
+    };
+
     let html = '';
     if (currentAssessmentType === 'personal') {
+        const educationKorean = educationMap[customer.education_level_name] || customer.education_level_name || '정보 없음';
+        const housingKorean = housingMap[customer.housing_status_name] || customer.housing_status_name || '정보 없음';
         html = `
         <div class="customer_info_grid">
             <div class="info_item"><div class="info_label">고객 ID</div><div class="info_value">${customer.id}</div></div>
@@ -59,11 +76,11 @@ function displayCustomerInfo(customer) {
             <div class="info_item"><div class="info_label">성별</div><div class="info_value">${customer.gender}</div></div>
             <div class="info_item"><div class="info_label">연락처</div><div class="info_value">${customer.phone}</div></div>
             <div class="info_item"><div class="info_label">이메일</div><div class="info_value">${customer.email || '정보 없음'}</div></div>
-            <div class="info_item"><div class="info_label">최종 학력</div><div class="info_value">${customer.education_level}</div></div>
+            <div class="info_item"><div class="info_label">최종 학력</div><div class="info_value">${educationKorean}</div></div>
             <div class="info_item"><div class="info_label">회사명</div><div class="info_value">${customer.company_name}</div></div>
             <div class="info_item"><div class="info_label">직종</div><div class="info_value">${customer.job_title}</div></div>
             <div class="info_item"><div class="info_label">근속년수</div><div class="info_value">${customer.years_of_service}년</div></div>
-            <div class="info_item"><div class="info_label">주택 상태</div><div class="info_value">${customer.housing_status}</div></div>
+            <div class="info_item"><div class="info_label">주택 상태</div><div class="info_value">${housingKorean}</div></div>
         </div>`;
     } else { // corporate
         html = `
@@ -366,10 +383,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (phoneInput) {
         phoneInput.addEventListener('input', function () {
             let value = this.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.substring(0, 11);
-            if (value.length >= 10) value = value.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-            else if (value.length >= 6) value = value.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
-            else if (value.length >= 3) value = value.replace(/(\d{3})(\d{3})/, '$1-$2');
+            
+            if (value.length > 11) {
+                value = value.substring(0, 11);
+            }
+
+            if (value.length > 7) value = value.replace(/(\d{3})(\d{4})(\d{1,4})/, '$1-$2-$3');
+            else if (value.length > 3) value = value.replace(/(\d{3})(\d{1,4})/, '$1-$2');
+
             this.value = value;
             
             // 에러 클래스 제거
@@ -386,16 +407,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (rrnInput) {
         rrnInput.addEventListener('input', function () {
             let value = this.value.replace(/\D/g, '');
-
+            
             // 개인/기업 모드에 따른 포맷팅
             if (currentAssessmentType === 'personal') {
                 // 개인: 주민번호 포맷팅 (000000-0000000)
                 if (value.length > 13) value = value.substring(0, 13);
-                if (value.length >= 7) value = value.replace(/(\d{6})(\d{7})/, '$1-$2');
+                if (value.length > 6) value = value.replace(/(\d{6})(\d{1,7})/, '$1-$2');
+
             } else {
                 // 기업: 사업자등록번호 포맷팅 (123-45-67890)
                 if (value.length > 10) value = value.substring(0, 10);
-                if (value.length >= 5) value = value.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3');
+                if (value.length > 5) value = value.replace(/(\d{3})(\d{2})(\d{1,5})/, '$1-$2-$3');
+                else if (value.length > 3) value = value.replace(/(\d{3})(\d{1,2})/, '$1-$2');
             }
 
             this.value = value;
@@ -1012,6 +1035,112 @@ function renderRiskAnalysisChart(chartData, containerId = 'personal_risk_analysi
     }
 }
 
+// ==================================================
+// 개인 여신 심사 결과 렌더링
+// ==================================================
+
+// ML 심사 결과 표시 함수
+function displayMLAssessmentResults(data) {
+    console.log('ML 심사 결과 표시:', data);
+    updateBasicInfo(data);
+    updateCreditScoreDescription(data.credit_score);
+    renderCreditScoreChart(data.credit_score_chart, 'personal_credit_score_chart_container');
+    renderProgressChart(data.progress_chart);
+    renderRiskAnalysisChart(data.risk_analysis_chart, 'personal_risk_analysis_chart_container');
+    updateFinancialIndicators(data.financial_indicators || {});
+    updateRiskMatrix(data.risk_matrix || []);
+    updateAiReport(data.ai_report || {}, data.approval_status);
+}
+
+// 기본 정보 업데이트 함수
+function updateBasicInfo(data) {
+    const creditScoreElement = document.querySelector('#personal_assessment_results .credit_score');
+    const creditRatingElement = document.querySelector('#personal_assessment_results .credit_rating');
+    const approvalStatusElement = document.querySelector('#personal_assessment_results .approval_status');
+    const recommendedLimitElement = document.getElementById('personal_recommended_limit');
+    const scoreDetailText = document.getElementById('credit_score_detail_text');
+    const scoreDescriptionMain = document.getElementById('credit_score_description_main');
+
+    if (creditScoreElement) creditScoreElement.textContent = data.credit_score;
+    if (creditRatingElement) creditRatingElement.textContent = data.credit_rating;
+    if (approvalStatusElement) {
+        approvalStatusElement.textContent = data.approval_status === 'approved' ? '승인 가능' : '불가능';
+        approvalStatusElement.className = `summary_value approval_status ${data.approval_status}`;
+    }
+    if (recommendedLimitElement) {
+        if (data.approval_status === 'approved') {
+            recommendedLimitElement.textContent = `${Math.floor((data.recommended_limit || 0) / 10000).toLocaleString()}만원`;
+        } else {
+            recommendedLimitElement.textContent = '-';
+        }
+    }
+    if (scoreDetailText) scoreDetailText.textContent = `${data.credit_score}/1000점`;
+    if (scoreDescriptionMain) {
+        scoreDescriptionMain.innerHTML = `<strong>신용점수 ${data.credit_score}점</strong>은 1000점 만점 기준으로 <strong>${data.credit_rating}</strong> 등급에 해당합니다.`;
+    }
+}
+
+// 신용점수 설명 업데이트 함수
+function updateCreditScoreDescription(score) {
+    const detailEl = document.querySelector('#personal_assessment_results #credit_score_description_detail');
+    const benefitEl = document.querySelector('#personal_assessment_results .credit_score_discription .description_benefit');
+    if (!detailEl || !benefitEl) return;
+
+    let detailText, benefitText;
+
+    if (score >= 850) {
+        detailText = "고객은 지속적인 신용거래 이력과 우수한 상환 습관을 보유하고 있으며, 최근 연체·부실 기록이 거의 없어 신용리스크가 극히 낮습니다. 내부 자동심사 기준을 충족하여 최소한의 서류 확인만으로도 신속한 한도 산정과 금리 적용이 가능하며, 대규모 공여의 경우에도 내부 추가 검증을 거쳐 우대조건을 제공할 수 있습니다. 전반적으로 대출 취급에 있어 예외적인 리스크가 없으므로 비대면 처리 및 우선 심사 대상으로 분류됩니다.";
+        benefitText = "<strong>대출 승인 가능성: 최상</strong> | <strong>적용 가능 금리: 업계 최저·우대금리</strong> | <strong>예상 한도: 최대 한도 승인 가능(심사조건 충족 시)</strong> | <strong>심사 처리: 즉시 자동 승인·우선 처리</strong> | <strong>필요 서류: 최소화(전자소득조회 등 자동 확인)</strong>";
+    } else if (score >= 700) {
+        detailText = "전반적인 신용활동과 상환능력이 양호하여 금융기관 관점에서 신뢰도가 높은 편입니다. 소액의 과거 연체가 있었더라도 회복된 이력이 있다면 우수 등급으로 분류되며, 대부분의 금융상품을 유리한 조건으로 이용할 수 있습니다. 다만 개인별 DTI(부채비율)나 최근 채무증가와 같은 개별 리스크 요인에 따라 한도나 금리가 조정될 수 있으므로, 고액 신청 시 추가 소득증빙을 요구하거나 조건부 한도가 제시될 수 있습니다.";
+        benefitText = "<strong>대출 승인 가능성: 매우 높음</strong> | <strong>우대 금리 적용 가능</strong> | <strong>예상 한도: 비교적 높은 한도 승인 예상</strong> | <strong>심사 처리: 대부분 자동 또는 조건부 자동 심사</strong> | <strong>권장 조치: DTI 개선 시 추가 혜택 및 한도 상향 가능</strong>";
+    } else if (score >= 500) {
+        detailText = "신용 상태가 평균 수준으로 정상적인 금융거래는 가능하나 일부 상품이나 고액 대출에 대해서는 제약이 발생할 수 있습니다. 과거 연체 이력, 소득 불안정, 혹은 근속기간 미충족 등의 요인이 있으면 심사 시 가중치가 부여되어 추가 서류 제출이나 수동심사가 요구될 가능성이 큽니다. 신용 점수 향상을 위해 규칙적인 상환, 사용패턴 개선 및 부채 축소 노력이 권장됩니다.";
+        benefitText = "<strong>대출 승인 가능성: 보통</strong> | <strong>적용 금리: 표준 금리 적용</strong> | <strong>예상 한도: 심사 후 한도 결정(조건부 한도 적용 가능)</strong> | <strong>요구 서류: 추가 소득·재직증빙 필요할 수 있음</strong> | <strong>권장 조치: 부채통합 및 상환계획 수립 권고</strong>";
+    } else {
+        detailText = "현재 신용점수는 낮은 수준으로 평가되며, 연체·부실 발생 가능성이 높아 즉시 대출 승인되기 어렵거나 매우 엄격한 조건(담보·보증인 제공, 고금리 적용 등)이 요구될 수 있습니다. 반복적 연체나 파산 이력이 있는 경우에는 자동거절 규정이 적용될 수 있으므로 우선적으로 채무 정리와 상환 계획 수립이 필요합니다. 필요시 금융 상담을 통해 채무조정 및 재무구조 개선 방안을 안내합니다.";
+        benefitText = "<strong>대출 승인 가능성: 낮음</strong> | <strong>적용 금리: 높은 금리 적용</strong> | <strong>예상 한도: 제한적 또는 담보·보증인 필요</strong> | <strong>심사 처리: 수동심사 및 추가심사 필요</strong> | <strong>권장 조치: 채무조정·상환플랜 수립 권고</strong>";
+    }
+
+    detailEl.textContent = detailText;
+    benefitEl.innerHTML = benefitText;
+}
+
+// 차트 렌더링 함수들
+function renderCreditScoreChart(chartData, containerId = 'personal_credit_score_chart_container') {
+    const chartContainer = document.getElementById(containerId);
+    if (chartContainer && window.Plotly) {
+        const cfg = safeJSONParse(chartData);
+        Plotly.newPlot(containerId, cfg.data, cfg.layout, {
+            responsive: true,
+            displayModeBar: false,
+        });
+    }
+}
+
+function renderProgressChart(chartData) {
+    const chartContainer = document.querySelector('#personal_assessment_results #progress_chart_container');
+    if (chartContainer && window.Plotly) {
+        const cfg = safeJSONParse(chartData);
+        Plotly.newPlot('progress_chart_container', cfg.data, cfg.layout, {
+            responsive: true,
+            displayModeBar: false,
+        });
+    }
+}
+
+function renderRiskAnalysisChart(chartData, containerId = 'personal_risk_analysis_chart_container') {
+    const chartContainer = document.getElementById(containerId);
+    if (chartContainer && window.Plotly) {
+        const cfg = safeJSONParse(chartData);
+        updateRiskAnalysisDescription(cfg); // 시나리오 업데이트 함수 호출
+        Plotly.newPlot(containerId, cfg.data, cfg.layout, {
+            responsive: true,
+            displayModeBar: false,
+        });
+    }
+}
+
 function updateRiskAnalysisDescription(chartData) {
     const detailEl = document.querySelector('#personal_assessment_results .risk_analysis_grid .risk_analysis_detail');
     const mainDescEl = document.querySelector('#personal_assessment_results .risk_analysis_discription .description_main');
@@ -1044,7 +1173,7 @@ function updateRiskAnalysisDescription(chartData) {
 
     detailEl.textContent = riskLevelText;
     mainDescEl.textContent = mainDescText;
-    detailDescEl.innerHTML = `지표는 <strong>수입, 요청 대출금, 대출 금리, 수입 대비 대출률, 신용 점수</strong>의 5가지 축으로 구성되며, ${detailDescText}`;
+    detailDescEl.innerHTML = `지표는 <strong>부채 상환 부담, 소득 안정성, 신용이력, 자산 안정성, 상환 능력, 미래 상환 예측</strong>의 6가지 축으로 구성되며, ${detailDescText}`;
 }
 
 function updateFinancialIndicators(indicators) {
