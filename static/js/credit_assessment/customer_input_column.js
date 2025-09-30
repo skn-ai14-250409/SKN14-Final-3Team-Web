@@ -497,8 +497,190 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('❌ btnAssess 요소를 찾을 수 없음');
     }
     
+    // 초기화 버튼 이벤트 리스너 추가
+    const btnReset = document.getElementById('btn_reset');
+    console.log('btnReset 요소 찾기:', btnReset);
+    
+    if (btnReset) {
+        console.log('✅ btnReset 이벤트 리스너 추가됨');
+        btnReset.addEventListener('click', function(e) {
+            console.log('초기화 버튼 클릭됨');
+            e.preventDefault();
+            e.stopPropagation();
+            resetToInitialState();
+        });
+    } else {
+        console.log('❌ btnReset 요소를 찾을 수 없음');
+        // DOM이 완전히 로드될 때까지 기다린 후 다시 시도
+        setTimeout(() => {
+            const btnResetRetry = document.getElementById('btn_reset');
+            console.log('btnReset 재시도:', btnResetRetry);
+            if (btnResetRetry) {
+                btnResetRetry.addEventListener('click', function(e) {
+                    console.log('초기화 버튼 클릭됨 (재시도)');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    resetToInitialState();
+                });
+                console.log('✅ btnReset 이벤트 리스너 추가됨 (재시도)');
+            }
+        }, 1000);
+    }
+
     console.log('=== 고객 정보 입력 JavaScript 초기화 완료 ===');
 });
+
+// 초기화 버튼 이벤트 리스너 (DOMContentLoaded 외부에서도 작동)
+document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'btn_reset') {
+        console.log('초기화 버튼 클릭 감지 (전역 이벤트)');
+        e.preventDefault();
+        e.stopPropagation();
+        resetToInitialState();
+    }
+});
+
+// ---------- 초기화 관련 함수들 ----------
+
+// 초기 상태로 리셋하는 함수
+function resetToInitialState() {
+    console.log('=== 초기 상태로 리셋 시작 ===');
+    console.log('resetToInitialState 함수 호출됨');
+    
+    // 1. 모든 입력 필드 초기화
+    const inputFields = [
+        'customer_name', 'customer_rrn', 'customer_phone', 'customer_email',
+        'loan_amount', 'loan_purpose', 'loan_product', 'loan_period'
+    ];
+    
+    inputFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.value = '';
+            field.classList.remove('error');
+        }
+    });
+    
+    // 1-1. 고객 정보 확인 버튼 상태 초기화
+    const btnCheckCustomer = document.getElementById('btn_check_customer');
+    if (btnCheckCustomer) {
+        btnCheckCustomer.disabled = false;
+        btnCheckCustomer.innerHTML = '<i class="bi bi-search"></i><span>고객 정보 확인</span>';
+    }
+    
+    // 2. 모든 에러 메시지 제거
+    clearAllErrors();
+    
+    // 3. 고객 정보 표시 영역 숨기기 (기본 UI는 유지)
+    const customerDisplayContent = document.getElementById('customer_display_content');
+    const customerDisplayHeader = document.querySelector('.customer_display_header');
+    const customerInfoHeader = document.querySelector('.customer_info_header');
+    
+    if (customerDisplayContent) {
+        customerDisplayContent.style.display = 'none';
+        customerDisplayContent.innerHTML = '';
+    }
+    
+    if (customerDisplayHeader) {
+        customerDisplayHeader.style.display = 'none';
+    }
+    
+    if (customerInfoHeader) {
+        customerInfoHeader.style.display = 'block';
+    }
+    
+    // 4. first_row 안의 모든 요소들이 보이도록 보장 (단, customer_display_header는 제외)
+    const firstRow = document.querySelector('.first_row');
+    if (firstRow) {
+        // first_row 안의 모든 자식 요소들을 표시 (customer_display_header 제외)
+        const allChildren = firstRow.querySelectorAll('*');
+        allChildren.forEach(child => {
+            if (child.style && !child.classList.contains('customer_display_header')) {
+                child.style.display = '';
+            }
+        });
+        
+        // first_row의 gap 스타일 복원
+        firstRow.style.gap = '0.625rem';
+        
+        // customer_display_header는 명시적으로 숨기기
+        const customerDisplayHeader = firstRow.querySelector('.customer_display_header');
+        if (customerDisplayHeader) {
+            customerDisplayHeader.style.display = 'none';
+        }
+    }
+    
+    // 4-1. usage_guide_container 스타일 초기화 (인라인 스타일 제거)
+    const usageGuideContainer = document.getElementById('usage_guide_container');
+    if (usageGuideContainer) {
+        usageGuideContainer.style.display = '';
+        console.log('usage_guide_container 스타일 초기화됨');
+    } else {
+        console.log('usage_guide_container 요소를 찾을 수 없음');
+        // usage_guide_container가 없다면 third_column에서 찾아보기
+        const thirdColumn = document.querySelector('.third_column');
+        if (thirdColumn) {
+            const existingUsageGuide = thirdColumn.querySelector('#usage_guide_container');
+            if (existingUsageGuide) {
+                existingUsageGuide.style.display = '';
+                console.log('third_column에서 usage_guide_container 찾아서 스타일 초기화됨');
+            } else {
+                console.log('third_column에도 usage_guide_container가 없음');
+            }
+        }
+    }
+    
+    // 5. 두 번째 row 숨기기 (하지만 assessment_actions는 보이도록)
+    const secondRow = document.getElementById('second_row');
+    if (secondRow) {
+        secondRow.style.display = 'none';
+    }
+    
+    // 6. 세 번째 row는 숨기지 않고 표시 (assessment_actions가 있으므로)
+    const thirdRow = document.getElementById('third_row');
+    if (thirdRow) {
+        thirdRow.style.display = 'block';
+        console.log('third_row 표시됨');
+    }
+    
+    // 6-1. assessment_actions 스타일 초기화 (인라인 스타일 제거)
+    const assessmentActions = document.querySelector('.assessment_actions');
+    if (assessmentActions) {
+        assessmentActions.style.display = '';
+        console.log('assessment_actions 스타일 초기화됨');
+    }
+    
+    // 7. 전역 변수 초기화
+    currentCustomerData = null;
+    currentAssessmentType = 'personal';
+    
+    // 8. 심사 결과 컬럼 초기화
+    if (window.clearAssessmentResults) {
+        window.clearAssessmentResults();
+    }
+    
+    // 9. 보고서 컬럼은 초기화하지 않음 (사용자가 생성한 보고서는 유지)
+    
+    // 10. 대출 상품 옵션 초기화
+    const loanProductSelect = document.getElementById('loan_product');
+    if (loanProductSelect) {
+        loanProductSelect.innerHTML = '<option value="">대출 목적을 먼저 선택하세요</option>';
+    }
+    
+    // 11. 개인/기업 토글을 개인으로 초기화
+    const personalToggle = document.querySelector('.toggle_button[data-type="personal"]');
+    const corporateToggle = document.querySelector('.toggle_button[data-type="corporate"]');
+    
+    if (personalToggle && corporateToggle) {
+        personalToggle.classList.add('active');
+        corporateToggle.classList.remove('active');
+    }
+    
+    console.log('=== 초기 상태로 리셋 완료 ===');
+    
+    // 사용자에게 알림
+    alert('모든 정보가 초기화되었습니다.');
+}
 
 // ---------- 여신 심사 관련 함수들 ----------
 
@@ -671,6 +853,7 @@ function showLoadingScreen() {
     allResults.forEach(el => {
         el.style.display = 'none';
     });
+
     
     // 로딩 화면 표시
     const loadingScreen = document.getElementById('assessment_loading');
