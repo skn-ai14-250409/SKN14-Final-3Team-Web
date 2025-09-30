@@ -179,11 +179,11 @@ class Command(BaseCommand):
                 customer=corp_customer,
                 defaults={
                     "industry_code": random.choice(industries),
-                    "legal_name": fake.unique.company(),
+                    "legal_name": fake.unique.company(), # ceo_name 제거
                     "biz_reg_no_masked": f"{random.randint(100, 999)}-{random.randint(10, 99)}-{random.randint(10000, 99999)}",
                     "incorporation_date": fake.date_between(start_date="-30y", end_date="today"),
                     "employees_count": fake.random_int(min=10, max=500),
-                    "mobile": "010-0000-0000",
+                    "mobile": "010-0000-0000", # email 제거
                     "current_assets": fake.pydecimal(left_digits=9, right_digits=2, positive=True),
                     "cost_of_goods_sold": fake.pydecimal(left_digits=9, right_digits=2, positive=True),
                     "ebitda": fake.pydecimal(left_digits=8, right_digits=2),

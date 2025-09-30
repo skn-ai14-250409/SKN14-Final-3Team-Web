@@ -56,11 +56,11 @@ class CustomerPerson(models.Model):
 class CustomerCorporate(models.Model):
     customer = models.OneToOneField(Customer, on_delete=models.CASCADE, primary_key=True, related_name="corporate")
     industry_code = models.ForeignKey(CIndustryCode, null=True, on_delete=models.SET_NULL)
-    legal_name = models.CharField(max_length=255, unique=True)
+    legal_name = models.CharField(max_length=255, unique=True) # ceo_name 필드 제거
     biz_reg_no_masked = models.CharField(max_length=64, unique=True)
     incorporation_date = models.DateField()
     employees_count = models.IntegerField()
-    mobile = models.CharField(max_length=32)
+    mobile = models.CharField(max_length=32) # email 필드 및 mobile unique=True 제거
 
     # 재무 숫자 (NUMERIC(20,2))
     current_assets = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)

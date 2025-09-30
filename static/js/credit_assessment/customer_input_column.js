@@ -49,20 +49,38 @@ function displayCustomerInfo(customer) {
     const customerDisplayContent = document.getElementById('customer_display_content');
     if (!customerDisplayContent) return;
     
-    const html = `
-    <div class="customer_info_grid">
-        <div class="info_item"><div class="info_label">고객 ID</div><div class="info_value">${customer.id}</div></div>
-        <div class="info_item"><div class="info_label">고객명</div><div class="info_value">${customer.full_name}</div></div>
-        <div class="info_item"><div class="info_label">나이</div><div class="info_value">${customer.age}세</div></div>
-        <div class="info_item"><div class="info_label">성별</div><div class="info_value">${customer.gender}</div></div>
-        <div class="info_item"><div class="info_label">연락처</div><div class="info_value">${customer.phone}</div></div>
-        <div class="info_item"><div class="info_label">이메일</div><div class="info_value">${customer.email}</div></div>
-        <div class="info_item"><div class="info_label">최종 학력</div><div class="info_value">${customer.education_level}</div></div>
-        <div class="info_item"><div class="info_label">회사명</div><div class="info_value">${customer.company_name}</div></div>
-        <div class="info_item"><div class="info_label">직종</div><div class="info_value">${customer.job_title}</div></div>
-        <div class="info_item"><div class="info_label">근속년수</div><div class="info_value">${customer.years_of_service}년</div></div>
-        <div class="info_item"><div class="info_label">주택 상태</div><div class="info_value">${customer.housing_status}</div></div>
-    </div>`;
+    let html = '';
+    if (currentAssessmentType === 'personal') {
+        html = `
+        <div class="customer_info_grid">
+            <div class="info_item"><div class="info_label">고객 ID</div><div class="info_value">${customer.id}</div></div>
+            <div class="info_item"><div class="info_label">고객명</div><div class="info_value">${customer.full_name}</div></div>
+            <div class="info_item"><div class="info_label">나이</div><div class="info_value">${customer.age}세</div></div>
+            <div class="info_item"><div class="info_label">성별</div><div class="info_value">${customer.gender}</div></div>
+            <div class="info_item"><div class="info_label">연락처</div><div class="info_value">${customer.phone}</div></div>
+            <div class="info_item"><div class="info_label">이메일</div><div class="info_value">${customer.email || '정보 없음'}</div></div>
+            <div class="info_item"><div class="info_label">최종 학력</div><div class="info_value">${customer.education_level}</div></div>
+            <div class="info_item"><div class="info_label">회사명</div><div class="info_value">${customer.company_name}</div></div>
+            <div class="info_item"><div class="info_label">직종</div><div class="info_value">${customer.job_title}</div></div>
+            <div class="info_item"><div class="info_label">근속년수</div><div class="info_value">${customer.years_of_service}년</div></div>
+            <div class="info_item"><div class="info_label">주택 상태</div><div class="info_value">${customer.housing_status}</div></div>
+        </div>`;
+    } else { // corporate
+        html = `
+        <div class="customer_info_grid">
+            <div class="info_item"><div class="info_label">고객 ID</div><div class="info_value">${customer.id}</div></div>
+            <div class="info_item"><div class="info_label">기업명</div><div class="info_value">${customer.full_name}</div></div>
+            <div class="info_item"><div class="info_label">대표자명</div><div class="info_value">${customer.ceo_name}</div></div>
+            <div class="info_item"><div class="info_label">사업자등록번호</div><div class="info_value">${customer.brn}</div></div>
+            <div class="info_item"><div class="info_label">대표 연락처</div><div class="info_value">${customer.phone}</div></div>
+            <div class="info_item"><div class="info_label">이메일</div><div class="info_value">${customer.email || '정보 없음'}</div></div>
+            <div class="info_item"><div class="info_label">업종</div><div class="info_value">${customer.industry_type}</div></div>
+            <div class="info_item"><div class="info_label">총자산</div><div class="info_value">${fmtWon(customer.total_assets)}</div></div>
+            <div class="info_item"><div class="info_label">총부채</div><div class="info_value">${fmtWon(customer.total_liabilities)}</div></div>
+            <div class="info_item"><div class="info_label">당기순이익</div><div class="info_value">${fmtWon(customer.net_income)}</div></div>
+            <div class="info_item"><div class="info_label">매출액</div><div class="info_value">${fmtWon(customer.net_sales)}</div></div>
+        </div>`;
+    }
     customerDisplayContent.innerHTML = html;
 }
 
@@ -118,18 +136,33 @@ function checkCustomerInfo() {
         btnCheckCustomer.innerHTML = '<i class="bi bi-hourglass-split"></i><span>확인 중...</span>';
     }
 
+    const apiUrl = currentAssessmentType === 'corporate' 
+        ? '/kb_bank/credit_assessment/api/check-corporate-customer/' 
+        : '/kb_bank/credit_assessment/api/check-customer/';
+
+    let requestBody;
+    if (currentAssessmentType === 'corporate') {
+        requestBody = {
+            legal_name: document.getElementById('customer_name').value.trim(),
+            biz_reg_no_masked: document.getElementById('customer_rrn').value.trim(),
+            mobile: document.getElementById('customer_phone').value.trim(),
+        };
+    } else {
+        requestBody = {
+            customer_name: customerName.value.trim(),
+            customer_rrn: customerRrn.value.trim(),
+            customer_phone: customerPhone.value.trim(),
+        };
+    }
+
     // 서버로 고객 정보 전송
-    fetch('/kb_bank/credit_assessment/api/check-customer/', {
+    fetch(apiUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken'),
         },
-        body: JSON.stringify({
-            customer_name: customerName.value.trim(),
-            customer_rrn: customerRrn.value.trim(),
-            customer_phone: customerPhone.value.trim(),
-        }),
+        body: JSON.stringify(requestBody),
     })
     .then((response) => {
         const contentType = response.headers.get('content-type');
@@ -353,10 +386,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (rrnInput) {
         rrnInput.addEventListener('input', function () {
             let value = this.value.replace(/\D/g, '');
-            
+
             // 개인/기업 모드에 따른 포맷팅
             if (currentAssessmentType === 'personal') {
-                // 개인: 주민번호 포맷팅 (123456-1234567)
+                // 개인: 주민번호 포맷팅 (000000-0000000)
                 if (value.length > 13) value = value.substring(0, 13);
                 if (value.length >= 7) value = value.replace(/(\d{6})(\d{7})/, '$1-$2');
             } else {
@@ -364,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (value.length > 10) value = value.substring(0, 10);
                 if (value.length >= 5) value = value.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3');
             }
-            
+
             this.value = value;
             
             // 에러 클래스 제거
@@ -512,9 +545,13 @@ function callMLAssessmentAPI() {
         loan_data: getLoanData(),
     };
 
+    const apiUrl = currentAssessmentType === 'corporate'
+        ? '/kb_bank/credit_assessment/api/assess-corporate-credit/'
+        : '/kb_bank/credit_assessment/api/assess-personal-credit/';
+
     console.log('ML 심사 요청 데이터:', requestData);
 
-    fetch('/kb_bank/credit_assessment/api/assess-credit/', {
+    fetch(apiUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -526,12 +563,13 @@ function callMLAssessmentAPI() {
     .then((data) => {
         console.log('ML 심사 응답:', data);
         if (data.success) {
-            // 시각화/텍스트 렌더는 방어적으로 수행
-            try {
+            // 심사 유형에 따라 적절한 렌더링 함수 호출
+            if (currentAssessmentType === 'corporate') {
+                renderCorporateResults(data.assessment_result);
+            } else {
+                // 개인 심사 결과 렌더링 (기존 로직)
                 const safe = (obj, key, fallback) => (obj && obj[key] != null ? obj[key] : fallback);
                 const r = data.assessment_result || {};
-                
-                // credit_rating 값이 항상 문자열이 되도록 보장
                 let creditRating = safe(r, 'credit_rating', '-');
                 if (typeof creditRating !== 'string') creditRating = '-';
 
@@ -547,10 +585,9 @@ function callMLAssessmentAPI() {
                     risk_matrix: safe(r, 'risk_matrix', []),
                     ai_report: safe(r, 'ai_report', {}),
                 });
-            } catch (error) {
-                console.error('결과 렌더링 오류:', error);
-                alert('심사 결과 표시 중 오류가 발생했습니다.');
             }
+            // 렌더링 후 결과 페이지 표시
+            showResultsPage();
         } else {
             alert('심사 처리 중 오류가 발생했습니다: ' + (data.message || '알 수 없는 오류'));
             hideResultsPage();
@@ -628,13 +665,12 @@ function showLoadingScreen() {
     const usageGuide = document.getElementById('usage_guide_container');
     if (usageGuide) {
         usageGuide.style.display = 'none';
-    }
-    
-    // 심사 결과 숨기기
-    const assessmentResults = document.getElementById('assessment_results');
-    if (assessmentResults) {
-        assessmentResults.style.display = 'none';
-    }
+    }    
+    // 모든 심사 결과 컨테이너 숨기기
+    const allResults = document.querySelectorAll('.assessment_results');
+    allResults.forEach(el => {
+        el.style.display = 'none';
+    });
     
     // 로딩 화면 표시
     const loadingScreen = document.getElementById('assessment_loading');
@@ -661,10 +697,16 @@ function showResultsPage() {
         usageGuide.style.display = 'none';
     }
     
-    // 심사 결과 표시
-    const assessmentResults = document.getElementById('assessment_results');
-    if (assessmentResults) {
-        assessmentResults.style.display = 'flex';
+    // 현재 심사 유형에 맞는 결과 컨테이너만 표시
+    const personalResults = document.getElementById('personal_assessment_results');
+    const corporateResults = document.getElementById('corporate_assessment_results');
+
+    if (currentAssessmentType === 'corporate') {
+        if (personalResults) personalResults.style.display = 'none';
+        if (corporateResults) corporateResults.style.display = 'flex';
+    } else {
+        if (corporateResults) corporateResults.style.display = 'none';
+        if (personalResults) personalResults.style.display = 'flex';
     }
     
     console.log('결과 페이지 표시 완료');
@@ -673,8 +715,11 @@ function showResultsPage() {
 // 결과 페이지 숨기기 함수
 function hideResultsPage() {
     const assessmentResults = document.getElementById('assessment_results');
+    const personalResults = document.getElementById('personal_assessment_results');
+    const corporateResults = document.getElementById('corporate_assessment_results');
     const usageGuideContainer = document.getElementById('usage_guide_container');
-    if (assessmentResults) assessmentResults.style.display = 'none';
+    if (personalResults) personalResults.style.display = 'none';
+    if (corporateResults) corporateResults.style.display = 'none';
     if (usageGuideContainer) usageGuideContainer.style.display = 'flex';
 }
 
@@ -689,17 +734,14 @@ function displayMLAssessmentResults(data) {
     updateFinancialIndicators(data.financial_indicators || {});
     updateRiskMatrix(data.risk_matrix || []);
     updateAiReport(data.ai_report || {}, data.approval_status);
-    
-    // 결과 표시 후 결과 페이지로 전환
-    showResultsPage();
 }
 
 // 기본 정보 업데이트 함수
 function updateBasicInfo(data) {
-    const creditScoreElement = document.querySelector('.credit_score');
-    const creditRatingElement = document.querySelector('.credit_rating');
-    const approvalStatusElement = document.querySelector('.approval_status');
-    const recommendedLimitElement = document.getElementById('recommended_limit');
+    const creditScoreElement = document.querySelector('#personal_assessment_results .credit_score');
+    const creditRatingElement = document.querySelector('#personal_assessment_results .credit_rating');
+    const approvalStatusElement = document.querySelector('#personal_assessment_results .approval_status');
+    const recommendedLimitElement = document.getElementById('personal_recommended_limit');
     const scoreDetailText = document.getElementById('credit_score_detail_text');
     const scoreDescriptionMain = document.getElementById('credit_score_description_main');
 
@@ -720,8 +762,8 @@ function updateBasicInfo(data) {
 
 // 신용점수 설명 업데이트 함수
 function updateCreditScoreDescription(score) {
-    const detailEl = document.getElementById('credit_score_description_detail');
-    const benefitEl = document.querySelector('.credit_score_discription .description_benefit');
+    const detailEl = document.querySelector('#personal_assessment_results #credit_score_description_detail');
+    const benefitEl = document.querySelector('#personal_assessment_results .credit_score_discription .description_benefit');
     if (!detailEl || !benefitEl) return;
 
     let detailText, benefitText;
@@ -745,11 +787,11 @@ function updateCreditScoreDescription(score) {
 }
 
 // 차트 렌더링 함수들
-function renderCreditScoreChart(chartData) {
-    const chartContainer = document.getElementById('credit_score_chart_container');
+function renderCreditScoreChart(chartData, containerId = 'personal_assessment_results #credit_score_chart_container') {
+    const chartContainer = document.getElementById(containerId);
     if (chartContainer && window.Plotly) {
         const cfg = safeJSONParse(chartData);
-        Plotly.newPlot('credit_score_chart_container', cfg.data, cfg.layout, {
+        Plotly.newPlot(chartContainer, cfg.data, cfg.layout, {
             responsive: true,
             displayModeBar: false,
         });
@@ -757,7 +799,7 @@ function renderCreditScoreChart(chartData) {
 }
 
 function renderProgressChart(chartData) {
-    const chartContainer = document.getElementById('progress_chart_container');
+    const chartContainer = document.querySelector('#personal_assessment_results #progress_chart_container');
     if (chartContainer && window.Plotly) {
         const cfg = safeJSONParse(chartData);
         Plotly.newPlot('progress_chart_container', cfg.data, cfg.layout, {
@@ -768,7 +810,7 @@ function renderProgressChart(chartData) {
 }
 
 function renderRiskAnalysisChart(chartData) {
-    const chartContainer = document.getElementById('risk_analysis_chart_container');
+    const chartContainer = document.querySelector('#personal_assessment_results #risk_analysis_chart_container');
     if (chartContainer && window.Plotly) {
         const cfg = safeJSONParse(chartData);
         updateRiskAnalysisDescription(cfg); // 시나리오 업데이트 함수 호출
@@ -780,9 +822,9 @@ function renderRiskAnalysisChart(chartData) {
 }
 
 function updateRiskAnalysisDescription(chartData) {
-    const detailEl = document.querySelector('.risk_analysis_grid .risk_analysis_detail');
-    const mainDescEl = document.querySelector('.risk_analysis_discription .description_main');
-    const detailDescEl = document.querySelector('.risk_analysis_discription .description_detail');
+    const detailEl = document.querySelector('#personal_assessment_results .risk_analysis_grid .risk_analysis_detail');
+    const mainDescEl = document.querySelector('#personal_assessment_results .risk_analysis_discription .description_main');
+    const detailDescEl = document.querySelector('#personal_assessment_results .risk_analysis_discription .description_detail');
 
     if (!detailEl || !mainDescEl || !detailDescEl) return;
 
@@ -815,7 +857,7 @@ function updateRiskAnalysisDescription(chartData) {
 }
 
 function updateFinancialIndicators(indicators) {
-    const detailItems = document.querySelectorAll('.detail_section .detail_item');
+    const detailItems = document.querySelectorAll('#personal_assessment_results .detail_section .detail_item');
     const keys = Object.keys(indicators);
     keys.forEach((key, idx) => {
         if (!detailItems[idx]) return;
@@ -835,7 +877,7 @@ function updateFinancialIndicators(indicators) {
 }
 
 function updateRiskMatrix(riskMatrix) {
-    const riskItems = document.querySelectorAll('.risk_item');
+    const riskItems = document.querySelectorAll('#personal_assessment_results .risk_item');
     riskMatrix.forEach((risk, i) => {
         if (!riskItems[i]) return;
         riskItems[i].className = `risk_item ${risk.level}`;
@@ -846,15 +888,15 @@ function updateRiskMatrix(riskMatrix) {
 }
 
 function updateAiReport(reportData, approvalStatus) {
-    const summaryIcon = document.getElementById('ai_summary_icon');
-    const summaryTitle = document.getElementById('ai_summary_title');
-    const summaryDesc = document.getElementById('ai_summary_description');
-    const analysisDetailsContainer = document.querySelector('.analysis_details');
+    const summaryIcon = document.querySelector('#personal_assessment_results #ai_summary_icon');
+    const summaryTitle = document.querySelector('#personal_assessment_results #ai_summary_title');
+    const summaryDesc = document.querySelector('#personal_assessment_results #ai_summary_description');
+    const analysisDetailsContainer = document.querySelector('#personal_assessment_results .analysis_details');
     const recommendationsList = document.querySelector(
-        '.analysis_recommendations .recommendation_section:nth-child(1) .recommendation_list'
+        '#personal_assessment_results .analysis_recommendations .recommendation_section:nth-child(1) .recommendation_list'
     );
     const warningsList = document.querySelector(
-        '.analysis_recommendations .recommendation_section:nth-child(2) .recommendation_list'
+        '#personal_assessment_results .analysis_recommendations .recommendation_section:nth-child(2) .recommendation_list'
     );
 
     const isApproved = approvalStatus === 'approved';
@@ -896,4 +938,212 @@ function safeJSONParse(maybeJson, fallback = { data: [], layout: {} }) {
     } catch {
         return fallback;
     }
+}
+
+// ============== 기업 여신 심사 결과 렌더링 함수들 ==============
+
+// ============== 유틸 ==============
+function fmtNumber(n){ return (n ?? 0).toLocaleString('ko-KR'); }
+function fmtWon(n){ return (n ?? 0).toLocaleString('ko-KR') + '원'; }
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function setText(sel, txt){ const el=document.querySelector(sel); if(el) el.textContent = txt; }
+function setHtml(sel, html){ const el=document.querySelector(sel); if(el) el.innerHTML = html; }
+function setBar(sel, pct){ const el=document.querySelector(sel); if(el) el.style.width = clamp(pct,0,100) + '%'; }
+
+// Ohlson 선형합 → 부도확률 p
+function ohlsonToProb(ohlson_o){
+  const x = Number(ohlson_o ?? 0);
+  return 1 / (1 + Math.exp(-x)); // 0~1
+}
+
+// 등급 텍스트(이미 백엔드에서 주지만 UI 설명용)
+function ratingText(score){
+  if(score>=900) return 'AAA';
+  if(score>=800) return 'AA';
+  if(score>=700) return 'A';
+  if(score>=600) return 'B';
+  if(score>=500) return 'C';
+  return 'D';
+}
+
+// 레이더 정규화(0~100) - UI 가이드 그대로
+function scaleZ(z){ 
+  if(z<=1.0) return 10; 
+  if(z<=1.81) return 10 + 40*(z-1.0)/0.81;
+  if(z<=2.99) return 50 + 40*(z-1.81)/1.18;
+  return Math.min(100, 90 + 10*(z-2.99));
+}
+function scaleCurrent(x){ if(x<=0.8) return 20*(x/0.8); if(x<=1.0) return 20+40*(x-0.8)/0.2; if(x<=2.0) return 60+40*(x-1.0)/1.0; return 100; }
+function scaleQuick(x){ if(x<=0.5) return 30*(x/0.5); if(x<=1.0) return 30+40*(x-0.5)/0.5; if(x<=1.5) return 70+30*(x-1.0)/0.5; return 100; }
+function scaleROA(x){ return clamp((x*100 + 10)*5, 0, 100); } // -10%→0, 10%→100 근사
+function scaleROS(x){ return clamp((x*100 + 10)*5, 0, 100); }
+
+// 칩 색상
+function chipClassByZ(z){ if(z>=2.99) return 'ok'; if(z>=1.81) return 'warn'; return 'danger'; }
+function chipClassByProb(p){ if(p<=0.05) return 'ok'; if(p<=0.15) return 'warn'; return 'danger'; }
+function chipClassByF(f){ if(f>=2) return 'ok'; if(f>=1) return 'warn'; return 'danger'; }
+
+// ============== ECharts helpers (optional) ==============
+function ensureEcharts(){ return window.echarts && typeof window.echarts.init === 'function'; }
+
+function drawDonut(selector, score){ // score: 0~1000
+  if(!ensureEcharts()) return;
+  const el = document.querySelector(selector);
+  if(!el) return;
+  const chart = echarts.init(el);
+  chart.setOption({
+    series:[{
+      type:'pie', radius:['76%','92%'], avoidLabelOverlap:false, label:{show:false},
+      data:[
+        {value: score, name:'score'},
+        {value: 1000 - score, name:'rest'}
+      ]
+    }],
+    color:['#1abf6d','#f0f2f4']
+  });
+}
+
+function drawRadar(selector, vals){ // 6축 0~100
+  if(!ensureEcharts()) return;
+  const el = document.querySelector(selector);
+  if(!el) return;
+  const chart = echarts.init(el);
+  chart.setOption({
+    radar: {
+      indicator: [
+        {name:'유동성', max:100},
+        {name:'당좌', max:100},
+        {name:'레버리지', max:100},
+        {name:'ROA', max:100},
+        {name:'ROS', max:100},
+        {name:'Z-Score', max:100}
+      ],
+      splitNumber:5
+    },
+    series:[{
+      type:'radar',
+      areaStyle:{opacity:0.25},
+      data:[{value: vals}]
+    }]
+  });
+}
+
+// ============== 메인 바인딩 ==============
+/**
+ * 백엔드 CorporateLoanApprovalModel().predict() 응답을 그대로 넣어줌
+ */
+function renderCorporateResults(resp){
+  const dx = resp?.diagnostics ?? {};
+  const score = Number(resp?.credit_score ?? 0);
+  const rating = resp?.credit_rating ?? ratingText(score);
+  const approved = (resp?.approval_status ?? 'rejected') === 'approved';
+  const limit = resp?.recommended_limit ?? 0;
+
+  // --- 상단 4카드 (기업용 컨테이너 내부) ---
+  setText('#corporate_assessment_results .summary_value.credit_score', fmtNumber(score));
+  setText('#corporate_assessment_results .summary_value.credit_rating', rating);
+  const apvEl = document.querySelector('#corporate_assessment_results .summary_value.approval_status');
+  if(apvEl){
+    apvEl.textContent = approved ? '승인 가능' : '불가';
+    apvEl.classList.toggle('approved', approved);
+    apvEl.classList.toggle('rejected', !approved);
+  }
+  setText('#corporate_recommended_limit', (limit/10000).toLocaleString('ko-KR') + '만원');
+
+  // --- 신용점수 도넛 & 설명 ---
+  // ECharts가 없으면 Plotly로 대체
+  if (ensureEcharts()) {
+    drawDonut('#corporate_assessment_results #credit_score_chart_container', score);
+  } else {
+    renderCreditScoreChart(resp.credit_score_chart, 'corporate_assessment_results #credit_score_chart_container');
+  }
+  setText('#credit_score_detail_text', `${fmtNumber(score)}/1000점`);
+  setHtml('#credit_score_description_main',
+    `<b>신용점수 ${fmtNumber(score)}점</b>은 1000점 만점 기준으로 <b>${rating}</b> 등급에 해당합니다.`);
+  setHtml('#credit_score_description_detail',
+    `Altman Z, Ohlson 부도확률, Piotroski F 등 핵심 재무지표를 종합한 결과입니다. ` +
+    `승인 여부와 한도는 내부 기준 및 정책가중치가 추가 반영됩니다.`);
+
+  // --- 기업 KPI 칩 ---
+  const z = Number(dx.altman_z ?? 0);
+  const p = (dx.ohlson_p != null) ? Number(dx.ohlson_p) : ohlsonToProb(dx.ohlson_o ?? 0);
+  const f = Number(dx.piotroski_f ?? 0);
+  const chipZ = document.querySelector('#corporate_assessment_results #chip_altman_z'); if(chipZ){ chipZ.className = `chip ${chipClassByZ(z)}`; chipZ.querySelector('b').textContent = z.toFixed(2); }
+  const chipP = document.querySelector('#corporate_assessment_results #chip_ohlson_p'); if(chipP){ chipP.className = `chip ${chipClassByProb(p)}`; chipP.querySelector('b').textContent = (p*100).toFixed(1)+'%'; }
+  const chipF = document.querySelector('#corporate_assessment_results #chip_piotroski_f'); if(chipF){ chipF.className = `chip ${chipClassByF(f)}`; chipF.querySelector('b').textContent = f.toString(); }
+
+  // --- 레이더(위험도 분석) : 6축 0~100 ---
+  const liquidity = scaleCurrent(Number(dx.current_ratio ?? 0));
+  const quick     = scaleQuick(Number(dx.quick_ratio ?? 0));
+  const leverage  = 100 * (1 - clamp(Number(dx.debt_to_asset_ratio ?? 0), 0, 1)); // 낮을수록 좋음
+  const roaN      = scaleROA(Number(dx.roa ?? 0));
+  const rosN      = scaleROS(Number(dx.ros ?? 0));
+  const zN        = scaleZ(z);
+  // ECharts가 없으면 Plotly로 대체
+  if (ensureEcharts()) {
+    drawRadar('#corporate_assessment_results #risk_analysis_chart_container', [liquidity, quick, leverage, roaN, rosN, zN]);
+  } else {
+    // Plotly 레이더 차트 로직 (기존 함수 재활용 또는 새 함수)
+    // 여기서는 기존 개인용 차트 함수를 호출하여 대체합니다.
+    renderRiskAnalysisChart(resp.risk_analysis_chart);
+  }
+  // 종합 위험도 텍스트
+  const riskAvg = (liquidity + quick + leverage + roaN + rosN + zN) / 6;
+  setText('#corporate_assessment_results .risk_analysis_detail', `종합 위험도: ${riskAvg>=70?'안정':(riskAvg>=50?'보통':'주의')}`);
+
+  // --- 재무 안정성 지표 진행바 (라벨은 기존 UI 유지하되 값 매핑만 교체) ---
+  const debtRatio = Number(dx.debt_to_asset_ratio ?? 0); // 0~1
+  const debtStabilityPct = clamp((1 - debtRatio) * 100, 0, 100);
+  setText('#corporate_assessment_results .detail_grid .detail_item:nth-child(1) .detail_label', '부채비율');
+  setBar('#corporate_assessment_results .detail_grid .detail_item:nth-child(1) .progress_fill', debtStabilityPct);
+  setText('#corporate_assessment_results .detail_grid .detail_item:nth-child(1) .detail_value', Math.round(debtStabilityPct) + '%');
+
+  const quickPct = scaleQuick(Number(dx.quick_ratio ?? 0));
+  setText('#corporate_assessment_results .detail_grid .detail_item:nth-child(2) .detail_label', '당좌비율');
+  setBar('#corporate_assessment_results .detail_grid .detail_item:nth-child(2) .progress_fill', quickPct);
+  setText('#corporate_assessment_results .detail_grid .detail_item:nth-child(2) .detail_value', Math.round(quickPct) + '%');
+
+  const currPct = scaleCurrent(Number(dx.current_ratio ?? 0));
+  setText('#corporate_assessment_results .detail_grid .detail_item:nth-child(3) .detail_label', '유동비율');
+  setBar('#corporate_assessment_results .detail_grid .detail_item:nth-child(3) .progress_fill', currPct);
+  setText('#corporate_assessment_results .detail_grid .detail_item:nth-child(3) .detail_value', Math.round(currPct) + '%');
+
+  const fPct = clamp((Number(dx.piotroski_f ?? 0) / 3) * 100, 0, 100);
+  setText('#corporate_assessment_results .detail_grid .detail_item:nth-child(4) .detail_label', '재무건전성(F-Score)');
+  setBar('#corporate_assessment_results .detail_grid .detail_item:nth-child(4) .progress_fill', fPct);
+  setText('#corporate_assessment_results .detail_grid .detail_item:nth-child(4) .detail_value', Math.round(fPct) + '%');
+
+  const ca = Number(dx.current_assets ?? 0);
+  const ta = Number(dx.total_assets ?? 0);
+  const caPct = ta>0 ? clamp((ca/ta)*100, 0, 100) : 0;
+  setText('#corporate_assessment_results .detail_grid .detail_item:nth-child(5) .detail_label', '유동자산 비중');
+  setBar('#corporate_assessment_results .detail_grid .detail_item:nth-child(5) .progress_fill', caPct);
+  setText('#corporate_assessment_results .detail_grid .detail_item:nth-child(5) .detail_value', Math.round(caPct) + '%');
+
+  const gpmPct = clamp((Number(dx.gross_profit_margin ?? 0))*100, 0, 100);
+  setText('#corporate_assessment_results .detail_grid .detail_item:nth-child(6) .detail_label', '매출총이익률');
+  setBar('#corporate_assessment_results .detail_grid .detail_item:nth-child(6) .progress_fill', gpmPct);
+  setText('#corporate_assessment_results .detail_grid .detail_item:nth-child(6) .detail_value', Math.round(gpmPct) + '%');
+
+  // --- AI 분석 보고서(텍스트 톤 유지) ---
+  const title = approved ? '대출 승인 권장' : (score>=550 ? '보류(추가 검토 권장)' : '대출 승인 비권장');
+  setText('#corporate_assessment_results #ai_summary_title', title);
+  setHtml('#corporate_assessment_results #ai_summary_description',
+    `AI 기반 모델 분석 결과, <b>신용점수 ${fmtNumber(score)}점(${rating} 등급)</b>입니다. ` +
+    `Altman Z=${z.toFixed(2)}, 부도확률≈${(p*100).toFixed(1)}%, F=${f}을 종합 평가했습니다.`);
+
+  setText('#corporate_assessment_results #ai_detail_score', fmtNumber(score));
+  setText('#corporate_assessment_results #ai_detail_repayment', (currPct>=70 && quickPct>=70)?'안정적':'관리 필요');
+  setText('#corporate_assessment_results #ai_detail_income', `유동성 ${currPct.toFixed(0)}% / 당좌 ${quickPct.toFixed(0)}%`);
+  setText('#corporate_assessment_results #ai_detail_history', `F-Score ${f}점`);
+
+  const recList = document.querySelectorAll('#corporate_assessment_results .analysis_recommendations .recommendation_section .recommendation_list');
+  if(recList[0]){
+    recList[0].innerHTML = `<ul><li>신청 금액 <b>${fmtWon(limit)}</b>까지 승인 권장(모형 기준)</li><li>부도확률 ${ (p*100).toFixed(1) }% (내부 컷오프 하회)</li><li>담보·보증 없이도 가능(정책에 따름)</li></ul>`;
+  }
+  if(recList[1]){
+    const levWarn = debtRatio>0.7 ? '<li>부채비율(자산대비) 높음: 내부 한도 축소 검토</li>' : '';
+    const zWarn = z<1.81 ? '<li>Altman Z 위험 구간: 증빙 보강 필요</li>' : '';
+    recList[1].innerHTML = `<ul>${levWarn}${zWarn}</ul>`;
+  }
 }
