@@ -38,6 +38,7 @@ class CustomerPerson(models.Model):
     rrn = models.CharField(max_length=64, unique=True)
     mobile = models.CharField(max_length=32, unique=True)
     email = models.EmailField(unique=True)
+    company_name = models.CharField(max_length=255, null=True, blank=True) # 회사명 필드 추가
     account_number = models.CharField(max_length=64)
     account_amount = models.DecimalField(max_digits=18, decimal_places=2)
     education_level = models.ForeignKey(CEducationLevel, null=True, on_delete=models.SET_NULL)
@@ -56,8 +57,9 @@ class CustomerPerson(models.Model):
 class CustomerCorporate(models.Model):
     customer = models.OneToOneField(Customer, on_delete=models.CASCADE, primary_key=True, related_name="corporate")
     industry_code = models.ForeignKey(CIndustryCode, null=True, on_delete=models.SET_NULL)
-    legal_name = models.CharField(max_length=255, unique=True) # ceo_name 필드 제거
+    company_name = models.CharField(max_length=255, default='Default Company Name') # 기업명
     biz_reg_no_masked = models.CharField(max_length=64, unique=True)
+    legal_name = models.CharField(max_length=255) # 대표자명
     incorporation_date = models.DateField()
     employees_count = models.IntegerField()
     mobile = models.CharField(max_length=32) # email 필드 및 mobile unique=True 제거
