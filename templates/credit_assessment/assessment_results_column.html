@@ -129,8 +129,8 @@
             <div class="detail_section">
             <div class="section_title">KB 여신 신용점수 분포도</div>
             <div class="credit_score_grid">
-                <div class="credit_score_graph_container">
-                <div class="credit_score_chart_container" id="credit_score_chart_container" style="position: relative;" role="img" aria-label="신용점수 원형 그래프"></div>
+                <div class="credit_score_graph_container" id="personal_credit_score_chart_container">
+                <div class="credit_score_chart_container" style="position: relative;" role="img" aria-label="신용점수 원형 그래프"></div>
                 <div class="credit_score_detail" id="credit_score_detail_text"></div>
                 </div>
                 <div class="credit_score_discription_container">
@@ -152,7 +152,7 @@
             <div class="risk_analysis_grid">
                 <div class="risk_analysis_graph_container">
                 <div class="risk_analysis_graph" role="img" aria-label="위험도 분석 레이더 차트">
-                    <div class="risk_analysis_chart_container" id="risk_analysis_chart_container"></div>
+                    <div class="risk_analysis_chart_container" id="personal_risk_analysis_chart_container"></div>
                     <div class="risk_analysis_detail">종합 위험도: -</div>
                 </div>
                 </div>
@@ -284,12 +284,15 @@
                     <div class="section_title">KB 여신 신용점수 분포도</div>
                     <div class="credit_score_grid">
                         <div class="credit_score_graph_container">
-                            <div class="credit_score_chart_container" id="credit_score_chart_container" style="position: relative;" role="img" aria-label="신용점수 원형 그래프"></div>
+                            <div class="credit_score_chart_container" id="corporate_credit_score_chart_container" style="position: relative;" role="img" aria-label="신용점수 원형 그래프"></div>
                             <div class="credit_score_detail" id="credit_score_detail_text"></div>
                         </div>
                         <div class="credit_score_discription_container">
                             <div class="credit_score_discription">
                                 <div class="description_main" id="credit_score_description_main"></div>
+                                <div class="description_benefit">
+                                    <!-- JS에 의해 동적으로 채워짐 -->
+                                </div>
                                 <div class="description_detail" id="credit_score_description_detail"></div>
                                 <!-- 기업 KPI 칩 -->
                                 <div class="kpi_chips" id="corp_kpi_chips">
@@ -309,7 +312,7 @@
                     <div class="risk_analysis_grid">
                         <div class="risk_analysis_graph_container">
                             <div class="risk_analysis_graph" role="img" aria-label="위험도 분석 레이더 차트">
-                                <div class="risk_analysis_chart_container" id="risk_analysis_chart_container"></div>
+                                <div class="risk_analysis_chart_container" id="corporate_risk_analysis_chart_container"></div>
                                 <div class="risk_analysis_detail">종합 위험도: -</div>
                             </div>
                         </div>
@@ -330,12 +333,12 @@
                 <div class="detail_section">
                     <div class="section_title">재무 안정성 지표</div>
                     <div class="detail_grid">
-                        <div class="detail_item"><div class="detail_header"><span class="detail_label">부채비율</span><span class="detail_value">-</span></div><div class="progress_bar"><div class="progress_fill" style="width: 0%"></div></div></div>
-                        <div class="detail_item"><div class="detail_header"><span class="detail_label">당좌비율</span><span class="detail_value">-</span></div><div class="progress_bar"><div class="progress_fill" style="width: 0%"></div></div></div>
-                        <div class="detail_item"><div class="detail_header"><span class="detail_label">유동비율</span><span class="detail_value">-</span></div><div class="progress_bar"><div class="progress_fill" style="width: 0%"></div></div></div>
-                        <div class="detail_item"><div class="detail_header"><span class="detail_label">재무건전성(F-Score)</span><span class="detail_value">-</span></div><div class="progress_bar"><div class="progress_fill" style="width: 0%"></div></div></div>
-                        <div class="detail_item"><div class="detail_header"><span class="detail_label">유동자산 비중</span><span class="detail_value">-</span></div><div class="progress_bar"><div class="progress_fill" style="width: 0%"></div></div></div>
-                        <div class="detail_item"><div class="detail_header"><span class="detail_label">매출총이익률</span><span class="detail_value">-</span></div><div class="progress_bar"><div class="progress_fill" style="width: 0%"></div></div></div>
+                        <div class="detail_item financial_indicator" id="indicator_current_ratio"><div class="indicator_label">유동비율</div><div class="indicator_value">-</div><div class="indicator_status"><i class="bi"></i><span>-</span></div></div>
+                        <div class="detail_item financial_indicator" id="indicator_quick_ratio"><div class="indicator_label">당좌비율</div><div class="indicator_value">-</div><div class="indicator_status"><i class="bi"></i><span>-</span></div></div>
+                        <div class="detail_item financial_indicator" id="indicator_net_profit_margin"><div class="indicator_label">순이익률</div><div class="indicator_value">-</div><div class="indicator_status"><i class="bi"></i><span>-</span></div></div>
+                        <div class="detail_item financial_indicator" id="indicator_altman_z"><div class="indicator_label">Altman Z-Score</div><div class="indicator_value">-</div><div class="indicator_status"><i class="bi"></i><span>-</span></div></div>
+                        <div class="detail_item financial_indicator" id="indicator_ohlson_o"><div class="indicator_label">Ohlson O-Score</div><div class="indicator_value">-</div><div class="indicator_status"><i class="bi"></i><span>-</span></div></div>
+                        <div class="detail_item financial_indicator" id="indicator_piotroski_f"><div class="indicator_label">Piotroski F-Score</div><div class="indicator_value">-</div><div class="indicator_status"><i class="bi"></i><span>-</span></div></div>
                     </div>
                 </div>
             </div>
@@ -353,10 +356,10 @@
                     </div>
 
                     <div class="analysis_details">
-                        <div class="detail_item"><div class="detail_header"><span class="detail_label">신용점수 분석</span><span class="detail_value" id="ai_detail_score"></span></div><div class="detail_description">재무제표 기반 종합 평가</div></div>
-                        <div class="detail_item"><div class="detail_header"><span class="detail_label">상환능력 평가</span><span class="detail_value" id="ai_detail_repayment">-</span></div><div class="detail_description">유동성 및 당좌비율 기반</div></div>
-                        <div class="detail_item"><div class="detail_header"><span class="detail_label">수익성 평가</span><span class="detail_value" id="ai_detail_income">-</span></div><div class="detail_description">ROA, ROS 등 수익성 지표</div></div>
-                        <div class="detail_item"><div class="detail_header"><span class="detail_label">재무 건전성</span><span class="detail_value" id="ai_detail_history">-</span></div><div class="detail_description">Piotroski F-Score 기반</div></div>
+                        <div class="detail_item" id="ai_detail_profitability"><div class="detail_header"><span class="detail_label">수익성</span><span class="detail_value">-</span></div><div class="detail_description">ROA, ROS 등 이익 창출 능력</div></div>
+                        <div class="detail_item" id="ai_detail_stability"><div class="detail_header"><span class="detail_label">안정성</span><span class="detail_value">-</span></div><div class="detail_description">부채비율, 유동비율 등 재무구조</div></div>
+                        <div class="detail_item" id="ai_detail_activity"><div class="detail_header"><span class="detail_label">활동성</span><span class="detail_value">-</span></div><div class="detail_description">총자산회전율 등 자산 효율성</div></div>
+                        <div class="detail_item" id="ai_detail_growth"><div class="detail_header"><span class="detail_label">성장성</span><span class="detail_value">-</span></div><div class="detail_description">매출액증가율 등 미래 잠재력</div></div>
                     </div>
 
                     <div class="analysis_recommendations">

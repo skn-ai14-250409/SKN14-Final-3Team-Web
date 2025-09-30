@@ -208,6 +208,75 @@ def create_risk_analysis_chart(customer_data, loan_data, prediction_result):
     )
     return plotly.utils.PlotlyJSONEncoder().encode(fig)
 
+def create_corporate_risk_analysis_chart(diagnostics):
+    """기업 진단 데이터 기반 위험도 분석 레이더 차트 생성 (Plotly)"""
+    
+    # 1. 데이터 정규화 함수 (JS와 동일한 로직)
+    def clamp(v, a, b): return max(a, min(b, v))
+    def scaleZ(z): 
+        if z <= 1.0: return 10
+        if z <= 1.81: return 10 + 40 * (z - 1.0) / 0.81
+        if z <= 2.99: return 50 + 40 * (z - 1.81) / 1.18
+        return min(100, 90 + 10 * (z - 2.99))
+    def scaleCurrent(x):
+        if x <= 0.8: return 20 * (x / 0.8)
+        if x <= 1.0: return 20 + 40 * (x - 0.8) / 0.2
+        if x <= 2.0: return 60 + 40 * (x - 1.0) / 1.0
+        return 100
+    def scaleQuick(x):
+        if x <= 0.5: return 30 * (x / 0.5)
+        if x <= 1.0: return 30 + 40 * (x - 0.5) / 0.5
+        if x <= 1.5: return 70 + 30 * (x - 1.0) / 0.5
+        return 100
+    def scaleROA(x): return clamp((x * 100 + 5) * 5, 0, 100) # 15%일 때 100점
+    def scaleSalesGrowth(x): return clamp(x * 100 * 2, 0, 100) # 50% 성장시 100점
+    def scaleAssetTurnover(x): return clamp(x * 50, 0, 100) # 2.0일 때 100점
+
+    # 2. 지표별 점수 계산
+    z_score = float(diagnostics.get('altman_z', 0))
+    current_ratio = float(diagnostics.get('current_ratio', 0))
+    debt_to_asset = float(diagnostics.get('debt_to_asset_ratio', 0))
+    roa = float(diagnostics.get('roa', 0))
+    sales_growth = float(diagnostics.get('sales_growth', 0))
+    asset_turnover = float(diagnostics.get('asset_turnover', 0))
+
+    # 수익성, 안정성, 유동성, 성장성, 활동성, 종합건전성
+    roa_score = scaleROA(roa)
+    solvency_score = 100 * (1 - clamp(debt_to_asset, 0, 1))
+    liquidity_score = scaleCurrent(current_ratio)
+    growth_score = scaleSalesGrowth(sales_growth)
+    activity_score = scaleAssetTurnover(asset_turnover)
+    z_score_normalized = scaleZ(z_score)
+
+    categories = ['수익성', '안정성', '유동성', '성장성', '활동성', '종합건전성']
+    values = [
+        roa_score, 
+        solvency_score, 
+        liquidity_score, 
+        growth_score, 
+        activity_score, 
+        z_score_normalized
+    ]
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatterpolar(
+        r=values,
+        theta=categories,
+        fill='toself',
+        name='위험도 분석'
+    ))
+
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 100])
+        ),
+        showlegend=False,
+        width=340,
+        height=320,
+        margin=dict(l=60, r=60, t=60, b=60),
+    )
+    return plotly.utils.PlotlyJSONEncoder().encode(fig)
+
 def credit_assessment_view(request):
     """여신 심사 페이지"""
     return render(request, 'credit_assessment/credit_assessment.html')
@@ -500,10 +569,8 @@ def assess_corporate_credit(request):
             }
         }
         
-        # JS에서 Plotly fallback을 위해 개인용 차트 데이터를 추가로 전달할 수 있음
-        # 이 부분은 ECharts 사용이 보장된다면 제거 가능
-        response_data['assessment_result']['risk_analysis_chart'] = create_risk_analysis_chart(customer_data, loan_data, prediction_result)
-        
+        # JS에서 Plotly fallback을 위해 기업용 레이더 차트 데이터 추가
+        response_data['assessment_result']['risk_analysis_chart'] = create_corporate_risk_analysis_chart(prediction_result.get('diagnostics', {}))
         return JsonResponse(response_data)
         
     except json.JSONDecodeError:
