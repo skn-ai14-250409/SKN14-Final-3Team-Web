@@ -558,9 +558,12 @@ def assess_corporate_credit(request):
         loan_data = data.get('loan_data', {})
         
         logger.info(f"기업 신용평가 요청: {customer_data.get('full_name', 'Unknown')}")
+        logger.info(f"기업 고객 데이터: {customer_data}")
+        logger.info(f"대출 데이터: {loan_data}")
         
         # ML 모델로 신용점수 예측
         prediction_result = inference.predict_credit_score(customer_data, loan_data, customer_type='corporate')
+        logger.info(f"기업 신용평가 결과: {prediction_result}")
         
         credit_score = prediction_result.get('credit_score', 750)
         
@@ -589,6 +592,49 @@ def assess_corporate_credit(request):
     except Exception as e:
         logger.error(f"기업 신용평가 중 오류 발생: {str(e)}")
         return JsonResponse({'success': False, 'message': '기업 신용평가 중 오류가 발생했습니다.'})
+
+def generate_financial_indicators(customer_data, loan_data, prediction_result):
+    """재무 지표 생성"""
+    try:
+        # 고객 데이터에서 재무 정보 추출
+        annual_income = float(customer_data.get('annual_income', 0))
+        requested_amount = float(loan_data.get('amount', 0))
+        credit_score = int(prediction_result.get('credit_score', 0))
+        
+        # 기본 재무 지표 계산
+        debt_to_income_ratio = (requested_amount / annual_income * 100) if annual_income > 0 else 0
+        loan_to_income_ratio = (requested_amount / annual_income) if annual_income > 0 else 0
+        
+        # 신용점수 기반 지표
+        credit_health = min(100, max(0, (credit_score / 10)))  # 0-100%로 변환
+        
+        # 상환 능력 지표 (소득 대비 대출 비율 기반)
+        repayment_capacity = max(0, min(100, 100 - (loan_to_income_ratio * 50)))
+        
+        # 소득 안정성 (근속년수 기반)
+        years_of_service = int(customer_data.get('years_of_service', 0))
+        income_stability = min(100, max(0, years_of_service * 10))  # 근속년수 * 10%
+        
+        # 주택 상태 기반 안정성
+        housing_status = customer_data.get('housing_status_name', '')
+        housing_stability = 80 if housing_status == '자가' else 60 if housing_status == '전세' else 40
+        
+        return {
+            'debt_to_income_ratio': round(debt_to_income_ratio, 1),
+            'credit_health': round(credit_health, 1),
+            'repayment_capacity': round(repayment_capacity, 1),
+            'income_stability': round(income_stability, 1),
+            'housing_stability': round(housing_stability, 1)
+        }
+    except Exception as e:
+        logger.error(f"재무 지표 생성 오류: {e}")
+        return {
+            'debt_to_income_ratio': 0,
+            'credit_health': 0,
+            'repayment_capacity': 0,
+            'income_stability': 0,
+            'housing_stability': 0
+        }
 
 def generate_risk_matrix(credit_score):
     """신용점수 기반 리스크 매트릭스 생성"""
