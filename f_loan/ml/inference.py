@@ -1,160 +1,602 @@
+import os
+import json
 import joblib
 import numpy as np
 import pandas as pd
 import logging
+import lightgbm as lgbm
+from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger(__name__)
 
-# ML 모델 로드
-try:
-    PERSONAL_MODEL = joblib.load('ml_models/personal_loan_lgbm.pkl')
-    PERSONAL_SCALER = joblib.load('ml_models/personal_loan_scaler.pkl')
-    CORPORATE_MODEL = joblib.load('ml_models/corporate_loan_lgbm.pkl')
-    CORPORATE_SCALER = joblib.load('ml_models/corporate_loan_scaler.pkl')
-    logger.info("ML 모델 로딩 성공")
-except Exception as e:
-    logger.error(f"ML 모델 로드 실패: {e}")
-    PERSONAL_MODEL = None
-    PERSONAL_SCALER = None
-    CORPORATE_MODEL = None
-    CORPORATE_SCALER = None
+# -----------------------------
+# 공통 상수
+# -----------------------------
+KRW_UNIT_CONVERSION_FACTOR = 10_000  # 원 → 만원 변환 (개인 피처 가공 시에만 사용)
+
+# 개인 가드레일/한도
+MAX_LOAN_LIMIT_PERSONAL = 300_000_000      # 3억원
+MAX_LTI_RATIO_PERSONAL  = 3.0              # LTI ≤ 3
+
+# 기업 가드레일/한도
+MAX_LOAN_LIMIT_CORPORATE  = 2_000_000_000  # 20억원
+MAX_LOAN_TO_ASSETS_CORP   = 0.5            # 요청액 ≤ 총자산의 50% (예시)
+CORP_FEATURE_JSON_DEFAULT = 'ml_models/corporate_loan_features.json'
 
 
-def get_credit_rating_by_probability(probability):
-    """ML 예측 확률에 따른 여신 신용 등급 반환"""
-    if probability >= 0.9:
-        return '최우수'
-    elif probability >= 0.8:
-        return '우수'
-    elif probability >= 0.7:
-        return '양호'
-    elif probability >= 0.6:
-        return '보통'
-    else:
-        return '위험'
+# -----------------------------
+# Base Model
+# -----------------------------
+class BaseApprovalModel:
+    def __init__(self) -> None:
+        pass
 
-def get_credit_rating(score):
-    """신용점수에 따른 등급 반환"""
-    if score >= 900: return 'AAA'
-    if score >= 800: return 'AA'
-    if score >= 700: return 'A'
-    if score >= 600: return 'B'
-    if score >= 500: return 'C'
-    return 'D'
+    # ----- 공통 유틸 -----
+    @staticmethod
+    def _parse_number(x, default: float = 0.0) -> float:
+        try:
+            if x is None:
+                return float(default)
+            if isinstance(x, (int, float, np.integer, np.floating)):
+                return float(x)
+            s = str(x).replace(',', '').strip()
+            if s == '':
+                return float(default)
+            return float(s)
+        except Exception:
+            return float(default)
 
-def calculate_recommended_limit(score, requested_amount):
-    """신용점수에 따른 추천 한도 계산"""
-    if score >= 800:
-        return min(requested_amount * 1.2, 100000000)
-    elif score >= 700:
-        return min(requested_amount * 1.1, 80000000)
-    elif score >= 600:
-        return min(requested_amount * 1.0, 50000000)
-    else:
-        return min(requested_amount * 0.8, 30000000)
-
-def map_categorical_features(customer_data):
-    """범주형 데이터를 숫자형으로 변환"""
-    education_map = {'고등학교': 1, '대학교': 2, '대학원': 3}
-    housing_map = {'전/월세': 1, '자가': 2}
-
-    customer_data['education_level_encoded'] = education_map.get(customer_data.get('education_level'), 1)
-    customer_data['housing_status_encoded'] = housing_map.get(customer_data.get('housing_status'), 1)
-    return customer_data
-
-def predict_credit_score(customer_data, loan_data, customer_type='personal'):
-    """ML 모델을 사용한 신용점수 예측"""
-    try:
-        if customer_type == 'personal' and PERSONAL_MODEL and PERSONAL_SCALER:
-            # 개인 고객 특성 추출
-            # 1. 모델이 학습한 순서대로 13개 기본 특성을 구성합니다.
-            
-            try:
-                annual_income = float(str(customer_data.get('annual_income', '1')).replace(',', '')) / 10000
-            except (ValueError, TypeError):
-                annual_income = 1.0
-
-            loan_amount = float(loan_data.get('amount', 0)) / 10000
-
-            # 2. DataFrame 생성
-            input_data = {
-                'person_age': float(customer_data.get('age', 30)),
-                'person_gender': 'male' if customer_data.get('gender') == '남성' else 'female',
-                'person_education': customer_data.get('education_level', 'Bachelor'),
-                'person_income': float(annual_income),
-                'person_emp_exp': int(customer_data.get('years_of_service', 0)),
-                'person_home_ownership': customer_data.get('housing_status', 'RENT'),
-                'loan_amnt': float(loan_amount),
-                'loan_intent': loan_data.get('purpose', 'PERSONAL'),
-                'loan_int_rate': float(loan_data.get('interest_rate', 5.0)),
-                'loan_percent_income': float((loan_amount / annual_income) if annual_income > 0 else 0),
-                'cb_person_cred_hist_length': float(customer_data.get('credit_history_length', 5)), # 신용 이력 길이
-                'previous_loan_defaults_on_file': 1 if customer_data.get('has_delinquency', False) else 0
-            }
-            df = pd.DataFrame([input_data])
-            
-            # 신용점수를 기반으로 신용 등급(1~7)을 계산하여 'credit_score' 컬럼에 할당
-            # customer_data에 credit_score가 없으면 기본값 750 사용
-            raw_score = int(customer_data.get('credit_score', 750))
-            credit_rating_map = {'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7}
-            credit_rating_str = get_credit_rating(raw_score) # 'AAA', 'AA' 등
-            df['credit_score'] = credit_rating_map.get(credit_rating_str[0], 3) # 첫 글자(A,B,C...)로 등급 매핑
-            
-            # 3. 로그 변환 적용
-            df['person_income'] = np.log1p(df['person_income'])
-
-            # 4. 원-핫 인코딩 적용
-            categorical_cols = ['person_gender', 'person_education', 'person_home_ownership', 'loan_intent']
-            df_encoded = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
-            
-            # 5. 훈련 시점의 컬럼 순서와 동일하게 맞추기 (학습에 사용된 22개 특성)
-            model_columns = [
-                'person_age', 'person_income', 'person_emp_exp', 'loan_amnt', 'loan_int_rate',
-                'loan_percent_income', 'cb_person_cred_hist_length', 'credit_score',
-                'previous_loan_defaults_on_file', 'person_gender_male',
-                'person_education_Bachelor', 'person_education_Doctorate', 'person_education_High School',
-                'person_education_Master',
-                'person_home_ownership_OTHER', 'person_home_ownership_OWN',
-                'person_home_ownership_RENT', 'loan_intent_EDUCATION',
-                'loan_intent_HOMEIMPROVEMENT', 'loan_intent_MEDICAL', 'loan_intent_PERSONAL',
-                'loan_intent_VENTURE'
-            ]
-            
-            # 현재 데이터에 없는 컬럼은 0으로 채워서 추가
-            for col in model_columns:
-                if col not in df_encoded.columns:
-                    df_encoded[col] = 0 # 숫자 0으로 채움
-            
-            # 컬럼 순서 맞추기
-            features_df = df_encoded[model_columns] # .values를 제거하여 DataFrame을 유지
-            
-            # 스케일러 적용 시 numpy 배열로 변환되므로, 다시 DataFrame으로 만들어 컬럼명을 유지
-            scaled_features_array = PERSONAL_SCALER.transform(features_df)
-            scaled_features_df = pd.DataFrame(scaled_features_array, columns=model_columns)
-
-            # predict 대신 predict_proba를 사용하여 '승인' 확률(class 1)을 가져옴
-            prediction_prob = PERSONAL_MODEL.predict_proba(scaled_features_df)[0][1]
-            
+    @staticmethod
+    def get_credit_rating_by_probability(probability: float) -> str:
+        if probability >= 0.9:
+            return '최우수'
+        elif probability >= 0.8:
+            return '우수'
+        elif probability >= 0.7:
+            return '양호'
+        elif probability >= 0.6:
+            return '보통'
         else:
-            # 모델이 없을 경우 기본값
-            prediction_prob = 0.75
+            return '위험'
+
+    @staticmethod
+    def get_credit_rating(score: int) -> str:
+        if score >= 900: return 'AAA'
+        if score >= 800: return 'AA'
+        if score >= 700: return 'A'
+        if score >= 600: return 'B'
+        if score >= 500: return 'C'
+        return 'D'
+
+    @staticmethod
+    def _prob_to_score(prob: float) -> int:
+        # 부도 확률(prob)을 신용점수로 변환
+        # prob가 낮을수록(부도 확률이 낮을수록) 높은 점수
+        # prob = 0.1 (10% 부도) -> 900점
+        # prob = 0.5 (50% 부도) -> 500점  
+        # prob = 0.9 (90% 부도) -> 100점
+        survival_prob = 1.0 - float(prob)
+        score = max(0, min(1000, int(survival_prob * 1000)))
         
-        # 0-1000 점수로 변환
-        credit_score = max(0, min(1000, int(prediction_prob * 1000)))
+        # 0점이 나오면 100점으로 대체 (최소 보장 점수)
+        if score == 0:
+            return 100
         
-        return {
-            'credit_score': credit_score,
-            'credit_rating': get_credit_rating(credit_score),
-            'approval_status': 'approved' if credit_score >= 600 else 'rejected',
-            'recommended_limit': calculate_recommended_limit(credit_score, loan_data.get('amount', 0))
+        return score
+
+    # 하위 클래스에서 오버라이드
+    def predict(self, customer_data: Dict[str, Any], loan_data: Dict[str, Any]) -> Dict[str, Any]:
+        raise NotImplementedError
+
+
+# -----------------------------
+# Personal Loan Model
+# -----------------------------
+class PersonalLoanApprovalModel(BaseApprovalModel):
+    def __init__(
+        self,
+        model_path: str = 'ml_models/personal_loan_lgbm.pkl',
+        scaler_path: str = 'ml_models/personal_loan_scaler.pkl',
+    ) -> None:
+        super().__init__()
+        self._model = None
+        self._scaler = None
+        self.model_path = model_path
+        self.scaler_path = scaler_path
+        self._ensure_loaded()
+
+        # 학습 시 사용한 컬럼(원핫 포함, drop_first=True 기준)
+        self.model_columns: List[str] = [
+            'person_age', 'person_income', 'person_emp_exp', 'loan_amnt', 'loan_int_rate',
+            'loan_percent_income', 'cb_person_cred_hist_length', 'credit_score',
+            'previous_loan_defaults_on_file', 'person_gender_male',
+            'person_education_Bachelor', 'person_education_Doctorate', 'person_education_High School',
+            'person_education_Master',
+            'person_home_ownership_OTHER', 'person_home_ownership_OWN',
+            'person_home_ownership_RENT', 'loan_intent_EDUCATION',
+            'loan_intent_HOMEIMPROVEMENT', 'loan_intent_MEDICAL', 'loan_intent_PERSONAL',
+            'loan_intent_VENTURE'
+        ]
+
+    def _ensure_loaded(self) -> None:
+        try:
+            self._model = joblib.load(self.model_path)
+            self._scaler = joblib.load(self.scaler_path)
+            logger.info("[Personal] 모델/스케일러 로딩 성공")
+        except Exception as e:
+            logger.error(f"[Personal] 모델 로드 실패: {e}")
+            self._model = None
+            self._scaler = None
+
+    def _guardrails(self, customer_data: Dict[str, Any], loan_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        requested_amount = self._parse_number(loan_data.get('amount', 0), default=0.0)
+
+        # 최대 한도
+        if requested_amount > MAX_LOAN_LIMIT_PERSONAL:
+            logger.warning(f"[개인] 최대 대출 한도 초과: {requested_amount} > {MAX_LOAN_LIMIT_PERSONAL}")
+            return {'credit_score': 450, 'credit_rating': 'D', 'approval_status': 'rejected', 'recommended_limit': 0}
+
+        # LTI 가드
+        annual_income_raw = self._parse_number(customer_data.get('annual_income', 0))
+        if annual_income_raw > 0:
+            lti = requested_amount / annual_income_raw
+            if lti > MAX_LTI_RATIO_PERSONAL:
+                logger.warning(f"[개인] LTI 초과: {lti:.2f} > {MAX_LTI_RATIO_PERSONAL}")
+                return {'credit_score': 480, 'credit_rating': 'D', 'approval_status': 'rejected', 'recommended_limit': 0}
+        return None
+
+    @staticmethod
+    def _calc_recommended_limit(score: int, requested_amount: float) -> float:
+        if score >= 800:
+            return min(requested_amount * 1.2, 100_000_000)
+        elif score >= 700:
+            return min(requested_amount * 1.1, 80_000_000)
+        elif score >= 600:
+            return min(requested_amount * 1.0, 50_000_000)
+        else:
+            return min(requested_amount * 0.8, 30_000_000)
+
+    def _prepare_features(self, customer_data: Dict[str, Any], loan_data: Dict[str, Any]) -> pd.DataFrame:
+        requested_amount = self._parse_number(loan_data.get('amount', 0))
+        annual_income = self._parse_number(customer_data.get('annual_income', 25_000_000)) / KRW_UNIT_CONVERSION_FACTOR
+        loan_amount_mwan = requested_amount / KRW_UNIT_CONVERSION_FACTOR
+
+        gender_raw = str(customer_data.get('gender', '')).strip()
+        if gender_raw in ['남', '남성', 'M', 'male', 'Male']:
+            gender = 'male'
+        else:
+            gender = 'female'
+
+        input_data = {
+            'person_age': float(self._parse_number(customer_data.get('age', 30))),
+            'person_gender': gender,
+            'person_education': customer_data.get('education_level', 'Bachelor'),
+            'person_income': float(annual_income),
+            'person_emp_exp': int(self._parse_number(customer_data.get('years_of_service', 0))),
+            'person_home_ownership': customer_data.get('housing_status', 'RENT'),
+            'loan_amnt': float(loan_amount_mwan),
+            'loan_intent': loan_data.get('purpose', 'PERSONAL'),
+            'loan_int_rate': float(self._parse_number(loan_data.get('interest_rate', 5.0))),
+            'loan_percent_income': float((loan_amount_mwan / annual_income) if annual_income > 0 else 0.0),
+            'cb_person_cred_hist_length': float(self._parse_number(customer_data.get('credit_history_length', 5))),
+            'previous_loan_defaults_on_file': 1 if customer_data.get('has_delinquency', False) else 0
         }
-        
+        df = pd.DataFrame([input_data])
+
+        # 신용점수 → (A~G) 1~7 구간으로 인코딩
+        raw_score = int(self._parse_number(customer_data.get('credit_score', 750)))
+        credit_letter = self.get_credit_rating(raw_score)  # 'AAA','AA','A','B',...
+        map_letter = {'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7}
+        df['credit_score'] = map_letter.get(credit_letter[0], 3)
+
+        # 로그 변환
+        df['person_income'] = np.log1p(df['person_income'])
+
+        # 원핫
+        cat_cols = ['person_gender', 'person_education', 'person_home_ownership', 'loan_intent']
+        df_enc = pd.get_dummies(df, columns=cat_cols, drop_first=True)
+
+        # 누락 컬럼 0 채우기 + 순서 정렬
+        for col in self.model_columns:
+            if col not in df_enc.columns:
+                df_enc[col] = 0.0
+        df_enc = df_enc[self.model_columns]
+        return df_enc
+
+    def predict(self, customer_data: Dict[str, Any], loan_data: Dict[str, Any]) -> Dict[str, Any]:
+        # 가드레일
+        early = self._guardrails(customer_data, loan_data)
+        if early is not None:
+            return early
+
+        requested_amount = self._parse_number(loan_data.get('amount', 0))
+        try:
+            if self._model is None or self._scaler is None:
+                prob = 0.75
+            else:
+                feats = self._prepare_features(customer_data, loan_data)
+                scaled = self._scaler.transform(feats)
+                prob = float(self._model.predict_proba(scaled)[0][1])
+
+            score = self._prob_to_score(prob)
+            return {
+                'credit_score': score,
+                'credit_rating': self.get_credit_rating(score),
+                'approval_status': 'approved' if score >= 600 else 'rejected',
+                'recommended_limit': self._calc_recommended_limit(score, requested_amount)
+            }
+        except Exception as e:
+            logger.error(f"[개인] 예측 오류: {e}")
+            return {
+                'credit_score': 750,
+                'credit_rating': 'B',
+                'approval_status': 'approved',
+                'recommended_limit': requested_amount if requested_amount else 30_000_000
+            }
+
+
+# -----------------------------
+# Corporate Loan Model
+# -----------------------------
+class CorporateLoanApprovalModel(BaseApprovalModel):
+    def __init__(
+        self,
+        model_path: str = 'ml_models/corporate_loan_lgbm.pkl',
+        scaler_path: str = 'ml_models/corporate_loan_scaler.pkl',
+        feature_json_path: str = CORP_FEATURE_JSON_DEFAULT,
+    ) -> None:
+        super().__init__()
+        self._model = None
+        self._scaler = None
+        self.model_path = model_path
+        self.scaler_path = scaler_path
+        self.feature_json_path = feature_json_path
+        self._ensure_loaded()
+
+    def _ensure_loaded(self) -> None:
+        try:
+            # 파일 존재 여부 확인
+            if not os.path.exists(self.model_path):
+                raise FileNotFoundError(f"모델 파일이 존재하지 않습니다: {self.model_path}")
+            if not os.path.exists(self.scaler_path):
+                raise FileNotFoundError(f"스케일러 파일이 존재하지 않습니다: {self.scaler_path}")
+            
+            self._model = joblib.load(self.model_path)
+            self._scaler = joblib.load(self.scaler_path)
+            logger.info("[Corporate] 모델/스케일러 로딩 성공")
+            logger.info(f"[Corporate] 모델 타입: {type(self._model)}")
+            logger.info(f"[Corporate] 스케일러 타입: {type(self._scaler)}")
+        except FileNotFoundError as e:
+            logger.error(f"[Corporate] 파일 없음: {e}")
+            self._model = None
+            self._scaler = None
+        except Exception as e:
+            logger.error(f"[Corporate] 모델 로드 실패: {e}")
+            self._model = None
+            self._scaler = None
+
+    # ----- 재무 점수 -----
+    def _compute_financial_scores(self, df: pd.DataFrame) -> pd.DataFrame:
+        out = df.copy()
+        def g(col): return pd.to_numeric(out.get(col, np.nan), errors='coerce')
+
+        # Altman Z
+        CA = g("Current assets")
+        CL = g("Total Current Liabilities")
+        RE = g("Retained Earnings")
+        EBIT = g("EBIT")
+        NS = g("Net sales")
+        TA = g("Total assets")
+        TL = g("Total Liabilities")
+        MV = g("Market value")
+
+        working_capital = CA - CL
+        with np.errstate(divide='ignore', invalid='ignore'):
+            out["Altman_Z"] = (
+                1.2 * (working_capital / TA) +
+                1.4 * (RE / TA) +
+                3.3 * (EBIT / TA) +
+                0.6 * (MV / TL) +
+                1.0 * (NS / TA)
+            )
+
+        # Ohlson O (간이)
+        NI = g("Net Income")
+        with np.errstate(divide='ignore', invalid='ignore'):
+            out["Ohlson_O"] = (
+                -1.32
+                - 0.407 * np.log(TA.replace(0, np.nan))
+                + 6.03 * (TL / TA)
+                - 1.43 * (working_capital / TA)
+                + 0.076 * (CL / CA)
+                - 2.37 * (NI / TA)
+            )
+
+        # Piotroski F (간이: ROA/CFO/Accrual)
+        EBITDA = g("EBITDA")
+        roa_pos = ((NI / TA) > 0).astype(float)
+        cfo_pos = (EBITDA.where(~EBITDA.isna(), NI) > 0).astype(float)
+        accrual = (EBITDA.where(~EBITDA.isna(), NI) > NI).astype(float)
+        out["Piotroski_F"] = (roa_pos + cfo_pos + accrual).fillna(0)
+
+        return out
+
+    def _prepare_dataframe(self, company: Dict[str, Any]) -> pd.DataFrame:
+        mapping = {
+            'current_assets': "Current assets",
+            'total_current_liabilities': "Total Current Liabilities",
+            'retained_earnings': "Retained Earnings",
+            'ebit': "EBIT",
+            'net_sales': "Net sales",
+            'total_assets': "Total assets",
+            'total_liabilities': "Total Liabilities",
+            'net_income': "Net Income",
+            'ebitda': "EBITDA",
+            'inventory': "Inventory",
+            'total_receivables': "Total Receivables",
+            'market_value': "Market value",
+            'gross_profit': "Gross Profit",
+            'total_long_term_debt': "Total Long-term debt",
+            'total_revenue': "Total Revenue",
+        }
+
+        values = {}
+        for skey, std in mapping.items():
+            val = company.get(std, None)
+            if val is None:
+                val = company.get(skey, None)
+            values[std] = self._parse_number(val, default=np.nan)
+
+        df = pd.DataFrame([values])
+
+        # 파생 비율
+        CA = df["Current assets"]
+        CL = df["Total Current Liabilities"]
+        TA = df["Total assets"].replace(0, np.nan)
+        TL = df["Total Liabilities"]
+        NI = df["Net Income"]
+        NS = df["Net sales"]
+        GP = df["Gross Profit"]
+        INV = df["Inventory"]
+
+        with np.errstate(divide='ignore', invalid='ignore'):
+            df["Net Profit Margin"] = NI / df.get("Total Revenue", NS.replace(0, np.nan))
+            df["Gross Profit Margin"] = GP / NS
+            df["ROA"] = NI / TA
+            df["ROS"] = NI / NS
+            df["Current Ratio"] = CA / CL
+            df["Quick Ratio"] = (CA - INV) / CL
+            df["Debt to asset ratio"] = TL / TA
+            
+            # 이전 년도 데이터가 없으므로, 성장률/회전율은 임의의 값으로 근사
+            # 실제 시스템에서는 이전 재무 데이터와 비교해야 함
+            # 매출액 증가율 (Sales Growth) - 여기서는 순이익률을 기반으로 근사
+            df["Sales Growth"] = df["Net Profit Margin"] * 0.5 + 0.05 # 5% 기본 성장률 + a
+            
+            # 총자산 회전율 (Asset Turnover)
+            df["Asset Turnover"] = NS / TA
+
+        # 점수계산
+        df = self._compute_financial_scores(df)
+
+        # 숫자화/결측 0
+        df = df.apply(pd.to_numeric, errors='coerce').fillna(0.0)
+        return df
+
+    def _resolve_feature_order(self, base_df: pd.DataFrame) -> List[str]:
+        # 1) LightGBM feature_name_ 우선
+        if self._model is not None and hasattr(self._model, "feature_name_"):
+            names = list(getattr(self._model, "feature_name_") or [])
+            if names and not str(names[0]).lower().startswith('feature_'):
+                return names
+
+        # 2) JSON 파일
+        try:
+            if self.feature_json_path and os.path.exists(self.feature_json_path):
+                with open(self.feature_json_path, 'r', encoding='utf-8') as f:
+                    meta = json.load(f)
+                cols = meta.get('feature_columns') or meta.get('columns')
+                if isinstance(cols, list) and cols:
+                    return cols
+        except Exception as e:
+            logger.warning(f"[Corporate] 피처 JSON 로드 실패: {e}")
+
+        # 3) 기본 피처셋
+        return [
+            "Current assets","Total Current Liabilities","Retained Earnings","EBIT","Net sales",
+            "Total assets","Total Liabilities","Net Income","EBITDA","Inventory",
+            "Total Receivables","Market value","Gross Profit","Total Long-term debt","Total Revenue",
+            "Net Profit Margin","Gross Profit Margin","ROA","ROS",
+            "Current Ratio","Quick Ratio","Debt to asset ratio",
+            "Altman_Z","Ohlson_O","Piotroski_F",
+        ]
+
+    def _guardrails(self, company: Dict[str, Any], loan_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        requested_amount = self._parse_number(loan_data.get('amount', 0), default=0.0)
+
+        # 최대 한도
+        if requested_amount > MAX_LOAN_LIMIT_CORPORATE:
+            logger.warning(f"[기업] 최대 대출 한도 초과: {requested_amount} > {MAX_LOAN_LIMIT_CORPORATE}")
+            return {'credit_score': 450, 'credit_rating': 'D', 'approval_status': 'rejected', 'recommended_limit': 0}
+
+        # 총자산 대비 요청액 (조건 완화: 80%로 상향)
+        total_assets = self._parse_number(company.get('Total assets') or company.get('total_assets'), default=0.0)
+        logger.info(f"[기업] 가드레일 체크 - 총자산: {total_assets:,}, 대출신청액: {requested_amount:,}")
+        if total_assets > 0:
+            ratio = requested_amount / total_assets
+            logger.info(f"[기업] 자산 대비 대출 비율: {ratio:.2%}")
+            if ratio > 0.8:  # 80%로 상향 조정
+                logger.warning(f"[기업] 총자산 대비 과도: {ratio:.2f} > 0.8")
+                return {'credit_score': 480, 'credit_rating': 'D', 'approval_status': 'rejected', 'recommended_limit': 0}
+        return None
+
+    def _calc_recommended_limit(self, score: int, requested_amount: float, company_data: Dict[str, Any]) -> float:
+        """ 기업 재무상태 기반 추천 한도 산출 """
+        # 1. 재무 지표 기반 기본 한도(Capacity Limit) 설정
+        # EBITDA의 2배, 총자산의 20%, 순매출의 10% 중 가장 보수적인(낮은) 금액을 기준 한도로 설정
+        ebitda = self._parse_number(company_data.get('ebitda', 0))
+        total_assets = self._parse_number(company_data.get('total_assets', 0))
+        net_sales = self._parse_number(company_data.get('net_sales', 0))
+
+        limit_by_ebitda = ebitda * 2.0
+        limit_by_assets = total_assets * 0.2
+        limit_by_sales = net_sales * 0.1
+
+        # 모든 한도 후보가 0 이상이 되도록 보장
+        capacity_limit = min(
+            limit_by_ebitda if limit_by_ebitda > 0 else float('inf'),
+            limit_by_assets if limit_by_assets > 0 else float('inf'),
+            limit_by_sales if limit_by_sales > 0 else float('inf')
+        )
+        if capacity_limit == float('inf'): capacity_limit = 0 # 모든 지표가 0 이하인 경우
+
+        # 2. 신용점수에 따라 한도 조정
+        score_multiplier = 0.7 + (score / 1000) * 0.5  # 700점일 때 약 1.05, 900점일 때 약 1.15
+        adjusted_limit = capacity_limit * score_multiplier
+
+        # 3. 최종 한도 결정: (조정된 한도 vs 신청금액) 중 낮은 금액을 선택하되, 최대 한도를 넘지 않도록 함
+        final_limit = min(adjusted_limit, requested_amount, MAX_LOAN_LIMIT_CORPORATE)
+        return max(0, final_limit) # 최종 한도가 음수가 되지 않도록 보장
+
+    def _rule_based_assessment(self, customer_data: Dict[str, Any], loan_data: Dict[str, Any]) -> float:
+        """ML 모델이 없을 때 사용하는 규칙 기반 평가"""
+        try:
+            # 재무 지표 추출
+            total_assets = self._parse_number(customer_data.get('total_assets', 0))
+            total_liabilities = self._parse_number(customer_data.get('total_liabilities', 0))
+            net_income = self._parse_number(customer_data.get('net_income', 0))
+            current_assets = self._parse_number(customer_data.get('current_assets', 0))
+            total_current_liabilities = self._parse_number(customer_data.get('total_current_liabilities', 0))
+            requested_amount = self._parse_number(loan_data.get('amount', 0))
+            
+            # 기본 확률 (0.3 = 30% 부도 확률)
+            prob = 0.3
+            
+            # 1. 자산 대비 부채 비율 체크
+            if total_assets > 0:
+                debt_ratio = total_liabilities / total_assets
+                if debt_ratio > 0.8:  # 부채 비율 80% 초과
+                    prob += 0.3
+                elif debt_ratio > 0.6:  # 부채 비율 60% 초과
+                    prob += 0.15
+                elif debt_ratio < 0.3:  # 부채 비율 30% 미만 (양호)
+                    prob -= 0.1
+            
+            # 2. 유동성 비율 체크
+            if total_current_liabilities > 0:
+                current_ratio = current_assets / total_current_liabilities
+                if current_ratio < 1.0:  # 유동성 부족
+                    prob += 0.2
+                elif current_ratio > 2.0:  # 유동성 양호
+                    prob -= 0.1
+            
+            # 3. 수익성 체크
+            if total_assets > 0:
+                roa = net_income / total_assets
+                if roa < 0:  # 손실
+                    prob += 0.25
+                elif roa > 0.1:  # ROA 10% 이상 (양호)
+                    prob -= 0.15
+            
+            # 4. 대출 신청액 대비 자산 비율
+            if total_assets > 0:
+                loan_to_assets = requested_amount / total_assets
+                if loan_to_assets > 0.5:  # 자산의 50% 초과
+                    prob += 0.2
+                elif loan_to_assets < 0.1:  # 자산의 10% 미만
+                    prob -= 0.1
+            
+            # 확률 범위 제한 (0.1 ~ 0.9)
+            prob = max(0.1, min(0.9, prob))
+            
+            logger.info(f"[기업] 규칙 기반 평가 결과: 부도확률={prob:.3f}")
+            return prob
+            
+        except Exception as e:
+            logger.error(f"[기업] 규칙 기반 평가 오류: {e}")
+            return 0.5  # 기본값
+
+    def predict(self, customer_data: Dict[str, Any], loan_data: Dict[str, Any]) -> Dict[str, Any]:
+        # company == customer_data (기업 맥락)
+        # 기업 심사에서는 가드레일 제거 - ML 모델 기반으로만 평가
+        # early = self._guardrails(customer_data, loan_data)
+        # if early is not None:
+        #     return early
+
+        requested_amount = self._parse_number(loan_data.get('amount', 0))
+        try:
+            if self._model is None or self._scaler is None:
+                logger.warning("[기업] ML 모델이 로드되지 않음 - 기본 규칙 기반 평가 수행")
+                # 기본 규칙 기반 평가 (재무 데이터 기반)
+                base_df = self._prepare_dataframe(customer_data)
+                prob = self._rule_based_assessment(customer_data, loan_data)
+            else:
+                logger.info("[기업] ML 모델을 사용한 예측 수행")
+                base_df = self._prepare_dataframe(customer_data)
+                cols = self._resolve_feature_order(base_df)
+                # 누락 0 채우고 정렬
+                for c in cols:
+                    if c not in base_df.columns:
+                        base_df[c] = 0.0
+                feats = base_df[cols]
+                scaled_values = self._scaler.transform(feats.values)
+                scaled_df = pd.DataFrame(scaled_values, columns=cols)
+                prob = float(self._model.predict_proba(scaled_df)[0][1])
+
+            score = self._prob_to_score(prob)
+            result = {
+                'credit_score': score,
+                'credit_rating': self.get_credit_rating(score),
+                'approval_status': 'approved' if prob <= 0.5 else 'rejected',
+                'recommended_limit': self._calc_recommended_limit(score, requested_amount, customer_data),
+                'diagnostics': {
+                    'probability': round(prob, 6), # 부도 확률
+                    'survival_probability': round(1.0 - prob, 6), # 생존 확률
+                }
+            }
+            # 진단지표(가능 시)
+            for k in ['Altman_Z', 'Ohlson_O', 'Piotroski_F']:
+                if k in base_df.columns:
+                    result['diagnostics'][k.lower()] = float(base_df[k].iloc[0])
+            # 파생 비율 진단지표에 추가
+            for k in ["Current Ratio", "Quick Ratio", "Net Profit Margin", "Debt to asset ratio", "ROA", "ROS", "Sales Growth", "Asset Turnover"]:
+                 if k in base_df.columns:
+                    result['diagnostics'][k.lower().replace(" ", "_")] = float(base_df[k].iloc[0])
+            return result
+
+        except Exception as e:
+            logger.error(f"[기업] 예측 오류: {e}")
+            return {
+                'credit_score': 750,
+                'credit_rating': 'B',
+                'approval_status': 'approved',
+                'recommended_limit': requested_amount if requested_amount else 30_000_000
+            }
+
+
+# -----------------------------
+# 하위 호환 디스패처 (기존 함수 유지)
+# -----------------------------
+# 전역 인스턴스 생성(1회 로드 캐시)
+_PERSONAL_MODEL_SINGLETON = PersonalLoanApprovalModel()
+_CORPORATE_MODEL_SINGLETON = CorporateLoanApprovalModel()
+
+def predict_credit_score(customer_data: Dict[str, Any], loan_data: Dict[str, Any], customer_type: str = 'personal') -> Dict[str, Any]:
+    """
+    기존 코드와 같은 시그니처.
+    내부적으로 클래스 인스턴스를 호출하도록 변경.
+    """
+    try:
+        if customer_type == 'corporate':
+            return _CORPORATE_MODEL_SINGLETON.predict(customer_data, loan_data)
+        else:
+            return _PERSONAL_MODEL_SINGLETON.predict(customer_data, loan_data)
     except Exception as e:
-        logger.error(f"신용점수 예측 중 오류: {e}")
-        # 오류 발생 시 기본값 반환
+        logger.error(f"[공통] 예측 디스패치 오류: {e}")
+        requested_amount = BaseApprovalModel._parse_number(loan_data.get('amount', 0))
         return {
             'credit_score': 750,
-            'credit_rating': 'B', # 숫자 반환으로 타입 오류 방지
+            'credit_rating': 'B',
             'approval_status': 'approved',
-            'recommended_limit': loan_data.get('amount', 30000000)
+            'recommended_limit': requested_amount if requested_amount else 30_000_000
         }

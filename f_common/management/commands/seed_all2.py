@@ -143,12 +143,13 @@ class Command(BaseCommand):
             CustomerPerson.objects.get_or_create(
                 customer=customer,
                 defaults={
-                    "first_name": fake.last_name(),
-                    "last_name": fake.first_name(),
+                    "first_name": fake.first_name(), # 이름
+                    "last_name": fake.last_name(),   # 성
                     "gender": random.choice([0, 1]),
-                    "rrn": fake.unique.ssn(),
-                    "mobile": fake.unique.phone_number(),
+                    "rrn": fake.unique.ssn().replace('-', ''),
+                    "mobile": fake.unique.phone_number().replace('-', ''),
                     "email": fake.unique.email(),
+                    "company_name": fake.company(), # 회사명 추가
                     "account_number": f"110-{random.randint(1000,9999)}-{random.randint(100000,999999)}",
                     "account_amount": fake.pydecimal(left_digits=7, right_digits=2),
                     "education_level": random.choice(education_levels),
@@ -166,8 +167,9 @@ class Command(BaseCommand):
 
         corp_customers = []
         for i in range(15):
+            company_name = fake.unique.company()
             corp_customer, _ = Customer.objects.get_or_create(
-                display_name=fake.unique.company(),
+                display_name=company_name,
                 customer_type=Customer.CustomerType.CORPORATE,
                 defaults={
                     "bank_location": random.choice(banks),
@@ -175,26 +177,35 @@ class Command(BaseCommand):
                     "risk_segment": "SME",
                 },
             )
+
             CustomerCorporate.objects.get_or_create(
                 customer=corp_customer,
                 defaults={
                     "industry_code": random.choice(industries),
-                    "legal_name": fake.unique.company(),
-                    "biz_reg_no_masked": f"{random.randint(100, 999)}-{random.randint(10, 99)}-{random.randint(10000, 99999)}",
+                    "company_name": company_name,
+                    "legal_name": fake.name(), # 대표자명
+                    "biz_reg_no_masked": fake.unique.numerify(text="###-##-#####").replace('-', ''),
                     "incorporation_date": fake.date_between(start_date="-30y", end_date="today"),
                     "employees_count": fake.random_int(min=10, max=500),
-                    "mobile": "010-0000-0000",
-                    "current_assets": fake.pydecimal(left_digits=9, right_digits=2, positive=True),
-                    "cost_of_goods_sold": fake.pydecimal(left_digits=9, right_digits=2, positive=True),
-                    "ebitda": fake.pydecimal(left_digits=8, right_digits=2),
-                    "inventory": fake.pydecimal(left_digits=8, right_digits=2, positive=True),
-                    "net_income": fake.pydecimal(left_digits=8, right_digits=2),
-                    "net_sales": fake.pydecimal(left_digits=9, right_digits=2, positive=True),
-                    "total_assets": fake.pydecimal(left_digits=10, right_digits=2, positive=True),
-                    "ebit": fake.pydecimal(left_digits=8, right_digits=2),
-                    "gross_profit": fake.pydecimal(left_digits=9, right_digits=2),
-                    "total_liabilities": fake.pydecimal(left_digits=10, right_digits=2, positive=True),
-                    "total_operating_expenses": fake.pydecimal(left_digits=9, right_digits=2, positive=True),
+                    "mobile": "010-0000-0000", # email 제거
+                    "current_assets": fake.pydecimal(left_digits=3, right_digits=2, positive=True),
+                    "cost_of_goods_sold": fake.pydecimal(left_digits=3, right_digits=2, positive=True),
+                    "ebitda": fake.pydecimal(left_digits=3, right_digits=2),
+                    "depreciation_amortization": fake.pydecimal(left_digits=3, right_digits=2),
+                    "total_receivables": fake.pydecimal(left_digits=3, right_digits=2),
+                    "market_value": fake.pydecimal(left_digits=3, right_digits=2),
+                    "total_long_term_debt": fake.pydecimal(left_digits=3, right_digits=2),
+                    "inventory": fake.pydecimal(left_digits=3, right_digits=2, positive=True),
+                    "net_income": fake.pydecimal(left_digits=3, right_digits=2),
+                    "net_sales": fake.pydecimal(left_digits=3, right_digits=2, positive=True),
+                    "total_assets": fake.pydecimal(left_digits=3, right_digits=2, positive=True),
+                    "ebit": fake.pydecimal(left_digits=3, right_digits=2),
+                    "gross_profit": fake.pydecimal(left_digits=3, right_digits=2),
+                    "total_liabilities": fake.pydecimal(left_digits=3, right_digits=2, positive=True),
+                    "retained_earnings": fake.pydecimal(left_digits=3, right_digits=2),
+                    "total_current_liabilities": fake.pydecimal(left_digits=3, right_digits=2, positive=True),
+                    "total_operating_expenses": fake.pydecimal(left_digits=3, right_digits=2, positive=True),
+                    "total_revenue": fake.pydecimal(left_digits=3, right_digits=2, positive=True),
                 },
             )
             corp_customers.append(corp_customer)

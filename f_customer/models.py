@@ -38,6 +38,7 @@ class CustomerPerson(models.Model):
     rrn = models.CharField(max_length=64, unique=True)
     mobile = models.CharField(max_length=32, unique=True)
     email = models.EmailField(unique=True)
+    company_name = models.CharField(max_length=255, null=True, blank=True) # 회사명 필드 추가
     account_number = models.CharField(max_length=64)
     account_amount = models.DecimalField(max_digits=18, decimal_places=2)
     education_level = models.ForeignKey(CEducationLevel, null=True, on_delete=models.SET_NULL)
@@ -56,24 +57,25 @@ class CustomerPerson(models.Model):
 class CustomerCorporate(models.Model):
     customer = models.OneToOneField(Customer, on_delete=models.CASCADE, primary_key=True, related_name="corporate")
     industry_code = models.ForeignKey(CIndustryCode, null=True, on_delete=models.SET_NULL)
-    legal_name = models.CharField(max_length=255, unique=True)
+    company_name = models.CharField(max_length=255, default='Default Company Name') # 기업명
     biz_reg_no_masked = models.CharField(max_length=64, unique=True)
+    legal_name = models.CharField(max_length=255) # 대표자명
     incorporation_date = models.DateField()
     employees_count = models.IntegerField()
-    mobile = models.CharField(max_length=32)
+    mobile = models.CharField(max_length=32) # email 필드 및 mobile unique=True 제거
 
     # 재무 숫자 (NUMERIC(20,2))
     current_assets = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     cost_of_goods_sold = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
-    depreciation_amortization = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    depreciation_amortization = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     ebitda = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     inventory = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     net_income = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
-    total_receivables = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
-    market_value = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)          # "Market value"
+    total_receivables = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    market_value = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     net_sales = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     total_assets = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
-    total_long_term_debt = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    total_long_term_debt = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     ebit = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     gross_profit = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     total_current_liabilities = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
