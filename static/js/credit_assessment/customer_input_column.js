@@ -4,7 +4,7 @@ console.log('=== customer_input_column.js 로드됨 ===');
 
 // 전역 변수
 let currentCustomerData = null;
-let currentAssessmentType = 'personal'; // 기본값: 개인
+let currentAssessmentType = 'corporate'; // 기본값: 기업
 
 // CSRF 토큰 가져오기
 function getCookie(name) {
@@ -364,6 +364,33 @@ function updateFormForAssessmentType(type) {
                 <option value="r_and_d">기술개발자금</option>
             `;
         }
+        
+        // 기업 모드로 전환 시 기존 고객 데이터 초기화
+        currentCustomerData = null;
+        window.currentCustomerData = null;
+        
+        // 고객 정보 입력 폼 다시 표시
+        const customerInfoHeader = document.querySelector('.customer_info_header');
+        const customerDisplayHeader = document.querySelector('.customer_display_header');
+        const inputGrid = document.querySelector('.input_grid');
+        const bankerNotes = document.querySelector('.banker_notes');
+        const customerCheckActions = document.querySelector('.customer_check_actions');
+        const customerDisplayContent = document.getElementById('customer_display_content');
+        const secondRow = document.querySelector('.second_row');
+        
+        if (customerInfoHeader) customerInfoHeader.style.display = 'flex';
+        if (customerDisplayHeader) customerDisplayHeader.style.display = 'none';
+        if (inputGrid) inputGrid.style.display = 'grid';
+        if (bankerNotes) bankerNotes.style.display = 'block';
+        if (customerCheckActions) customerCheckActions.style.display = 'flex';
+        if (customerDisplayContent) customerDisplayContent.style.display = 'none';
+        if (secondRow) secondRow.style.display = 'none';
+        
+        // 개인/기업 토글 다시 표시
+        const assessmentTypeToggle = document.querySelector('.assessment_type_toggle');
+        if (assessmentTypeToggle) {
+            assessmentTypeToggle.style.display = 'flex';
+        }
     }
 }
 
@@ -537,7 +564,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 페이지 로드 시 기본값 설정
-    updateFormForAssessmentType('personal');
+    updateFormForAssessmentType('corporate');
     
     // 여신 심사 요청 버튼 이벤트 리스너
     const btnAssess = document.getElementById('btn_assess');
