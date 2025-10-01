@@ -69,7 +69,8 @@ class BaseApprovalModel:
 
     @staticmethod
     def _prob_to_score(prob: float) -> int:
-        return max(0, min(1000, int(float(prob) * 1000)))
+        # 부도 확률(prob)이 아닌, 생존 확률(1-prob)을 점수화
+        return max(0, min(1000, int((1.0 - float(prob)) * 1000)))
 
     # 하위 클래스에서 오버라이드
     def predict(self, customer_data: Dict[str, Any], loan_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -282,9 +283,9 @@ class CorporateLoanApprovalModel(BaseApprovalModel):
                 -1.32
                 - 0.407 * np.log(TA.replace(0, np.nan))
                 + 6.03 * (TL / TA)
-                - 1.43 * ((CA - CL) / TA)
-                + 0.0757 * (CL / TL)
-                - 2.37 * (NI < 0).astype(float)
+                - 1.43 * (working_capital / TA)
+                + 0.076 * (CL / CA)
+                - 2.37 * (NI / TA)
             )
 
         # Piotroski F (간이: ROA/CFO/Accrual)
@@ -299,7 +300,7 @@ class CorporateLoanApprovalModel(BaseApprovalModel):
     def _prepare_dataframe(self, company: Dict[str, Any]) -> pd.DataFrame:
         mapping = {
             'current_assets': "Current assets",
-            'current_liabilities': "Total Current Liabilities",
+            'total_current_liabilities': "Total Current Liabilities",
             'retained_earnings': "Retained Earnings",
             'ebit': "EBIT",
             'net_sales': "Net sales",
@@ -311,7 +312,7 @@ class CorporateLoanApprovalModel(BaseApprovalModel):
             'total_receivables': "Total Receivables",
             'market_value': "Market value",
             'gross_profit': "Gross Profit",
-            'long_term_debt': "Total Long-term debt",
+            'total_long_term_debt': "Total Long-term debt",
             'total_revenue': "Total Revenue",
         }
 
@@ -342,6 +343,14 @@ class CorporateLoanApprovalModel(BaseApprovalModel):
             df["Current Ratio"] = CA / CL
             df["Quick Ratio"] = (CA - INV) / CL
             df["Debt to asset ratio"] = TL / TA
+            
+            # 이전 년도 데이터가 없으므로, 성장률/회전율은 임의의 값으로 근사
+            # 실제 시스템에서는 이전 재무 데이터와 비교해야 함
+            # 매출액 증가율 (Sales Growth) - 여기서는 순이익률을 기반으로 근사
+            df["Sales Growth"] = df["Net Profit Margin"] * 0.5 + 0.05 # 5% 기본 성장률 + a
+            
+            # 총자산 회전율 (Asset Turnover)
+            df["Asset Turnover"] = NS / TA
 
         # 점수계산
         df = self._compute_financial_scores(df)
@@ -395,16 +404,33 @@ class CorporateLoanApprovalModel(BaseApprovalModel):
                 return {'credit_score': 480, 'credit_rating': 'D', 'approval_status': 'rejected', 'recommended_limit': 0}
         return None
 
-    @staticmethod
-    def _calc_recommended_limit(score: int, requested_amount: float) -> float:
-        if score >= 800:
-            return min(requested_amount * 1.30, 2_000_000_000)
-        elif score >= 700:
-            return min(requested_amount * 1.15, 1_500_000_000)
-        elif score >= 600:
-            return min(requested_amount * 1.00, 1_000_000_000)
-        else:
-            return min(requested_amount * 0.70,   500_000_000)
+    def _calc_recommended_limit(self, score: int, requested_amount: float, company_data: Dict[str, Any]) -> float:
+        """ 기업 재무상태 기반 추천 한도 산출 """
+        # 1. 재무 지표 기반 기본 한도(Capacity Limit) 설정
+        # EBITDA의 2배, 총자산의 20%, 순매출의 10% 중 가장 보수적인(낮은) 금액을 기준 한도로 설정
+        ebitda = self._parse_number(company_data.get('ebitda', 0))
+        total_assets = self._parse_number(company_data.get('total_assets', 0))
+        net_sales = self._parse_number(company_data.get('net_sales', 0))
+
+        limit_by_ebitda = ebitda * 2.0
+        limit_by_assets = total_assets * 0.2
+        limit_by_sales = net_sales * 0.1
+
+        # 모든 한도 후보가 0 이상이 되도록 보장
+        capacity_limit = min(
+            limit_by_ebitda if limit_by_ebitda > 0 else float('inf'),
+            limit_by_assets if limit_by_assets > 0 else float('inf'),
+            limit_by_sales if limit_by_sales > 0 else float('inf')
+        )
+        if capacity_limit == float('inf'): capacity_limit = 0 # 모든 지표가 0 이하인 경우
+
+        # 2. 신용점수에 따라 한도 조정
+        score_multiplier = 0.7 + (score / 1000) * 0.5  # 700점일 때 약 1.05, 900점일 때 약 1.15
+        adjusted_limit = capacity_limit * score_multiplier
+
+        # 3. 최종 한도 결정: (조정된 한도 vs 신청금액) 중 낮은 금액을 선택하되, 최대 한도를 넘지 않도록 함
+        final_limit = min(adjusted_limit, requested_amount, MAX_LOAN_LIMIT_CORPORATE)
+        return max(0, final_limit) # 최종 한도가 음수가 되지 않도록 보장
 
     def predict(self, customer_data: Dict[str, Any], loan_data: Dict[str, Any]) -> Dict[str, Any]:
         # company == customer_data (기업 맥락)
@@ -433,17 +459,21 @@ class CorporateLoanApprovalModel(BaseApprovalModel):
             result = {
                 'credit_score': score,
                 'credit_rating': self.get_credit_rating(score),
-                'approval_status': 'approved' if score >= 600 else 'rejected',
-                'recommended_limit': self._calc_recommended_limit(score, requested_amount),
+                'approval_status': 'approved' if prob <= 0.5 else 'rejected',
+                'recommended_limit': self._calc_recommended_limit(score, requested_amount, customer_data),
                 'diagnostics': {
-                    'probability': round(prob, 6),
-                    'rating_by_prob': self.get_credit_rating_by_probability(prob),
+                    'probability': round(prob, 6), # 부도 확률
+                    'survival_probability': round(1.0 - prob, 6), # 생존 확률
                 }
             }
             # 진단지표(가능 시)
             for k in ['Altman_Z', 'Ohlson_O', 'Piotroski_F']:
                 if k in base_df.columns:
                     result['diagnostics'][k.lower()] = float(base_df[k].iloc[0])
+            # 파생 비율 진단지표에 추가
+            for k in ["Current Ratio", "Quick Ratio", "Net Profit Margin", "Debt to asset ratio", "ROA", "ROS", "Sales Growth", "Asset Turnover"]:
+                 if k in base_df.columns:
+                    result['diagnostics'][k.lower().replace(" ", "_")] = float(base_df[k].iloc[0])
             return result
 
         except Exception as e:

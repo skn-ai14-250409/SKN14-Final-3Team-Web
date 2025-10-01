@@ -249,8 +249,8 @@
                     }
                     
                     .credit_score_grid {
-                        display: grid;
-                        grid-template-columns: 1fr 2fr;
+                        display: grid; 
+                        grid-template-columns: 1.2fr 2fr; // 왼쪽 컬럼을 살짝 넓혀서 차트를 오른쪽으로 이동
                         padding: ptr(20px) ptr(40px);
                         gap: ptr(20px);
 
@@ -260,7 +260,7 @@
                             justify-content: center;
                             align-items: center;
                             gap: ptr(8px);  
-                            width: ptr(280px);
+                            width: 100%;
 
                             #credit_score_chart_container {
                                 display: flex;
@@ -387,6 +387,61 @@
                             border-top: 1px solid rgba($kb-text-light, 0.2);
                             padding-top: ptr(6px);
                         }
+
+                        .score-distribution {
+                            margin-top: ptr(12px);
+                            padding-top: ptr(12px);
+                            border-top: 1px solid $kb-border-light;
+                            display: flex;
+                            flex-direction: column;
+                            gap: ptr(6px);
+
+                            .score-distribution-item {
+                                display: flex;
+                                align-items: center;
+                                gap: ptr(8px);
+
+                                .label {
+                                    font-size: ptr(10px);
+                                    color: $kb-text-light;
+                                    width: ptr(40px);
+                                    text-align: right;
+                                }
+
+                                .score-distribution-bar {
+                                    flex: 1;
+                                    height: ptr(8px);
+                                    background-color: $kb-background-gray;
+                                    border-radius: ptr(4px);
+                                    overflow: hidden;
+                                    position: relative;
+
+                                    .progress {
+                                        height: 100%;
+                                        border-radius: ptr(4px);
+                                        background-color: $kb-border;
+                                        transition: width 0.5s ease-out;
+                                        width: 0%;
+                                    }
+
+                                    &.active {
+                                        .progress {
+                                            &.low { background-color: #ef4444; }
+                                            &.medium { background-color: #f59e0b; }
+                                            &.normal { background-color: #84cc16; }
+                                            &.good { background-color: #22c55e; }
+                                            &.excellent { background-color: #10b981; }
+                                        }
+                                    }
+                                }
+
+                                .range {
+                                    font-size: ptr(10px);
+                                    color: $kb-text-light;
+                                    width: ptr(60px);
+                                }
+                            }
+                        }
                     }
 
                     // 위험도 분석 (레이더 차트) - 신용점수와 동일한 구조
@@ -412,6 +467,12 @@
                         #risk_analysis_chart_container {
                             width: 100%;
                             height: ptr(200px); // 차트가 그려질 높이를 명시적으로 지정
+                            overflow: visible;
+                        }
+
+                        #corporate_risk_analysis_chart_container {
+                            width: ptr(340px);
+                            height: ptr(320px);
                             overflow: visible;
                         }
                     }

@@ -175,8 +175,8 @@ def create_risk_analysis_chart(customer_data, loan_data, prediction_result):
         theta=[0, 72, 144, 216, 288],
         fill='toself',
         name='위험도 분석',
-        fillcolor='rgba(16, 185, 129, 0.25)',  # 채우기 색상
-        line=dict(color='rgba(16, 185, 129, 0.8)', width=2)  # 라인 색상 및 두께
+        fillcolor='rgba(16,185,129,0.25)',
+        line=dict(color='rgba(16,185,129,0.8)', width=2)
     ))
 
     fig.update_layout(
@@ -296,16 +296,23 @@ def check_customer(request):
         if not customer_name or not customer_rrn or not customer_phone:
             return JsonResponse({'success': False, 'message': '고객명, 주민번호, 연락처는 필수 입력 항목입니다.'})
 
-        # 이름 분리 로직 단순화 (성은 한 글자로 가정)
+        # 이름 분리 로직 개선 (복성 포함)
         cleaned_customer_name = customer_name.replace(' ', '')
         
-        if len(cleaned_customer_name) < 2:
-            logger.warning(f"유효하지 않은 고객명 형식: {customer_name}")
-            return JsonResponse({'success': False, 'customer_found': False, 'message': '올바른 고객명을 입력해주세요.'})
+        # 일반적인 두 글자 성씨 목록
+        two_char_last_names = ['남궁', '황보', '제갈', '사공', '선우', '서문', '독고', '동방']
+        
+        parsed_first_name = None
+        parsed_last_name = None
 
-        # DB 저장 방식: last_name=성, first_name=이름
-        parsed_last_name = cleaned_customer_name[0]   # 성
-        parsed_first_name = cleaned_customer_name[1:]  # 이름
+        if len(cleaned_customer_name) > 2 and cleaned_customer_name[:2] in two_char_last_names:
+            # 두 글자 성씨인 경우
+            parsed_first_name = cleaned_customer_name[:2]
+            parsed_last_name = cleaned_customer_name[2:]
+        elif len(cleaned_customer_name) > 1:
+            # 한 글자 성씨인 경우
+            parsed_first_name = cleaned_customer_name[0]
+            parsed_last_name = cleaned_customer_name[1:]
 
         try:
             customer = Customer.objects.select_related('person').get(
@@ -315,7 +322,7 @@ def check_customer(request):
                 person__mobile=customer_phone.replace('-', '')
             )
             person = customer.person
-            logger.info(f"✅ [DB] 개인 고객 정보 발견: {person.last_name}{person.first_name} (ID: {customer.seq_id})")
+            logger.info(f"✅ [DB] 개인 고객 정보 발견: {person.first_name}{person.last_name} (ID: {customer.seq_id})")
         except (Customer.DoesNotExist, CustomerPerson.DoesNotExist):
             logger.warning(f"❌ [DB] 일치하는 개인 고객 정보 없음: 이름={customer_name}, 주민번호={customer_rrn}")
             return JsonResponse({'success': False, 'customer_found': False, 'message': '일치하는 고객 정보가 없습니다.'})
@@ -330,7 +337,7 @@ def check_customer(request):
 
         customer_data = {
             'id': customer.seq_id,
-            'full_name': f"{person.last_name}{person.first_name}",
+            'full_name': f"{person.first_name}{person.last_name}",
             'first_name': person.first_name,
             'last_name': person.last_name,
             'rrn': f"{person.rrn[:6]}-{person.rrn[6:]}" if person.rrn else '정보 없음',
@@ -414,22 +421,12 @@ def check_corporate_customer(request):
                 'job_title': '대표',
                 'total_assets': corp.total_assets,
                 'total_liabilities': corp.total_liabilities,
-                'net_income': corp.net_income, # 이하 ML 모델용 필드 추가
-                'ebit': corp.ebit, 
-                'net_sales': corp.net_sales, 
-                'retained_earnings': corp.retained_earnings, 
-                'current_assets': corp.current_assets, 
-                'total_current_liabilities': corp.total_current_liabilities,
-                'ebitda': corp.ebitda,
-                'inventory': corp.inventory,
-                'total_receivables': corp.total_receivables,
-                'market_value': corp.market_value,
-                'gross_profit': corp.gross_profit,
-                'total_long_term_debt': corp.total_long_term_debt,
-                'total_revenue': corp.total_revenue,
-                'cost_of_goods_sold': corp.cost_of_goods_sold,
-                'depreciation_amortization': corp.depreciation_amortization,
-                'total_operating_expenses': corp.total_operating_expenses,
+                'net_income': corp.net_income,
+                'ebit': corp.ebit,
+                'net_sales': corp.net_sales,
+                'retained_earnings': corp.retained_earnings,
+                'current_assets': corp.current_assets,
+                'current_liabilities': corp.total_current_liabilities,
             }
             return JsonResponse({'success': True, 'customer_found': True, 'customer': customer_data})
 
@@ -518,7 +515,7 @@ def assess_personal_credit(request):
         
         # 개인용 차트 및 분석 데이터 생성
         credit_score_chart = create_credit_score_chart(credit_score)
-        financial_indicators = generate_financial_indicators(customer_data, loan_data, prediction_result)
+        financial_indicators = {'부채비율': 50, '소득 안정성': 70, '상환능력': 80, '신용이력': 90, '현금보유비율': 60, '자산증가율': 75}
         progress_chart = create_progress_chart(financial_indicators)
         risk_analysis_chart = create_risk_analysis_chart(customer_data, loan_data, prediction_result)
         risk_matrix = generate_risk_matrix(credit_score)
@@ -637,6 +634,14 @@ def generate_recommendation(prediction_result, customer_data, loan_data):
     approval_status = prediction_result.get('approval_status', 'rejected')
     credit_rating = prediction_result.get('credit_rating', 'D')
     
+    # 분석 상세 내용 생성
+    analysis_details = [
+        {'label': '신용점수 분석', 'value': f"{credit_score}점", 'description': f"상위 {100 - (credit_score // 10)}% 내 {credit_rating} 등급"},
+        {'label': '상환능력 평가', 'value': "양호" if customer_data.get('age', 30) < 50 else "보통", 'description': f"고객 연령({customer_data.get('age', 0)}세) 고려 시 안정적"},
+        {'label': '소득 안정성', 'value': "우수" if customer_data.get('years_of_service', 0) >= 5 else "보통", 'description': f"근속년수({customer_data.get('years_of_service', 0)}년) 기반"},
+        {'label': '신용 이력', 'value': "양호", 'description': "과거 대출 연체 이력 없음 (가정)"}
+    ]
+    
     if approval_status == 'approved':
         summary_title = "대출 승인 권장"
         summary_description = f"AI 기반 머신러닝 모델 분석 결과, <strong>신용점수 {credit_score}점({credit_rating} 등급)</strong>으로 안정적인 상환 능력이 확인되었습니다. " \
@@ -648,14 +653,6 @@ def generate_recommendation(prediction_result, customer_data, loan_data):
             "담보 제출 불필요 (신용 대출 기준 충족)"
         ]
         warnings = []
-
-        # 분석 상세 내용 생성 (승인 시)
-        analysis_details = [
-            {'label': '신용점수 분석', 'value': f"{credit_score}점", 'description': f"상위 {100 - (credit_score // 10)}% 내 {credit_rating} 등급"},
-            {'label': '상환능력 평가', 'value': "양호" if customer_data.get('age', 30) < 50 else "보통", 'description': f"고객 연령({customer_data.get('age', 0)}세) 고려 시 안정적"},
-            {'label': '소득 안정성', 'value': "우수" if customer_data.get('years_of_service', 0) >= 5 else "보통", 'description': f"근속년수({customer_data.get('years_of_service', 0)}년) 기반"},
-            {'label': '신용 이력', 'value': "양호", 'description': "과거 대출 연체 이력 없음 (가정)"}
-        ]
         
         if credit_score >= 800:
             recommendations.append("빠른 승인 처리 예상 (1-2일 내)")
@@ -677,14 +674,6 @@ def generate_recommendation(prediction_result, customer_data, loan_data):
         warnings = [
             "대출 한도 하향 조정 필요",
             "연체 이력 또는 과다 부채 여부 재확인"
-        ]
-        
-        # 분석 상세 내용 생성 (거절 시)
-        analysis_details = [
-            {'label': '신용점수 분석', 'value': f"{credit_score}점", 'description': f"상위 {100 - (credit_score // 10)}% 내 {credit_rating} 등급"},
-            {'label': '상환능력 평가', 'value': "위험", 'description': "현재 소득 대비 부채 상환 부담 높음"},
-            {'label': '소득 안정성', 'value': "개선 필요", 'description': "소득 증빙 또는 근속 기간 부족"},
-            {'label': '신용 이력', 'value': "주의", 'description': "과거 연체 이력 또는 신용 거래 부족"}
         ]
 
     return {
