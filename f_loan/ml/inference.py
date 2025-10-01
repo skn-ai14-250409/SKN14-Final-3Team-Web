@@ -4,6 +4,7 @@ import joblib
 import numpy as np
 import pandas as pd
 import logging
+import lightgbm as lgbm
 from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger(__name__)
@@ -69,8 +70,19 @@ class BaseApprovalModel:
 
     @staticmethod
     def _prob_to_score(prob: float) -> int:
-        # 부도 확률(prob)이 아닌, 생존 확률(1-prob)을 점수화
-        return max(0, min(1000, int((1.0 - float(prob)) * 1000)))
+        # 부도 확률(prob)을 신용점수로 변환
+        # prob가 낮을수록(부도 확률이 낮을수록) 높은 점수
+        # prob = 0.1 (10% 부도) -> 900점
+        # prob = 0.5 (50% 부도) -> 500점  
+        # prob = 0.9 (90% 부도) -> 100점
+        survival_prob = 1.0 - float(prob)
+        score = max(0, min(1000, int(survival_prob * 1000)))
+        
+        # 0점이 나오면 100점으로 대체 (최소 보장 점수)
+        if score == 0:
+            return 100
+        
+        return score
 
     # 하위 클래스에서 오버라이드
     def predict(self, customer_data: Dict[str, Any], loan_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -243,9 +255,21 @@ class CorporateLoanApprovalModel(BaseApprovalModel):
 
     def _ensure_loaded(self) -> None:
         try:
+            # 파일 존재 여부 확인
+            if not os.path.exists(self.model_path):
+                raise FileNotFoundError(f"모델 파일이 존재하지 않습니다: {self.model_path}")
+            if not os.path.exists(self.scaler_path):
+                raise FileNotFoundError(f"스케일러 파일이 존재하지 않습니다: {self.scaler_path}")
+            
             self._model = joblib.load(self.model_path)
             self._scaler = joblib.load(self.scaler_path)
             logger.info("[Corporate] 모델/스케일러 로딩 성공")
+            logger.info(f"[Corporate] 모델 타입: {type(self._model)}")
+            logger.info(f"[Corporate] 스케일러 타입: {type(self._scaler)}")
+        except FileNotFoundError as e:
+            logger.error(f"[Corporate] 파일 없음: {e}")
+            self._model = None
+            self._scaler = None
         except Exception as e:
             logger.error(f"[Corporate] 모델 로드 실패: {e}")
             self._model = None
@@ -395,12 +419,14 @@ class CorporateLoanApprovalModel(BaseApprovalModel):
             logger.warning(f"[기업] 최대 대출 한도 초과: {requested_amount} > {MAX_LOAN_LIMIT_CORPORATE}")
             return {'credit_score': 450, 'credit_rating': 'D', 'approval_status': 'rejected', 'recommended_limit': 0}
 
-        # 총자산 대비 요청액
+        # 총자산 대비 요청액 (조건 완화: 80%로 상향)
         total_assets = self._parse_number(company.get('Total assets') or company.get('total_assets'), default=0.0)
+        logger.info(f"[기업] 가드레일 체크 - 총자산: {total_assets:,}, 대출신청액: {requested_amount:,}")
         if total_assets > 0:
             ratio = requested_amount / total_assets
-            if ratio > MAX_LOAN_TO_ASSETS_CORP:
-                logger.warning(f"[기업] 총자산 대비 과도: {ratio:.2f} > {MAX_LOAN_TO_ASSETS_CORP}")
+            logger.info(f"[기업] 자산 대비 대출 비율: {ratio:.2%}")
+            if ratio > 0.8:  # 80%로 상향 조정
+                logger.warning(f"[기업] 총자산 대비 과도: {ratio:.2f} > 0.8")
                 return {'credit_score': 480, 'credit_rating': 'D', 'approval_status': 'rejected', 'recommended_limit': 0}
         return None
 
@@ -432,18 +458,80 @@ class CorporateLoanApprovalModel(BaseApprovalModel):
         final_limit = min(adjusted_limit, requested_amount, MAX_LOAN_LIMIT_CORPORATE)
         return max(0, final_limit) # 최종 한도가 음수가 되지 않도록 보장
 
+    def _rule_based_assessment(self, customer_data: Dict[str, Any], loan_data: Dict[str, Any]) -> float:
+        """ML 모델이 없을 때 사용하는 규칙 기반 평가"""
+        try:
+            # 재무 지표 추출
+            total_assets = self._parse_number(customer_data.get('total_assets', 0))
+            total_liabilities = self._parse_number(customer_data.get('total_liabilities', 0))
+            net_income = self._parse_number(customer_data.get('net_income', 0))
+            current_assets = self._parse_number(customer_data.get('current_assets', 0))
+            total_current_liabilities = self._parse_number(customer_data.get('total_current_liabilities', 0))
+            requested_amount = self._parse_number(loan_data.get('amount', 0))
+            
+            # 기본 확률 (0.3 = 30% 부도 확률)
+            prob = 0.3
+            
+            # 1. 자산 대비 부채 비율 체크
+            if total_assets > 0:
+                debt_ratio = total_liabilities / total_assets
+                if debt_ratio > 0.8:  # 부채 비율 80% 초과
+                    prob += 0.3
+                elif debt_ratio > 0.6:  # 부채 비율 60% 초과
+                    prob += 0.15
+                elif debt_ratio < 0.3:  # 부채 비율 30% 미만 (양호)
+                    prob -= 0.1
+            
+            # 2. 유동성 비율 체크
+            if total_current_liabilities > 0:
+                current_ratio = current_assets / total_current_liabilities
+                if current_ratio < 1.0:  # 유동성 부족
+                    prob += 0.2
+                elif current_ratio > 2.0:  # 유동성 양호
+                    prob -= 0.1
+            
+            # 3. 수익성 체크
+            if total_assets > 0:
+                roa = net_income / total_assets
+                if roa < 0:  # 손실
+                    prob += 0.25
+                elif roa > 0.1:  # ROA 10% 이상 (양호)
+                    prob -= 0.15
+            
+            # 4. 대출 신청액 대비 자산 비율
+            if total_assets > 0:
+                loan_to_assets = requested_amount / total_assets
+                if loan_to_assets > 0.5:  # 자산의 50% 초과
+                    prob += 0.2
+                elif loan_to_assets < 0.1:  # 자산의 10% 미만
+                    prob -= 0.1
+            
+            # 확률 범위 제한 (0.1 ~ 0.9)
+            prob = max(0.1, min(0.9, prob))
+            
+            logger.info(f"[기업] 규칙 기반 평가 결과: 부도확률={prob:.3f}")
+            return prob
+            
+        except Exception as e:
+            logger.error(f"[기업] 규칙 기반 평가 오류: {e}")
+            return 0.5  # 기본값
+
     def predict(self, customer_data: Dict[str, Any], loan_data: Dict[str, Any]) -> Dict[str, Any]:
         # company == customer_data (기업 맥락)
-        early = self._guardrails(customer_data, loan_data)
-        if early is not None:
-            return early
+        # 기업 심사에서는 가드레일 제거 - ML 모델 기반으로만 평가
+        # early = self._guardrails(customer_data, loan_data)
+        # if early is not None:
+        #     return early
 
         requested_amount = self._parse_number(loan_data.get('amount', 0))
         try:
             if self._model is None or self._scaler is None:
-                prob = 0.75
+                logger.warning("[기업] ML 모델이 로드되지 않음 - 기본 규칙 기반 평가 수행")
+                # 기본 규칙 기반 평가 (재무 데이터 기반)
                 base_df = self._prepare_dataframe(customer_data)
+                prob = self._rule_based_assessment(customer_data, loan_data)
             else:
+                logger.info("[기업] ML 모델을 사용한 예측 수행")
                 base_df = self._prepare_dataframe(customer_data)
                 cols = self._resolve_feature_order(base_df)
                 # 누락 0 채우고 정렬
