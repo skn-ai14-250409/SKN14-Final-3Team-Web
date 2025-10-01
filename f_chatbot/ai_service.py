@@ -17,7 +17,7 @@ class AIService:
         
         # 기본값 설정
         self.default_timeout = self.timeouts.get('DEFAULT', 60)
-        self.langgraph_timeout = self.timeouts.get('LANGGRAPH', 60)
+        self.langgraph_timeout = self.timeouts.get('LANGGRAPH', 120)
         self.health_timeout = self.timeouts.get('HEALTH_CHECK', 5)
         self.prompt_key = self.request_params.get('PROMPT_KEY', 'prompt')
     
@@ -63,6 +63,11 @@ class AIService:
             
             # 대화 히스토리 전송 (LangGraph에서 컨텍스트로 사용)
             if chat_history and len(chat_history) > 0:
+                # 히스토리가 너무 길면 최근 메시지만 전송 (메모리 절약)
+                if len(chat_history) > 30:
+                    chat_history = chat_history[-30:]
+                    logger.info(f"[LANGGRAPH] Truncated chat history to last 30 messages")
+                
                 request_data['chat_history'] = chat_history
                 logger.info(f"[LANGGRAPH] Sending chat history: {len(chat_history)} messages")
                 for i, msg in enumerate(chat_history):
@@ -312,10 +317,11 @@ class AIService:
                 }
                 
         except requests.exceptions.Timeout:
-            logger.error(f"LangGraph RAG 요청 시간 초과 {self.langgraph_timeout}초)")
+            logger.error(f"LangGraph RAG 요청 시간 초과 ({self.langgraph_timeout}초)")
+            logger.error(f"대화 턴 수가 많아서 처리 시간이 초과되었을 수 있습니다.")
             return {
                 'success': False,
-                'response': f'실험용 LangGraph RAG 응답 시간 초과 ({self.langgraph_timeout}초).',
+                'response': f'대화가 길어져서 응답 시간이 초과되었습니다 ({self.langgraph_timeout}초). 잠시 후 다시 시도해주세요.',
                 'sources': [],
                 'category': 'error',
                 'product_name': '',
