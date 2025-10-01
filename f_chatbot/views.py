@@ -97,7 +97,7 @@ def chat_api(request):
         # 기존 대화 히스토리 조회 (AI 서버용)
         existing_messages = UChatbotSession.objects.filter(
             chatbot_history=chatbot_history
-        ).order_by('sent_at')[:20]  # 최근 20개만
+        ).order_by('sent_at')[:50]  # 최근 50개로 증가
         
         chat_history = []
         for msg in existing_messages:

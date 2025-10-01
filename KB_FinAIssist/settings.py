@@ -181,8 +181,8 @@ FASTAPI_CONFIG = {
         'HEALTH': '/health'
     },
     'TIMEOUTS': {
-        'DEFAULT': 60,
-        'LANGGRAPH': 60,
+        'DEFAULT': 120,
+        'LANGGRAPH': 120,
         'HEALTH_CHECK': 5
     },
     'REQUEST_PARAMS': {
