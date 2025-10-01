@@ -283,9 +283,9 @@ class CorporateLoanApprovalModel(BaseApprovalModel):
                 -1.32
                 - 0.407 * np.log(TA.replace(0, np.nan))
                 + 6.03 * (TL / TA)
-                - 1.43 * ((CA - CL) / TA)
-                + 0.0757 * (CL / TL)
-                - 2.37 * (NI < 0).astype(float)
+                - 1.43 * (working_capital / TA)
+                + 0.076 * (CL / CA)
+                - 2.37 * (NI / TA)
             )
 
         # Piotroski F (간이: ROA/CFO/Accrual)
@@ -300,7 +300,7 @@ class CorporateLoanApprovalModel(BaseApprovalModel):
     def _prepare_dataframe(self, company: Dict[str, Any]) -> pd.DataFrame:
         mapping = {
             'current_assets': "Current assets",
-            'current_liabilities': "Total Current Liabilities",
+            'total_current_liabilities': "Total Current Liabilities",
             'retained_earnings': "Retained Earnings",
             'ebit': "EBIT",
             'net_sales': "Net sales",
@@ -312,7 +312,7 @@ class CorporateLoanApprovalModel(BaseApprovalModel):
             'total_receivables': "Total Receivables",
             'market_value': "Market value",
             'gross_profit': "Gross Profit",
-            'long_term_debt': "Total Long-term debt",
+            'total_long_term_debt': "Total Long-term debt",
             'total_revenue': "Total Revenue",
         }
 
